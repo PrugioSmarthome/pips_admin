@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.standardCode.StandardCodeMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="StandardCode" type="com.daewooenc.pips.admin.web.domain.dto.standardCode.StandardCode"></resultMap>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 공통코드 관리 > 공통코드 목록 -->
+	<select id="selectStandardCodeList" parameterType="StandardCode" resultMap="StandardCode">
+		SELECT /* StandardCodeMapper.xml.selectStandardCodeList */
+			tccb.comm_cd_grp_nm, tccb.comm_cd_grp_cd, tccd.comm_cd_nm, tccd.comm_cd, tccd.rem
+		FROM
+			T_COMM_CD_BAS tccb, T_COMM_CD_DTL tccd
+		WHERE
+			tccb.comm_cd_grp_cd = tccd.comm_cd_grp_cd
+		<if test="commCdGrpCd != null and commCdGrpCd != ''">
+		AND
+			tccd.comm_cd_grp_cd = #{commCdGrpCd}
+		</if>
+		<if test="commCd != null and commCd != ''">
+		AND
+			tccd.comm_cd = #{commCd}
+		</if>
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 공통코드 관리 > 공통코드 목록 > 그룹코드 이름 리스트 -->
+	<select id="selectGroupStandardCodeNameList" resultMap="StandardCode">
+		SELECT /* StandardCodeMapper.xml.selectGroupStandardCodeNameList */
+			DISTINCT comm_cd_grp_cd, ifnull(comm_cd_grp_nm, ' ') as comm_cd_grp_nm
+		FROM
+			T_COMM_CD_BAS
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 공통코드 관리 >  공통코드 목록 > 공통코드 이름 리스트 -->
+	<select id="selectStandardCodeNameList" parameterType="StandardCode" resultMap="StandardCode">
+		SELECT /* StandardCodeMapper.xml.selectStandardCodeNameList */
+			comm_cd_nm, comm_cd
+		FROM
+			T_COMM_CD_DTL
+		WHERE
+			comm_cd_grp_cd = #{commCdGrpCd}
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 공통코드 관리 >  공통코드 목록 > 공통코드 삭제 -->
+	<delete id="deleteStandardCode" parameterType="StandardCode">
+		DELETE FROM /* StandardCodeMapper.xml.deleteStandardCode */
+			T_COMM_CD_DTL
+		WHERE
+			comm_cd_grp_cd = #{commCdGrpCd}
+		AND
+			comm_cd = #{commCd}
+	</delete>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 공통코드 관리 >  공통코드 등록 > 공통코드 중복 체크 -->
+	<select id="checkStandardCode" parameterType="StandardCode" resultType="int">
+		SELECT /* StandardCodeMapper.xml.checkStandardCode */
+			COUNT(*)
+		FROM
+			T_COMM_CD_DTL
+		WHERE
+			COMM_CD_GRP_CD = #{commCdGrpCd}
+		AND
+			COMM_CD = #{commCd}
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 공통코드 관리 >  공통코드 등록 > 등록 -->
+	<insert id="insertStandardCode" parameterType="StandardCode">
+		INSERT INTO /* StandardCodeMapper.xml.insertStandardCode */
+			T_COMM_CD_DTL
+		(
+			COMM_CD_NM,
+			REM,
+			CRER_ID,
+			CR_DT,
+			COMM_CD,
+			COMM_CD_GRP_CD
+		) VALUES (
+			#{commCdNm},
+			#{rem},
+			#{crerId},
+			NOW(),
+			#{commCd},
+			#{commCdGrpCd}
+		)
+	</insert>
+
+	<select id="selectStandardCodeEdit" parameterType="StandardCode" resultMap="StandardCode">
+		SELECT /* StandardCodeMapper.xml.selectStandardCodeEdit */
+			tccb.comm_cd_grp_nm, tccd.comm_cd_grp_cd, tccd.comm_cd, tccd.comm_cd_nm, tccd.rem
+		FROM
+			T_COMM_CD_BAS tccb, T_COMM_CD_DTL tccd
+		WHERE
+			tccb.comm_cd_grp_cd = tccd.comm_cd_grp_cd
+		AND
+			tccd.COMM_CD_GRP_CD = #{commCdGrpCd}
+		AND
+			tccd.COMM_CD = #{commCd}
+	</select>
+
+	<update id="updateStandardCode" parameterType="StandardCode">
+		UPDATE /* StandardCodeMapper.xml.updateStandardCode */
+			T_COMM_CD_DTL
+		SET
+			comm_cd_grp_cd = #{commCdGrpCd},
+			comm_cd = #{commCd},
+			comm_cd_nm = #{commCdNm},
+			rem = #{rem},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE
+			comm_cd_grp_cd = #{commCdGrpCdDB}
+		AND
+			comm_cd = #{commCdDB}
+
+	</update>
+
+</mapper>

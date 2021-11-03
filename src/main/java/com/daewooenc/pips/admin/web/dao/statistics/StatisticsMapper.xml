@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.statistics.StatisticsMapper">
+    <!-- 기본 dto 정의 -->
+    <resultMap id="Statistics" type="com.daewooenc.pips.admin.web.domain.dto.statistics.Statistics"></resultMap>
+
+    <!-- 시스템 관리자 : 통계 > 입주민 현황 통계 > 입주민 현황 목록 -->
+    <select id="selectSystemStatisticsList" parameterType="Statistics" resultMap="Statistics">
+        SELECT /* StatisticsMapper.xml.selectSystemStatisticsList */
+            d.HOUSCPLX_NM AS HOUSCPLX_NM, d.hold_cnt AS hold_cnt, e.hold_user_cnt AS hold_user_cnt, d.user_cnt AS user_cnt FROM (
+        SELECT a.houscplx_cd, a.HOUSCPLX_NM, a.hold_cnt , b.user_cnt
+        FROM (
+        SELECT t_hshold_bas.houscplx_cd,t_houscplx_bas.HOUSCPLX_NM, COUNT(*) hold_cnt
+        FROM t_hshold_bas LEFT OUTER JOIN t_houscplx_bas ON t_hshold_bas.HOUSCPLX_CD =t_houscplx_bas.HOUSCPLX_CD
+        WHERE t_houscplx_bas.del_yn='N' AND t_houscplx_bas.houscplx_cd NOT IN ('000001','000002', '000003','000004','000005','999999')
+        GROUP BY houscplx_cd
+        ) A LEFT OUTER JOIN
+        (
+        SELECT houscplx_cd, COUNT(*) user_cnt
+        FROM (
+        SELECT SUBSTR(hshold_id, 1, 6) houscplx_cd
+        FROM t_hshold_user_item
+        WHERE del_yn='N' AND appr_sts_cd='APPROVAL'
+        ) a
+        WHERE houscplx_cd NOT IN ('000001','000002', '000003','000004','000005','999999')
+        GROUP BY houscplx_cd
+        ) B ON A.houscplx_cd = B.houscplx_cd
+        ) d LEFT OUTER JOIN
+        (
+        SELECT houscplx_cd, COUNT(*) hold_user_cnt
+        FROM (
+        SELECT distinct SUBSTR(hshold_id, 1, 6) houscplx_cd, SUBSTR(hshold_id, 8, 4) dong, SUBSTR(hshold_id, 13, 4) ho
+        FROM t_hshold_user_item
+        WHERE del_yn='N'  AND appr_sts_cd='APPROVAL'
+        ORDER BY houscplx_cd, dong, ho
+        ) a
+        WHERE houscplx_cd NOT IN ('000001','000002', '000003','000004','000005','999999')
+        GROUP BY houscplx_cd
+        ) e ON d.houscplx_cd=e.houscplx_cd;
+    </select>
+
+</mapper>

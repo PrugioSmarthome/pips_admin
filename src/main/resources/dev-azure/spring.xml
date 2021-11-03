@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- **************************************************************** -->
+	<!-- SPRING ANNOTATION PROCESSING -->
+	<!-- **************************************************************** -->
+	<context:component-scan base-package="com.daewooenc.pips.admin" />
+
+	<bean id="environmentVariablesConfiguration" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		<property name="algorithm" value="PBEWITHMD5ANDDES"/>
+		<property name="passwordEnvName" value="WEB_BASE_KEY"/>
+	</bean>
+	<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+		<property name="config" ref="environmentVariablesConfiguration"/>
+	</bean>
+	<bean id="propertyConfig" class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer">
+		<constructor-arg ref="configurationEncryptor"/>
+		<property name="location" value="classpath:application.properties"/>
+	</bean>
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:messages</value>
+				<value>/WEB-INF/message/errorMessages</value>
+			</list>
+		</property>
+		<property name="cacheSeconds" value="100000" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+	<bean id="messageSourceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
+		<constructor-arg ref="messageSource"/>
+	</bean>
+	<bean id="message" class="com.daewooenc.pips.admin.core.util.message.MessageUtil">
+		<property name="messageSourceAccessor" ref="messageSourceAccessor"></property>
+	</bean>
+
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+
+	<!-- 세션 저장소 지정 -->
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	  <property name="staticMethod" value="com.daewooenc.pips.admin.core.util.SessionUtil.initProvider" />
+	</bean>
+
+	<!-- **************************************************************** -->
+	<!-- Include Spring Environment -->
+	<!-- **************************************************************** -->
+	<!-- Spring MVC -->
+	<import resource="mvc-config.xml" />
+
+	<!-- Interceptor -->
+	<import resource="interceptor-config.xml" />
+
+	<!-- Exception -->
+	<import resource="exception-config.xml" />
+
+	<!-- Ehcache -->
+	<import resource="cache-config.xml" />
+
+	<!-- JDBC -->
+	<import resource="jdbc-config.xml" />
+
+	<!-- MongoDB -->
+	<import resource="mongo-config.xml" />
+
+	<!-- Batch Job -->
+	<import resource="batch-job-config.xml" />
+
+	<!-- RabbitMQ -->
+	<!--
+	<import resource="amqp-config.xml" />
+	-->
+</beans>

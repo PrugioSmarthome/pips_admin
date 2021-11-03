@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.weather.WeatherMapper">
+
+	<select id="getWeatherLocationList" resultType="com.daewooenc.pips.admin.web.domain.dto.weather.WeatherLocation">
+		SELECT /* WeatherMapper.xml.getWeatherLocationList */
+			wr_meas_x_coor_no, wr_meas_y_coor_no
+		FROM t_houscplx_bas
+		WHERE del_yn = 'N'
+		GROUP BY wr_meas_x_coor_no, wr_meas_y_coor_no
+    </select>
+
+	<select id="getSpecialWeatherLocationList" resultType="com.daewooenc.pips.admin.web.domain.dto.weather.SpecialWeatherLocation">
+		SELECT /* WeatherMapper.xml.getSpecialWeatherLocationList */
+			area_cd
+		FROM t_area_cd_bas
+    </select>
+
+	<update id="setWeatherDataInit">
+		TRUNCATE TABLE /* WeatherMapper.xml.setWeatherDataInit */ t_wr_bas
+	</update>
+	<update id="updateCurrentSkyStatus" parameterType="com.daewooenc.pips.admin.web.domain.dto.weather.Weather">
+		UPDATE  /* WeatherMapper.xml.updateCurrentSkyStatus */
+			t_wr_bas
+		SET
+			sky_sts_cd=#{skyStsCd}
+		WHERE
+			wr_meas_x_coor_no=#{wrMeasXCoorNo}
+			AND wr_meas_y_coor_no=#{wrMeasYCoorNo}
+			AND wr_tp_cd=#{wrTpCd, jdbcType=VARCHAR}
+	</update>
+
+	<insert id="insertWeatherData" parameterType="java.util.List">
+		INSERT /* WeatherMapper.xml.insertWeatherData */ INTO
+		T_WR_BAS
+		(
+		wr_meas_x_coor_no,
+		wr_meas_y_coor_no,
+		prsnt_ymd,
+		prsnt_time,
+		fcast_ymd,
+		fcast_time,
+		wr_tp_cd,
+		rain_probab,
+		rain_tp_cd,
+		hmdt_qty,
+		sky_sts_cd,
+		hgst_temp_qty,
+		widrt_cd,
+		wind_qty,
+		lwst_temp_qty,
+		cur_temp_qty,
+		crer_id,
+		cr_dt
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.wrMeasXCoorNo},
+			#{item.wrMeasYCoorNo},
+			#{item.prsntYmd},
+			#{item.prsntTime},
+			#{item.fcastYmd},
+			#{item.fcastTime},
+			#{item.wrTpCd},
+			#{item.rainProbab},
+			#{item.rainTpCd},
+			#{item.hmdtQty},
+			#{item.skyStsCd},
+			#{item.hgstTempQty},
+			#{item.widrtCd},
+			#{item.windQty},
+			#{item.lwstTempQty},
+			#{item.curTempQty},
+			'batch',
+			NOW()
+			)
+		</foreach>
+	</insert>
+
+	<insert id="insertSpecialWeatherData" parameterType="java.util.List">
+		INSERT /* WeatherMapper.xml.insertSpecialWeatherData */ INTO
+			T_WR_WARN_BAS
+		(
+		tm_fc,
+		area_cd,
+		area_nm,
+		weather_warn_to_cd,
+		weather_warn_stress,
+		command,
+		weather_warn_time,
+		cr_dt,
+		crer_id
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.tmFc},
+			#{item.areaCd},
+			#{item.areaNm},
+			#{item.weatherWarnToCd},
+			#{item.weatherWarnStress},
+			#{item.command},
+			#{item.weatherWarnTime},
+			NOW(),
+			'batch'
+			)
+		</foreach>
+	</insert>
+
+	<update id="updateForecast" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" separator=";">
+			INSERT /* WeatherMapper.xml.updateForecast */ INTO
+			T_WR_BAS
+			(
+				wr_meas_x_coor_no,
+				wr_meas_y_coor_no,
+				prsnt_ymd,
+				prsnt_time,
+				fcast_ymd,
+				fcast_time,
+				wr_tp_cd,
+				rain_probab,
+				rain_tp_cd,
+				hmdt_qty,
+				sky_sts_cd,
+				hgst_temp_qty,
+				widrt_cd,
+				wind_qty,
+				lwst_temp_qty,
+				cur_temp_qty,
+				crer_id,
+				cr_dt
+			)
+			VALUES
+			(
+				#{item.wrMeasXCoorNo},
+				#{item.wrMeasYCoorNo},
+				#{item.prsntYmd},
+				#{item.prsntTime},
+				#{item.fcastYmd},
+				#{item.fcastTime},
+				#{item.wrTpCd},
+				#{item.rainProbab},
+				#{item.rainTpCd},
+				#{item.hmdtQty},
+				#{item.skyStsCd},
+				#{item.hgstTempQty},
+				#{item.widrtCd},
+				#{item.windQty},
+				#{item.lwstTempQty},
+				#{item.curTempQty},
+				'batch',
+				NOW()
+			)
+			ON DUPLICATE KEY UPDATE
+				cr_dt=now(),
+				prsnt_ymd=#{item.prsntYmd},
+				prsnt_time=#{item.prsntTime},
+				rain_probab=#{item.rainProbab},
+				rain_tp_cd=#{item.rainTpCd},
+				hmdt_qty=#{item.hmdtQty},
+				sky_sts_cd=#{item.skyStsCd},
+				hgst_temp_qty=#{item.hgstTempQty},
+				widrt_cd=#{item.widrtCd},
+				wind_qty=#{item.windQty},
+				lwst_temp_qty=#{item.lwstTempQty},
+				cur_temp_qty=#{item.curTempQty}
+		</foreach>
+	</update>
+
+
+
+	<update id="updateForecast_bak" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" separator=";">
+			UPDATE  /* WeatherMapper.xml.updateForecast */
+			t_wr_bas
+			SET
+			cr_dt=now(),
+			prsnt_ymd=#{item.prsntYmd},
+			prsnt_time=#{item.prsntTime},
+			rain_probab=#{item.rainProbab},
+			rain_tp_cd=#{item.rainTpCd},
+			hmdt_qty=#{item.hmdtQty},
+			sky_sts_cd=#{item.skyStsCd},
+			hgst_temp_qty=#{item.hgstTempQty},
+			widrt_cd=#{item.widrtCd},
+			wind_qty=#{item.windQty},
+			lwst_temp_qty=#{item.lwstTempQty},
+			cur_temp_qty=#{item.curTempQty}
+			WHERE 1=1
+			AND	wr_meas_x_coor_no=#{item.wrMeasXCoorNo}
+			AND wr_meas_y_coor_no=#{item.wrMeasYCoorNo}
+			AND wr_tp_cd=#{item.wrTpCd, jdbcType=VARCHAR}
+			AND fcast_ymd=#{item.fcastYmd, jdbcType=VARCHAR}
+			AND fcast_time=#{item.fcastTime, jdbcType=VARCHAR}
+		</foreach>
+	</update>
+
+	<delete id="deleteWeather" parameterType="map">
+		DELETE /* WeatherMapper.xml.deleteWeather */ FROM
+			t_wr_bas
+		WHERE
+			wr_meas_x_coor_no=#{wrMeasXCoorNo}
+		AND wr_meas_y_coor_no=#{wrMeasYCoorNo}
+		AND wr_tp_cd=#{wrTpCd, jdbcType=VARCHAR}
+	</delete>
+
+	<delete id="deleteSpecialWeather" parameterType="map">
+		DELETE /* WeatherMapper.xml.deleteSpecialWeather */ FROM
+			t_wr_warn_bas
+		WHERE
+			area_cd = #{areaCd}
+	</delete>
+
+	<update id="truncateSpecialWeather">
+		TRUNCATE TABLE /* WeatherMapper.xml.truncateSpecialWeather */
+			t_wr_warn_bas
+	</update>
+
+	<delete id="deleteSpecialWeatherRelease">
+		DELETE /* WeatherMapper.xml.deleteSpecialWeatherRelease */ FROM
+			t_wr_warn_bas
+		WHERE
+			command = '2'
+	</delete>
+
+	<select id="getCurrentWeather" parameterType="map" resultType="com.daewooenc.pips.admin.web.domain.dto.weather.Weather">
+		SELECT /* WeatherMapper.xml.getCurrentWeather */ * FROM
+			t_wr_bas
+		WHERE
+			wr_meas_x_coor_no=#{wrMeasXCoorNo}
+		AND wr_meas_y_coor_no=#{wrMeasYCoorNo}
+		AND wr_tp_cd=#{wrTpCd, jdbcType=VARCHAR}
+	</select>
+
+	<delete id="deleteFineDuty" parameterType="String">
+		DELETE /* WeatherMapper.xml.deleteFineDuty */ FROM
+			t_pm10_bas
+		WHERE
+			addr_si_do_nm=#{addrSiDoNm}
+	</delete>
+
+	<insert id="insertFineDutyData" parameterType="java.util.List">
+		INSERT /* WeatherMapper.xml.insertFineDutyData */ INTO
+			t_pm10_bas
+		(
+			addr_si_gun_gu_nm,
+			addr_si_do_nm,
+			meas_dt,
+			del_yn,
+			crer_id,
+			editer_id,
+			cr_dt,
+			edit_dt,
+			so2_conce_qty,
+			co_conce_qty,
+			o3_conce_qty,
+			no2_conce_qty,
+			pm10_conce_qty,
+			pm25_conce_qty,
+			so2_grade_cnt,
+			co_grade_cnt,
+			o3_grade_cnt,
+			no2_grade_cnt,
+			pm10_grade_cnt,
+			pm25_grade_cnt,
+			unify_aq_grade_cnt,
+			unify_aq_quot
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+				#{item.addrSiGunGuNm},
+				#{item.addrSiDoNm},
+				date_format(replace(#{item.measDt}, '24:00', '23:59'), '%Y%m%d%H%i'),
+				'N',
+				'batch',
+				'batch',
+				NOW(),
+				NOW(),
+				#{item.so2ConceQty},
+				#{item.coConceQty},
+				#{item.o3ConceQty},
+				#{item.no2ConceQty},
+				#{item.pm10ConceQty},
+				#{item.pm25ConceQty},
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			)
+		</foreach>
+	</insert>
+</mapper>

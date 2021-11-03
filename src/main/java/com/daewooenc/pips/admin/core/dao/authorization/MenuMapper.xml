@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.authorization.MenuMapper">
+
+	<!-- 시스템 관리자용: 저장된 메뉴 총 개수 조회 -->
+	<select id="selectMenuLastNo" resultType="int">
+		SELECT /* MenuMapper.xml.selectMenuLastNo */
+			menu_no
+		FROM
+			T_MENU
+		ORDER BY MENU_NO DESC
+		LIMIT 1
+	</select>
+
+	<!-- 시스템 관리자용: 메뉴 목록 조회 -->
+	<select id="selectMenuList" parameterType="map" resultType="Menu">
+		SELECT	/* MenuMapper.xml.selectMenuList */
+			A.MENU_NO,
+			CASE
+				WHEN A.MENU_NAME IS NULL THEN B.MENU_NAME
+				ELSE A.MENU_NAME
+			END AS MENU_NAME,
+			A.UP_MENU_NO,
+			A.VIEW_PATH,
+			A.IMG_PATH,
+			A.HELP_FILENAME,
+			A.STEP_NO,
+			A.DISPLAY_ORDER,
+			A.DESCRIPTION,
+			A.ISFOLDER,
+			(
+				SELECT GROUP_CONCAT(USER_GROUP_ID SEPARATOR ', ') AS USER_GROUP_ID
+				FROM T_USER_GROUP_AUTH
+				WHERE MENU_NO = B.MENU_NO
+				AND USER_GROUP_ID NOT IN ('001')
+			) AS USER_GROUP_ID
+		FROM	(
+				SELECT
+					MENU_NO,
+					MENU_NAME,
+					UP_MENU_NO,
+					VIEW_PATH,
+					IMG_PATH,
+					HELP_FILENAME,
+					STEP_NO,
+					DISPLAY_ORDER,
+					DESCRIPTION,
+					ISFOLDER
+				FROM
+					T_MENU
+				) A, T_MENU B
+		WHERE 	A.MENU_NO = B.MENU_NO
+		ORDER BY B.DISPLAY_ORDER
+	</select>
+
+	<!-- 시스템 관리자용 메뉴 정보 조회 -->
+	<select id="selectMenuInfoList" parameterType="int" resultType="Menu">
+		SELECT *
+		FROM T_MENU
+		WHERE UP_MENU_NO = #{menuNo} OR MENU_NO = #{menuNo}
+	</select>
+
+	<!-- 시스템 관리자용: 메뉴 저장 -->
+	<insert id="insertMenu" parameterType="Menu">
+		INSERT INTO /* MenuMapper.xml.insertMenu */
+			T_MENU
+		(
+			menu_no,
+			menu_name,
+			up_menu_no,
+			view_path,
+			step_no,
+			display_order,
+			isfolder
+		)
+			VALUES
+		(
+			#{menuNo},
+			#{menuName},
+			#{upMenuNo},
+			#{viewPath},
+			#{stepNo},
+			#{displayOrder},
+			#{isfolder}
+		)
+	</insert>
+
+	<!-- 시스템 관리자용: 메뉴 수정 -->
+	<update id="updateMenu" parameterType="Menu">
+		UPDATE /* MenuMapper.xml.updateMenu */
+			T_MENU
+		SET
+			menu_name		= #{menuName,jdbcType=VARCHAR},
+			view_path		= #{viewPath,jdbcType=VARCHAR}
+		WHERE
+			menu_no = #{menuNo, jdbcType=VARCHAR}
+		AND
+			up_menu_no = #{upMenuNo, jdbcType=VARCHAR}
+	</update>
+
+	<!-- 시스템 관리자: 메뉴 전체목록 순서 수정 -->
+	<update id="updateMenuItemOrderList" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* MenuMapper.xml.updateMenuList */
+				T_MENU
+			SET menu_name = #{item.menuName},
+				up_menu_no = #{item.upMenuNo},
+				view_path = #{item.viewPath},
+				step_no = #{item.stepNo},
+				display_order = #{item.displayOrder},
+				isfolder = #{item.isfolder}
+			WHERE menu_no = #{item.menuNo}
+		</foreach>
+	</update>
+
+	<!-- 시스템 관리자용: 상, 하위 메뉴 정보 삭제 -->
+	<delete id="deleteMenuItemForUpMenu" parameterType="int">
+		DELETE FROM /* MenuMapper.xml.deleteMenuItemForUpMenu */
+			T_MENU
+		WHERE MENU_NO = #{menuNo} OR UP_MENU_NO = #{menuNo}
+	</delete>
+
+	<!-- 시스템 관리자용: 하위 메뉴 정보 삭제 -->
+	<delete id="deleteMenuItemForDownMenu" parameterType="int">
+		DELETE FROM  /* MenuMapper.xml.deleteMenuItemForDownMenuupdate */
+			T_MENU
+		WHERE MENU_NO = #{menuNo}
+	</delete>
+
+	<!-- (기존코드) 시스템 관리자용: 메뉴 목록  -->
+	<select id="list" parameterType="map" resultType="Menu">
+		SELECT	/* MenuMapper.xml.list */
+		        A.MENU_NO,
+				CASE
+					WHEN A.MENU_NAME IS NULL THEN B.MENU_NAME
+					ELSE A.MENU_NAME
+				END AS MENU_NAME,
+				A.UP_MENU_NO,
+				A.VIEW_PATH,
+				A.IMG_PATH,
+				A.HELP_FILENAME,
+				A.STEP_NO,
+				A.DISPLAY_ORDER,
+				A.DESCRIPTION,
+				A.ISFOLDER,
+				(
+					SELECT GROUP_CONCAT(USER_GROUP_ID SEPARATOR ', ') AS USER_GROUP_ID
+					FROM T_USER_GROUP_AUTH
+					WHERE MENU_NO = B.MENU_NO
+					AND USER_GROUP_ID NOT IN ('001')
+				) AS user_group_id
+		FROM	(
+				SELECT
+						MENU_NO,
+						MENU_NAME,
+						UP_MENU_NO,
+						VIEW_PATH,
+						IMG_PATH,
+						HELP_FILENAME,
+						STEP_NO,
+						DISPLAY_ORDER,
+						DESCRIPTION,
+						ISFOLDER
+				FROM	T_MENU AA		
+				) A,
+				T_MENU B
+		WHERE 	A.MENU_NO = B.MENU_NO
+		ORDER BY B.DISPLAY_ORDER, B.STEP_NO
+	</select>
+
+	<!-- (기존코드) 시스템 관리자용: 메뉴 수정  -->
+	<update id="update" parameterType="Menu">
+		UPDATE /* MenuMapper.xml.update */
+		T_MENU
+		SET
+		menu_name		= #{menuName,jdbcType=VARCHAR},
+		up_menu_no		= #{upMenuNo, jdbcType=VARCHAR},
+		view_path		= #{viewPath,jdbcType=VARCHAR},
+		img_path		= #{imgPath,jdbcType=VARCHAR},
+		help_filename	= #{helpFilename,jdbcType=VARCHAR},
+		step_no			= #{stepNo, jdbcType=VARCHAR},
+		display_order	= #{displayOrder, jdbcType=VARCHAR},
+		isfolder		= #{isfolder,jdbcType=VARCHAR},
+		description		= #{description,jdbcType=VARCHAR}
+		WHERE
+		menu_no = #{menuNo, jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectUpMenuNo" parameterType="Menu" resultType="String">
+		SELECT /* MenuMapper.xml.selectUpMenuNo */
+			tm.up_menu_no
+		FROM
+			t_menu tm, t_user_group_auth tuga
+		where
+			tm.menu_no = tuga.menu_no
+		and
+			tuga.USER_GROUP_ID = #{userGroupId}
+		and
+			tm.view_path like CONCAT(#{viewPath},'%')
+	</select>
+
+</mapper>

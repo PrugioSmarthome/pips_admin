@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+			http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+	<bean id="pureDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName">
+			<value>${jdbc.driverClass}</value>
+		</property>
+		<property name="url">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="username">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="initialSize">
+			<value>10</value>
+		</property>
+		<property name="maxTotal">
+			<value>50</value>
+		</property>
+		<property name="minIdle">
+			<value>10</value>
+		</property>
+		<property name="maxIdle">
+			<value>50</value>
+		</property>
+		<property name="maxWaitMillis">
+			<value>3000</value>
+		</property>
+		<property name="defaultAutoCommit">
+			<value>true</value>
+		</property>
+		<property name="minEvictableIdleTimeMillis">
+			<value>3000000</value>
+		</property>
+		<property name="timeBetweenEvictionRunsMillis">
+			<value>9000</value>
+		</property>
+		<property name="numTestsPerEvictionRun">
+			<value>10</value>
+		</property>
+		<property name="validationQuery">
+			<value>${jdbc.validation.query}</value>
+		</property>
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="pureDataSource" />
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE" />
+				<property name="sqlPrefix" value="SQL=>" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- define the SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.daewooenc.pips.admin" />
+		<property name="configLocation" value="classpath:mapper.config.xml" />
+		<property name="mapperLocations" value="classpath*:classes/com/daewooenc/pips/admin/**/*.xml" />
+	</bean>
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- scan for mappers and let them be autowired -->
+	<bean id="sqlDataSourceAdmin" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.daewooenc.pips.admin.**.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!-- Transaction -->
+	<aop:config>
+		<aop:advisor id="managerTx" advice-ref="txAdvice" pointcut="execution(* *..*Service.*(..))" />
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource" />
+
+	<!-- setting for multiple database configuration -->
+    <!--
+	<bean id="pureDataSourceService" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName">
+			<value>${jdbc.driverClass}</value>
+		</property>
+		<property name="url">
+			<value>${jdbc.url.service}</value>
+		</property>
+		<property name="username">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="initialSize">
+			<value>10</value>
+		</property>
+		<property name="maxTotal">
+			<value>50</value>
+		</property>
+		<property name="minIdle">
+			<value>10</value>
+		</property>
+		<property name="maxIdle">
+			<value>50</value>
+		</property>
+		<property name="maxWaitMillis">
+			<value>3000</value>
+		</property>
+		<property name="defaultAutoCommit">
+			<value>true</value>
+		</property>
+		<property name="minEvictableIdleTimeMillis">
+			<value>3000000</value>
+		</property>
+		<property name="timeBetweenEvictionRunsMillis">
+			<value>9000</value>
+		</property>
+		<property name="numTestsPerEvictionRun">
+			<value>10</value>
+		</property>
+		<property name="validationQuery">
+			<value>${jdbc.validation.query}</value>
+		</property>
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<bean id="dataSourceService" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="pureDataSourceService" />
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE" />
+				<property name="sqlPrefix" value="SQL=>" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="sqlSessionFactoryService" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceService" />
+		<property name="typeAliasesPackage" value="com.daewooenc.pips.admin" />
+		<property name="configLocation" value="classpath:mapper.config.xml" />
+	</bean>
+
+	<bean id="sqlSessionTemplateService" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactoryService" />
+	</bean>
+
+    <bean id="sqlDataSourceService" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.daewooenc.pips.admin.**.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryService" />
+    </bean>
+
+	<aop:config>
+		<aop:advisor id="managerTxService" advice-ref="txAdviceService" pointcut="execution(* *..*Service.*(..))" />
+	</aop:config>
+
+	<tx:advice id="txAdviceService" transaction-manager="transactionManagerService">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<bean id="transactionManagerService" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		  p:dataSource-ref="dataSourceService" />
+    -->
+
+</beans>

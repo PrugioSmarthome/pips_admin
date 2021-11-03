@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30">
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{yyyy.dd.MM HH:mm:ss} *%-5p* %c{1} - %m%n" />
+		</Console>
+	
+		<!-- https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender -->
+	
+		<!-- filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz" -->
+		<RollingFile name="logfile" fileName="/pips/admin/logs/web.log"
+			filePattern="/pips/admin/logs/web.log.%d{yyyy-MM-dd}-%i.gz">
+			<PatternLayout pattern="%d %-4r %-5p [%t] [%c.%M] (%x) - %m\n" />
+				<!-- <PatternLayout value="%d{yy-MM-dd HH:mm:ss.SSS} %5p %C [%M :%L] %m%n" /> -->
+      		<Policies>
+        		<TimeBasedTriggeringPolicy />
+        		<SizeBasedTriggeringPolicy size="500 MB"/>
+        	</Policies>
+        	<DefaultRolloverStrategy max="20"/>
+<!-- 			
+			<DefaultRolloverStrategy>
+				<Delete basePath="${baseDir}" maxDepth="2">
+					<IfFileName glob="*/web.log.*.gz" />
+					<IfLastModified age="60d" />
+				</Delete>
+			</DefaultRolloverStrategy> 
+-->
+		</RollingFile>
+	    <Async name="async">
+	      <AppenderRef ref="console"/>
+	      <AppenderRef ref="logfile"/>
+	    </Async>	
+	</Appenders>
+
+	<Loggers>
+		<Logger name="com.daewooenc.pips.admin.core" level="info"/>
+		<Logger name="com.daewooenc.pips.admin.web" level="debug"/>
+		<Logger name="jdbc.audit" level="error"/>
+		<Logger name="jdbc.connection" level="error"/>
+		<Logger name="jdbc.resultset" level="error"/>
+		<Logger name="jdbc.sqlonly" level="info"/>
+		<Logger name="net.sf.ehcache" level="info"/>
+		<Logger name="net.sf.log4jdbc" additivity="false" level="info"/>
+		<Logger name="org.apache.commons.dbcp2" level="info"/>
+		<Logger name="org.mybatis.spring" level="info"/>
+		<Logger name="org.springframework" level="error"/>
+		<Logger name="org.springframework.web.servlet.mvc" level="error"/>
+		<Root level="info">
+			<AppenderRef ref="async" />
+			<!-- <AppenderRef ref="console" /> -->
+			<!-- <AppenderRef ref="logfile" /> -->
+		</Root>
+	</Loggers>
+</Configuration>

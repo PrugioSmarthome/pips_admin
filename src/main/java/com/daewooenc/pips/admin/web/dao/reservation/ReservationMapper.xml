@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.reservation.ReservationMapper">
+	<resultMap id="ReservationData" type="com.daewooenc.pips.admin.web.domain.dto.reservation.ReservationData"></resultMap>
+
+	<select id="selectReservationList" parameterType="ReservationData" resultType="ReservationData">
+		SELECT /* ReservationMapper.xml.selectReservationList */
+			a.hshold_id, a.resrv_ctl_id, a.resrv_ctl_rept_yn, a.crer_id, a.pushType
+		  FROM
+			(
+			SELECT
+					thrcb.hshold_id
+				   ,thrcb.resrv_ctl_id
+				   ,thrcb.resrv_ctl_rept_yn
+				   ,thrcb.crer_id
+				   ,CASE WHEN DATE_FORMAT(NOW(), '%H%i') = thrcb.RESRV_CTL_TIME then 'push1'
+					ELSE 'push2' END AS pushType
+			  FROM
+					T_HSHOLD_RESRV_CTL_BAS thrcb, T_HSHOLD_RESRV_CTL_DAYS thrcd, t_user_bas tub
+			 WHERE
+					thrcb.resrv_ctl_id = thrcd.resrv_ctl_id
+		       AND
+				    thrcb.crer_id = tub.user_id
+			   AND
+					tub.del_yn = 'N'
+			   AND
+					thrcb.del_yn = 'N'
+		       AND
+					thrcb.hshold_id LIKE CONCAT('%',#{houscplxCd},'%')
+			   AND
+					DATE_FORMAT(NOW(), '%H%i') <![CDATA[<=]]> thrcb.resrv_ctl_time
+			   AND
+					DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 10 MINUTE), '%H%i') <![CDATA[>=]]> thrcb.resrv_ctl_time
+			   AND
+					DAYOFWEEK(NOW()) = thrcd.resrv_ctl_day
+			   AND
+					((thrcb.resrv_ctl_rept_yn = 'N' AND
+					(SELECT COUNT(*) FROM T_HSHOLD_RESRV_CTL_DAYS cc  WHERE thrcb.resrv_ctl_id = cc.resrv_ctl_id) >
+					(SELECT COUNT(*) FROM T_HSHOLD_RESRV_CTL_PUSH_HST cc WHERE thrcb.resrv_ctl_id = cc.resrv_ctl_id and cc.push_ctl = 'C' and cc.del_yn = 'N')) OR
+					thrcb.RESRV_CTL_REPT_YN='Y')
+			) a
+		LIMIT #{page},100
+	</select>
+
+	<select id="selectReservationListCnt" parameterType="String" resultType="int">
+		SELECT /* ReservationMapper.xml.selectReservationListCnt */
+			COUNT(*)
+		FROM
+		(
+			SELECT
+				thrcb.hshold_id
+				,thrcb.resrv_ctl_id
+				,thrcb.resrv_ctl_rept_yn
+				,thrcb.crer_id
+				,CASE WHEN DATE_FORMAT(NOW(), '%H%i') = thrcb.RESRV_CTL_TIME then 'push1'
+				ELSE 'push2' END AS pushType
+			FROM
+				T_HSHOLD_RESRV_CTL_BAS thrcb, T_HSHOLD_RESRV_CTL_DAYS thrcd, t_user_bas tub
+			WHERE
+				thrcb.resrv_ctl_id = thrcd.resrv_ctl_id
+			AND
+				thrcb.crer_id = tub.user_id
+			AND
+				tub.del_yn = 'N'
+			AND
+				thrcb.del_yn = 'N'
+			AND
+				thrcb.hshold_id LIKE CONCAT('%',#{houscplxCd},'%')
+			AND
+				DATE_FORMAT(NOW(), '%H%i') <![CDATA[<=]]> thrcb.resrv_ctl_time
+			AND
+				DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 10 MINUTE), '%H%i') <![CDATA[>=]]> thrcb.resrv_ctl_time
+			AND
+				DAYOFWEEK(NOW()) = thrcd.resrv_ctl_day
+			AND
+				((thrcb.resrv_ctl_rept_yn = 'N' AND
+				(SELECT COUNT(*) FROM T_HSHOLD_RESRV_CTL_DAYS cc  WHERE thrcb.resrv_ctl_id = cc.resrv_ctl_id) >
+				(SELECT COUNT(*) FROM T_HSHOLD_RESRV_CTL_PUSH_HST cc WHERE thrcb.resrv_ctl_id = cc.resrv_ctl_id and cc.push_ctl = 'C' and cc.del_yn = 'N')) OR
+				thrcb.RESRV_CTL_REPT_YN='Y')
+		) a
+	</select>
+
+	<select id="selectReservationHouscplx" resultType="String">
+		SELECT /* ReservationMapper.xml.selectReservationHouscplx */
+			houscplx_cd
+		FROM
+			T_HOUSCPLX_BAS
+	</select>
+
+	<select id="selectReservationCtrlList" parameterType="java.util.HashMap" resultType="ReservationData">
+		SELECT /* ReservationMapper.xml.selectReservationCtrlList */
+			thrcb.resrv_ctl_id, thrcb.hshold_id, thrcb.resrv_ctl_rept_yn, thrcb.crer_id, COUNT(thrcph.cnt) as cnt
+		FROM
+			T_HSHOLD_RESRV_CTL_BAS thrcb LEFT OUTER JOIN(
+				SELECT
+					resrv_ctl_id, COUNT(*) AS cnt
+				FROM
+					t_hshold_resrv_ctl_push_hst
+				WHERE
+					del_yn = 'N'
+				AND
+					push_ctl = 'C'
+				AND
+					resrv_ctl_id IN
+					<foreach collection="selectCtrlList" item="item" index="index" separator="," open="(" close=")">
+						#{item.resrvCtlId}
+					</foreach>
+				GROUP BY
+					resrv_ctl_id) AS thrcph
+		ON
+			thrcb.resrv_ctl_id = thrcph.resrv_ctl_id
+		WHERE
+			thrcb.resrv_ctl_id IN
+			<foreach collection="selectCtrlList" item="item" index="index" separator="," open="(" close=")">
+				#{item.resrvCtlId}
+			</foreach>
+		GROUP BY
+			thrcb.resrv_ctl_id
+	</select>
+
+	<select id="selectReservationPushList" parameterType="java.util.HashMap" resultType="ReservationData">
+		SELECT /* ReservationMapper.xml.selectReservationPushList */
+			thrcb.resrv_ctl_id, thrcb.hshold_id, thrcb.resrv_ctl_rept_yn, thrcb.crer_id, COUNT(thrcph.cnt) as cnt
+		FROM
+			T_HSHOLD_RESRV_CTL_BAS thrcb LEFT OUTER JOIN(
+				SELECT
+					resrv_ctl_id, COUNT(*) AS cnt
+				FROM
+					t_hshold_resrv_ctl_push_hst
+				WHERE
+					del_yn = 'N'
+				AND
+					push_ctl = 'P'
+				AND
+					resrv_ctl_id IN
+					<foreach collection="selectPushList" item="item" index="index" separator="," open="(" close=")">
+						#{item.resrvCtlId}
+					</foreach>
+				GROUP BY
+					resrv_ctl_id) AS thrcph
+		ON
+			thrcb.resrv_ctl_id = thrcph.resrv_ctl_id
+		WHERE
+			thrcb.resrv_ctl_id IN
+			<foreach collection="selectPushList" item="item" index="index" separator="," open="(" close=")">
+				#{item.resrvCtlId}
+			</foreach>
+		GROUP BY
+			thrcb.resrv_ctl_id
+	</select>
+
+	<insert id="insertReservation" parameterType="java.util.Map">
+		INSERT INTO /* ReservationMapper.xml.insertReservation */
+			T_HSHOLD_RESRV_CTL_PUSH_HST
+			(
+				CR_DT
+				,EDIT_DT
+				,CRER_ID
+				,EDITER_ID
+				,DEL_YN
+				,RESRV_CTL_ID
+				,PUSH_CTL
+			)
+		VALUES
+		<foreach collection="insertList" item="item" separator=",">
+			(
+				NOW()
+				,NOW()
+				,#{item.crerId}
+				,#{item.crerId}
+				,'N'
+				,#{item.resrvCtlId}
+				,#{item.pushCtl}
+			)
+		</foreach>
+	</insert>
+
+	<delete id="deleteReservation" parameterType="java.util.Map">
+		DELETE FROM /* ReservationMapper.xml.deleteReservation */
+			T_HSHOLD_RESRV_CTL_PUSH_HST
+		WHERE
+			resrv_ctl_id IN
+			<foreach collection="deleteList" item="item" index="index" separator="," open="(" close=")">
+				#{item.resrvCtlId}
+			</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <defs>
+        <style>
+            .cls-2{fill:#fff}
+        </style>
+    </defs>
+    <g id="ic_error" transform="translate(-20 -140)">
+        <circle id="타원_257" cx="24" cy="24" r="24" fill="#cfb7a4" data-name="타원 257" transform="translate(20 140)"/>
+        <rect id="사각형_1779" width="2" height="16" class="cls-2" data-name="사각형 1779" rx="1" transform="translate(43 153)"/>
+        <rect id="사각형_1780" width="2.5" height="2.5" class="cls-2" data-name="사각형 1780" rx="1" transform="translate(42.8 172.5)"/>
+    </g>
+</svg>

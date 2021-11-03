@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.household.HouseholdMapper">
+    <!-- 기본 dto 정의 -->
+    <resultMap id="HouseholdUserItem" type="com.daewooenc.pips.admin.web.domain.dto.household.HouseholdUserItem"></resultMap>
+    <resultMap id="HouseholdDevice" type="com.daewooenc.pips.admin.web.domain.dto.device.HouseholdDevice"></resultMap>
+    <resultMap id="HouseholdDeviceDetail" type="com.daewooenc.pips.admin.web.domain.dto.device.HouseholdDeviceDetail"></resultMap>
+    <resultMap id="PipsUser" type="com.daewooenc.pips.admin.web.domain.dto.user.PipsUser"></resultMap>
+
+    <!-- Custom resultMap 정의 -->
+    <resultMap id="householdMetaList" type="PipsUser">
+        <result property="houscplxCd" column="houscplx_cd"/>
+        <result property="houscplxNm" column="houscplx_nm"/>
+        <result property="dongNo" column="dong_no"/>
+        <result property="hoseNo" column="hose_no"/>
+    </resultMap>
+
+    <resultMap id="householdDeviceList" type="HouseholdDevice">
+        <result property="hmnetId" column="hmnet_id"/>
+        <result property="bizcoCd" column="bizco_cd"/>
+        <result property="houscplxNm" column="houscplx_nm"/>
+        <result property="dongNo" column="dong_no" />
+        <result property="hoseNo" column="hose_no"/>
+        <result property="wpadId" column="wpad_id"/>
+        <result property="lights" column="lights" jdbcType="NUMERIC"/>
+        <result property="gaslock" column="gaslock" jdbcType="NUMERIC"/>
+        <result property="aircon" column="aircon" jdbcType="NUMERIC"/>
+        <result property="heating" column="heating" jdbcType="NUMERIC"/>
+        <result property="ventilator" column="ventilator" jdbcType="NUMERIC"/>
+        <result property="smartConsent" column="smart_consent" jdbcType="NUMERIC"/>
+        <result property="curtain" column="curtain" jdbcType="NUMERIC"/>
+        <result property="lightSwitch" column="light_switch" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <resultMap id="householdDeviceDetail" type="HouseholdDeviceDetail">
+        <result property="wpadId" column="wpad_id"/>
+        <result property="deviceTpCd" column="device_tp_cd"/>
+        <result property="deviceTpCdNm" column="device_tp_cd_nm"/>
+        <result property="deviceNm" column="device_nm"/>
+        <result property="locaNm" column="loca_nm" />
+        <result property="mnfcoNm" column="mnfco_nm"/>
+        <result property="serlNo" column="serl_no"/>
+        <result property="mdlNm" column="mdl_nm"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="deviceAttrFunc" column="device_attr_func"/>
+    </resultMap>
+
+    <!-- 공통: 검색영역의 단지코드, 동, 호 선택에 따른 기본정보 리스트  -->
+    <select id="selectHouseholdMetaList" parameterType="PipsUser" resultMap="householdMetaList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdMetaList */
+            thc.houscplx_cd as houscplx_cd, thc.houscplx_nm as houscplx_nm,
+            th.hshold_id as hshold_id, th.dong_no as dong_no, th.hose_no as hose_no
+        FROM
+            T_HSHOLD_BAS as th
+        INNER JOIN (
+            SELECT houscplx_nm, houscplx_cd
+            FROM T_HOUSCPLX_BAS
+            WHERE del_yn = #{delYn}
+            <if test="houscplxCd != null and houscplxCd != 'all'">
+                AND houscplx_cd = #{houscplxCd}
+            </if>
+        ) as thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        <if test="dongNo != null and dongNo != 'all'">
+            AND dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND hose_no = #{hoseNo}
+        </if>
+        ORDER BY
+            thc.houscplx_nm, th.dong_no, th.hose_no
+    </select>
+
+    <!-- 공통: 단지 관리 > 세대장치 관리 > 세대장치 목록 -->
+    <select id="selectHouseholdDeviceList" parameterType="HouseholdDevice" resultMap="householdDeviceList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdDeviceList */
+        tms.hmnet_id AS hmnet_id, tms.bizco_cd AS bizco_cd, thc.houscplx_nm AS houscplx_nm, thc.houscplx_cd AS houscplx_cd,
+        th.dong_no AS dong_no, th.hose_no AS hose_no, td.wpad_id as wpad_id,
+        td.lights as lights, td.gaslock as gaslock, td.aircon as aircon, td.heating as heating,
+        td.ventilator as ventilator, td.smart_consent as smart_consent, td.curtain as curtain, td.light_switch as light_switch
+        FROM
+        T_HOUSCPLX_BAS AS thc
+        INNER JOIN T_HMNET_SVR_BAS AS tms
+            ON tms.hmnet_id = thc.hmnet_id
+        INNER JOIN (
+            SELECT thb.houscplx_cd, thb.hshold_id, thb.dong_no, thb.hose_no
+            FROM
+                T_HSHOLD_BAS AS thb, T_HSHOLD_USER_ITEM AS thui
+            WHERE thb.hshold_id = thui.hshold_id
+            AND thui.del_yn = #{delYn}
+            <if test="dongNo != null and dongNo != 'all'">
+                    AND thb.dong_no = #{dongNo}
+            </if>
+            <if test="hoseNo != null and hoseNo != 'all'">
+                AND thb.hose_no = #{hoseNo}
+            </if>
+            GROUP BY thb.hshold_id
+        ) AS th
+            ON thc.houscplx_cd=th.houscplx_cd
+        INNER JOIN T_WPAD_BAS AS tw
+            ON tw.hshold_id=th.hshold_id
+        INNER JOIN (
+            SELECT wpad_id,
+                sum(if(device_tp_cd = 'LIGHTS', 1, 0)) AS lights,
+                sum(if(device_tp_cd = 'GASLOCK', 1, 0)) AS gaslock,
+                sum(if(device_tp_cd = 'AIRCON', 1, 0)) AS aircon,
+                sum(if(device_tp_cd = 'HEATING', 1, 0)) AS heating,
+                sum(if(device_tp_cd = 'VENTILATOR', 1, 0)) AS ventilator,
+                sum(if(device_tp_cd = 'SMART_CONSENT', 1, 0)) AS smart_consent,
+                sum(if(device_tp_cd = 'CURTAIN', 1, 0)) AS curtain,
+                sum(if(device_tp_cd = 'LIGHT_SWITCH', 1, 0)) AS light_switch
+            FROM
+                T_DEVICE_BAS
+            WHERE device_tp_cd NOT IN ('WALL_PAD')
+            AND del_yn = 'N'
+            GROUP BY wpad_id
+        ) AS td
+            ON td.wpad_id=tw.wpad_id
+        WHERE 1=1
+        AND thc.del_yn = #{delYn}
+        <if test="houscplxCd != null and houscplxCd != ''">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+    </select>
+
+    <!-- 멀티 단지 관리자: 단지 관리 > 세대장치 관리 > 세대장치 목록 -->
+    <select id="selectMultiHouseholdDeviceList" parameterType="HouseholdDevice" resultMap="householdDeviceList">
+        SELECT /* HouseholdMapper.xml.selectMultiHouseholdDeviceList */
+        tms.hmnet_id AS hmnet_id, tms.bizco_cd AS bizco_cd, thc.houscplx_nm AS houscplx_nm, thc.houscplx_cd AS houscplx_cd,
+        th.dong_no AS dong_no, th.hose_no AS hose_no, td.wpad_id as wpad_id,
+        td.lights as lights, td.gaslock as gaslock, td.aircon as aircon, td.heating as heating,
+        td.ventilator as ventilator, td.smart_consent as smart_consent, td.curtain as curtain, td.light_switch as light_switch
+        FROM
+        T_HOUSCPLX_BAS AS thc
+        INNER JOIN T_HMNET_SVR_BAS AS tms
+            ON tms.hmnet_id = thc.hmnet_id
+        INNER JOIN (
+            SELECT thb.houscplx_cd, thb.hshold_id, thb.dong_no, thb.hose_no
+            FROM
+                T_HSHOLD_BAS AS thb, T_HSHOLD_USER_ITEM AS thui
+            WHERE thb.hshold_id = thui.hshold_id
+            AND thui.del_yn = #{delYn}
+            <if test="dongNo != null and dongNo != 'all'">
+                    AND thb.dong_no = #{dongNo}
+            </if>
+            <if test="hoseNo != null and hoseNo != 'all'">
+                AND thb.hose_no = #{hoseNo}
+            </if>
+            GROUP BY thb.hshold_id
+        ) AS th
+            ON thc.houscplx_cd=th.houscplx_cd
+        INNER JOIN T_WPAD_BAS AS tw
+            ON tw.hshold_id=th.hshold_id
+        INNER JOIN (
+            SELECT wpad_id,
+                sum(if(device_tp_cd = 'LIGHTS', 1, 0)) AS lights,
+                sum(if(device_tp_cd = 'GASLOCK', 1, 0)) AS gaslock,
+                sum(if(device_tp_cd = 'AIRCON', 1, 0)) AS aircon,
+                sum(if(device_tp_cd = 'HEATING', 1, 0)) AS heating,
+                sum(if(device_tp_cd = 'VENTILATOR', 1, 0)) AS ventilator,
+                sum(if(device_tp_cd = 'SMART_CONSENT', 1, 0)) AS smart_consent,
+                sum(if(device_tp_cd = 'CURTAIN', 1, 0)) AS curtain,
+                sum(if(device_tp_cd = 'LIGHT_SWITCH', 1, 0)) AS light_switch
+            FROM
+                T_DEVICE_BAS
+            WHERE device_tp_cd NOT IN ('WALL_PAD')
+            AND del_yn = 'N'
+            GROUP BY wpad_id
+        ) AS td
+            ON td.wpad_id=tw.wpad_id
+        INNER JOIN(
+            SELECT
+                houscplx_cd
+            FROM
+                t_user_houscplx_rlt
+            WHERE
+                user_id = #{userId}
+        ) AS tuh
+            ON thc.houscplx_cd = tuh.houscplx_cd
+        WHERE 1=1
+        AND thc.del_yn = #{delYn}
+        <if test="houscplxCd != null and houscplxCd != ''">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+    </select>
+
+    <!-- 공통: 단지 관리 > 세대장치 관리 > 세대장치 목록 > 홈넷 아이디-->
+    <select id="selectHouseholdHmnetId" parameterType="String" resultType="String">
+        SELECT HMNET_ID
+          FROM T_HOUSCPLX_BAS
+         WHERE HOUSCPLX_CD = #{houscplxCd}
+    </select>
+
+    <!-- 공통: 세대 관리 > 세대정보 관리 > 세대정보 목록 > 입주민탈퇴 가능 여부 체크-->
+    <select id="selectHouseholdSecessionCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*) AS cnt
+          FROM
+            (select @num:=0) n, T_USER_BAS tu
+            JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+            INNER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N' AND appr_sts_cd = 'APPROVAL' AND fmly_tp_cd = 'FAMILY') AS thu
+            ON tu.user_id=thu.user_id
+            INNER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+            ON thu.hshold_id=th.hshold_id
+            INNER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N' AND houscplx_cd = '000003') AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        AND thu.hshold_id = #{hsholdId}
+    </select>
+
+    <!-- 시스템 관리자: 단지 관리 > 세대장치 관리 > 세대장치 목록 > 세대장치 관리 상세 -->
+    <select id="selectHouseholdDeviceDetail" parameterType="HouseholdDeviceDetail" resultMap="householdDeviceDetail">
+        SELECT /* HouseholdMapper.xml.selectHouseholdDeviceDetail */
+            hdl.wpad_id AS wpad_id, hdl.device_tp_cd AS device_tp_cd,
+            case
+                when hdl.device_tp_cd = 'LIGHTS' then '조명'
+                when hdl.device_tp_cd = 'HEATING' then '난방'
+                when hdl.device_tp_cd = 'AIRCON' then '에어컨'
+                when hdl.device_tp_cd = 'VENTILATOR' then '환기장치'
+                when hdl.device_tp_cd = 'CURTAIN' then '전동커튼'
+                when hdl.device_tp_cd = 'SMART_CONSENT' then '대기전력(스마트 콘센트)'
+                when hdl.device_tp_cd = 'GASLOCK' then '가스밸브'
+                when hdl.device_tp_cd = 'LIGHT_SWITCH' then '일괄스위치'
+            END AS device_tp_cd_nm,
+            hdl.device_nm AS device_nm,
+            hdl.loca_nm AS loca_nm, hdl.mnfco_nm AS mnfco_nm, hdl.serl_no AS serl_no, hdl.mdl_nm AS mdl_nm,
+            hdl.device_id AS device_id, GROUP_CONCAT(hdl.device_attr_nm SEPARATOR ', ') AS device_attr_func
+        FROM (
+            SELECT
+                td.wpad_id as wpad_id, td.device_tp_cd AS device_tp_cd, td.device_nm AS device_nm,
+                td.loca_nm AS loca_nm, td.mnfco_nm AS mnfco_nm, td.serl_no AS serl_no, td.mdl_nm AS mdl_nm,
+                tda.device_attr_cd AS device_attr_cd, td.device_id AS device_id, td.cr_dt AS cr_dt,
+                case
+                    when td.device_tp_cd = 'LIGHTS' AND tda.device_attr_cd = 'POWER' then '조명 on/off'
+                    when td.device_tp_cd = 'LIGHTS' AND tda.device_attr_cd = 'DIMMING' then '밝기제어'
+                    when td.device_tp_cd = 'GASLOCK' AND tda.device_attr_cd = 'LOCK' then '밸브 열림/닫힘'
+                    when td.device_tp_cd = 'AIRCON' AND tda.device_attr_cd = 'POWER' then '에어컨 on/off'
+                    when td.device_tp_cd = 'AIRCON' AND tda.device_attr_cd = 'HTEMPERATURE' then '희망온도 설정'
+                    when td.device_tp_cd = 'HEATING' AND tda.device_attr_cd = 'POWER' then '난방 on/off'
+                    when td.device_tp_cd = 'HEATING' AND tda.device_attr_cd = 'HTEMPERATURE' then '희망온도 설정'
+                    when td.device_tp_cd = 'HEATING' AND tda.device_attr_cd = 'MODE' then '외출모드'
+                    when td.device_tp_cd = 'VENTILATOR' AND tda.device_attr_cd = 'POWER' then '환기 on/off'
+                    when td.device_tp_cd = 'VENTILATOR' AND tda.device_attr_cd = 'MODE' then '자동/수동모드'
+                    when td.device_tp_cd = 'VENTILATOR' AND tda.device_attr_cd = 'AIR_FLOW' then '세기 설정'
+                    when td.device_tp_cd = 'SMART_CONSENT' AND tda.device_attr_cd = 'POWER' then '콘센트 on/off'
+                    when td.device_tp_cd = 'CURTAIN' AND tda.device_attr_cd = 'STATE_CONTROL' then '닫힘/정지/열림'
+                    when td.device_tp_cd = 'LIGHT_SWITCH' AND tda.device_attr_cd = 'POWER' then '일괄스위치 on/off'
+                END AS device_attr_nm
+            FROM
+                T_DEVICE_BAS AS td
+            INNER JOIN (
+                SELECT
+                    device_attr_cd, device_id, wpad_id
+                FROM
+                    T_DEVICE_ATTR_ITEM
+                WHERE device_attr_cd NOT IN ('CTEMPERATURE')
+            ) AS tda
+                ON td.device_id = tda.device_id
+            WHERE td.wpad_id = #{wpadId}
+            AND tda.wpad_id = #{wpadId}
+            AND td.del_yn = #{delYn}
+            AND td.device_tp_cd NOT IN ('WALL_PAD')
+            GROUP BY td.device_id, tda.device_attr_cd
+        ) hdl
+        WHERE 1=1
+        <if test="deviceTpCd != null and deviceTpCd != 'all'">
+            AND hdl.device_tp_cd = #{deviceTpCd}
+        </if>
+        GROUP BY
+            hdl.device_id, hdl.device_attr_cd, hdl.device_tp_cd, hdl.device_nm, hdl.loca_nm
+        ORDER BY
+            hdl.device_tp_cd, hdl.device_nm, hdl.loca_nm
+    </select>
+
+    <resultMap id="userList" type="PipsUser">
+        <result property="userId" column="user_id"/>
+        <result property="userNm" column="user_nm"/>
+        <result property="mphoneNo" column="mphone_no"/>
+        <result property="emailNm" column="email_nm"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="mphoneMdl" column="mphone_mdl"/>
+        <result property="oprsNm" column="oprs_nm"/>
+        <result property="oprsVer" column="oprs_ver"/>
+        <result property="certfTpCd" column="certf_tp_cd"/>
+        <result property="dongNo" column="dong_no"/>
+        <result property="hoseNo" column="hose_no"/>
+        <result property="hsholdId" column="hshold_id"/>
+        <result property="fmlyTpCd" column="fmly_tp_cd"/>
+        <result property="hsholdCompoDt" column="hshold_compo_dt" jdbcType="TIMESTAMP"/>
+        <result property="houscplxNm" column="houscplx_nm"/>
+        <result property="apprStsCd" column="appr_sts_cd"/>
+        <result property="apprDemDt" column="appr_dem_dt" jdbcType="TIMESTAMP"/>
+        <result property="apprDt" column="appr_dt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="householdList" type="PipsUser">
+        <result property="hsholdId" column="hshold_id"/>
+        <result property="dongNo" column="dong_no"/>
+        <result property="hoseNo" column="hose_no"/>
+    </resultMap>
+
+    <select id="selectHouseholdList" parameterType="PipsUser" resultMap="householdList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdList */
+            hshold_id, dong_no, hose_no
+        FROM
+            T_HSHOLD_BAS
+        WHERE 1=1
+        AND del_yn = 'N'
+        <if test="hsholdId != null">
+            AND thc.hshold_id = #{hsholdId}
+        </if>
+        <if test="dongNo != null">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        ORDER BY
+            hshold_id, dong_no, hose_no
+    </select>
+
+    <!-- 시스템 관리자: 회원 및 세대원 관리 목록 -->
+    <select id="selectUserList" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectUserList */
+            @num:=@num+1 as num,
+            ifnull(tu.user_id, '') as user_id, ifnull(tu.user_nm, '') as user_nm,
+            ifnull(tu.mphone_no, '') as mphone_no, ifnull(tu.email_nm, '') as email_nm,
+            ifnull(tu.use_yn, '') as use_yn, ifnull(tu.mphone_mdl, '') as mphone_mdl,
+            ifnull(tu.oprs_nm, '') as oprs_nm, ifnull(tu.oprs_ver, '') as oprs_ver, ifnull(tuc.certf_tp_cd, '') as certf_tp_cd,
+            ifnull(thu.fmly_tp_cd, '') as fmly_tp_cd, thu.hshold_compo_dt as hshold_compo_dt,
+            ifnull(th.dong_no, '') as dong_no, ifnull(th.hose_no, '') as hose_no, ifnull(thc.houscplx_nm, '') as houscplx_nm,
+            ifnull(thu.appr_sts_cd, '') as appr_sts_cd, ifnull(th.hshold_id, '') AS hshold_id,
+            ifnull(tu.master_yn, '') as master_yn
+        FROM
+            (select @num:=0) n, T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+        LEFT OUTER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, appr_sts_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N') AS thu
+            ON tu.user_id=thu.user_id
+        LEFT OUTER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+            ON thu.hshold_id=th.hshold_id
+        LEFT OUTER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N') AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        <if test="houscplxCd != null and houscplxCd != 'all' and houscplxCd != ''">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+        <if test="dongNo != null and dongNo != 'all'">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        <if test="userNm != null and userNm != ''">
+            AND tu.user_nm like CONCAT('%',#{userNm},'%')
+        </if>
+        <if test="userTpCd != null and userTpCd != 'all'">
+            AND tu.user_tp_cd = #{userTpCd}
+        </if>
+        <if test="apprStsCd != null and apprStsCd != 'all'">
+            AND thu.appr_sts_cd = #{apprStsCd}
+        </if>
+        <if test='masterYn == "Y"'>
+            AND tu.master_yn = 'Y'
+        </if>
+        <if test='masterYn == "N"'>
+            AND tu.master_yn = 'N'
+        </if>
+        <if test="userId != null and userId != ''">
+            AND tu.user_id like CONCAT('%',#{userId},'%')
+        </if>
+        ORDER BY
+            thc.houscplx_nm, th.dong_no, th.hose_no
+    </select>
+
+
+    <!-- 가족구성원 Count조회 -->
+    <select id="selectUserCount" parameterType="PipsUser" resultType="int">
+        SELECT /* HouseholdMapper.xml.selectUserCount */
+        COUNT(*)
+        FROM
+        (select @num:=0) n, T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+        ON tu.user_id=tuc.user_id
+        LEFT OUTER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N') AS thu
+        ON tu.user_id=thu.user_id
+        LEFT OUTER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+        ON thu.hshold_id=th.hshold_id
+        LEFT OUTER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N') AS thc
+        ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        AND thc.houscplx_cd = #{houscplxCd}
+        AND th.dong_no = #{dongNo}
+        AND th.hose_no = #{hoseNo}
+    </select>
+
+    <!-- 단지 관리자: 세대정보 관리 목록 -->
+    <select id="selectHouseholdUserList" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdUserList */
+            @num:=@num+1 as num,
+            tu.user_id as user_id, tu.user_nm as user_nm,
+            tu.mphone_no as mphone_no, tu.email_nm as email_nm,
+            tu.use_yn as use_yn, tu.mphone_mdl as mphone_mdl,
+            tu.oprs_nm as oprs_nm, tu.oprs_ver as oprs_ver, tuc.certf_tp_cd as certf_tp_cd,
+            thu.fmly_tp_cd as fmly_tp_cd, thu.hshold_compo_dt as hshold_compo_dt,
+            th.dong_no as dong_no, th.hose_no as hose_no, thc.houscplx_nm as houscplx_nm, th.hshold_id AS hshold_id, ifnull(thu.appr_sts_cd, '') as appr_sts_cd
+        FROM
+            (select @num:=0) n, T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+        INNER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, appr_sts_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N') AS thu
+            ON tu.user_id=thu.user_id
+        INNER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+            ON thu.hshold_id=th.hshold_id
+        INNER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N' AND houscplx_cd = #{houscplxCd}) AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        <if test="dongNo != null and dongNo != 'all'">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        <if test="userNm != null">
+            AND tu.user_nm like CONCAT('%',#{userNm},'%')
+        </if>
+        ORDER BY
+            th.dong_no, th.hose_no
+    </select>
+
+    <!-- 멀티 단지 관리자: 세대정보 관리 목록 -->
+    <select id="selectMultiHouseholdUserList" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectMultiHouseholdUserList */
+            @num:=@num+1 as num,
+            tu.user_id as user_id, tu.user_nm as user_nm,
+            tu.mphone_no as mphone_no, tu.email_nm as email_nm,
+            tu.use_yn as use_yn, tu.mphone_mdl as mphone_mdl,
+            tu.oprs_nm as oprs_nm, tu.oprs_ver as oprs_ver, tuc.certf_tp_cd as certf_tp_cd,
+            thu.fmly_tp_cd as fmly_tp_cd, thu.hshold_compo_dt as hshold_compo_dt,
+            th.dong_no as dong_no, th.hose_no as hose_no, thc.houscplx_nm as houscplx_nm, th.hshold_id AS hshold_id, ifnull(thu.appr_sts_cd, '') as appr_sts_cd
+        FROM
+            (select @num:=0) n, T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+        INNER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, appr_sts_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N') AS thu
+            ON tu.user_id=thu.user_id
+        INNER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+            ON thu.hshold_id=th.hshold_id
+        INNER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N') AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        INNER JOIN (SELECT houscplx_cd FROM T_USER_HOUSCPLX_RLT WHERE user_id = #{userId}) AS tuh
+            ON thc.houscplx_cd=tuh.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        <if test="houscplxCd != null and houscplxCd != 'all' and houscplxCd != ''">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+        <if test="dongNo != null and dongNo != 'all'">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        <if test="userNm != null">
+            AND tu.user_nm like CONCAT('%',#{userNm},'%')
+        </if>
+        ORDER BY
+            th.dong_no, th.hose_no
+    </select>
+
+	<!-- 시스템 관리자: 세대정보 관리 상세 (일반회원) -->
+	<select id="selectHouseholdUserDetailForNormalUser" parameterType="String" resultMap="userList">
+		SELECT /* HouseholdMapper.xml.selectHouseholdUserDetailForNormalUser */
+			tu.user_id as user_id, tu.user_nm as user_nm,
+			cast(aes_decrypt(from_base64(tu.mphone_no), sha2(#{encKey}, 512)) as char(128)) as mphone_no,
+			cast(aes_decrypt(from_base64(tu.email_nm), sha2(#{encKey}, 512)) as char(128)) as email_nm,
+			tu.use_yn as use_yn, tu.mphone_mdl as mphone_mdl,
+			tu.oprs_nm as oprs_nm, tu.oprs_ver as oprs_ver, tuc.certf_tp_cd as certf_tp_cd,
+            tu.master_yn as master_yn,
+			(
+				SELECT thb.houscplx_nm
+				FROM
+					T_USER_BAS AS tub, T_HOUSCPLX_BAS AS thb
+				WHERE tub.user_id =  #{userId}
+				AND tub.cncn_houscplx_cd = thb.houscplx_cd
+			) AS houscplx_nm
+		FROM
+			T_USER_BAS tu
+		JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+			ON tu.user_id=tuc.user_id
+		WHERE 1=1
+		AND tu.del_yn = 'N'
+		AND tu.user_id = #{userId}
+	</select>
+
+    <!-- 단지 관리자: 세대정보 관리 상세 -->
+    <select id="selectHouseholdUserDetail" parameterType="String" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdUserDetail */
+            tu.user_id as user_id, tu.user_nm as user_nm,
+            cast(aes_decrypt(from_base64(tu.mphone_no), sha2(#{encKey}, 512)) as char(128)) as mphone_no,
+            cast(aes_decrypt(from_base64(tu.email_nm), sha2(#{encKey}, 512)) as char(128)) as email_nm,
+            tu.use_yn as use_yn, tu.mphone_mdl as mphone_mdl,
+            tu.oprs_nm as oprs_nm, tu.oprs_ver as oprs_ver, tuc.certf_tp_cd as certf_tp_cd,
+            thu.fmly_tp_cd as fmly_tp_cd, thu.hshold_compo_dt as hshold_compo_dt,
+            th.dong_no as dong_no, th.hose_no as hose_no, thc.houscplx_nm as houscplx_nm,
+            tu.master_yn as master_yn
+        FROM
+            T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+        INNER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N') AS thu
+            ON tu.user_id=thu.user_id
+        INNER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+            ON thu.hshold_id=th.hshold_id
+        INNER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N') AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        AND tu.user_id = #{userId}
+    </select>
+
+    <!-- 공통: 세대정보 관리 세대원 목록 -->
+    <select id="selectHouseholdUserDetailFamilyList" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdUserDetailFamilyList */
+            tu.user_id as user_id, tu.user_nm as user_nm,
+            thu.fmly_tp_cd as fmly_tp_cd, thu.hshold_id AS hshold_id
+        FROM
+            T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+        INNER JOIN (SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt FROM T_HSHOLD_USER_ITEM WHERE del_yn='N' AND appr_sts_cd = 'APPROVAL') AS thu
+            ON tu.user_id=thu.user_id
+        INNER JOIN (SELECT hshold_id, houscplx_cd, dong_no, hose_no FROM T_HSHOLD_BAS WHERE del_yn='N') AS th
+            ON thu.hshold_id=th.hshold_id
+        INNER JOIN (SELECT houscplx_cd, houscplx_nm FROM T_HOUSCPLX_BAS WHERE del_yn='N') AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        AND th.hshold_id = #{hsholdId}
+    </select>
+
+    <!-- 공통: 세대정보 관리 가족 목록 -->
+    <select id="selectHouseholdUserListForUpdateRep" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdUserListForUpdateRep */
+            tu.user_id as user_id, tu.user_nm as user_nm
+        FROM
+            T_HSHOLD_USER_ITEM as thu
+        INNER JOIN T_USER_BAS as tu
+            ON thu.user_id=tu.user_id
+        WHERE thu.hshold_id = #{hsholdId}
+        ORDER BY
+            tu.user_nm
+    </select>
+
+    <!-- 시스템 관리자: 세대구성 신청정보 목록 -->
+    <select id="selectHouseholderListForSysAdmin" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholderListForSysAdmin */
+            @num:=@num+1 as num,
+            thu.appr_dem_dt as appr_dem_dt, tu.user_nm as user_nm, thc.houscplx_nm as houscplx_nm,
+            th.dong_no as dong_no, th.hose_no as hose_no,
+            thu.hshold_id as hshold_id, tu.user_id as user_id,
+            tuc.certf_tp_cd AS certf_tp_cd
+        FROM
+            (select @num:=0) n, T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+            ON tu.user_id=tuc.user_id
+        INNER JOIN (
+            SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt, appr_dem_dt
+            FROM
+                T_HSHOLD_USER_ITEM
+            WHERE del_yn='N'
+            AND fmly_tp_cd='REPRESENTATIVE'
+            AND appr_sts_cd is not null
+            AND appr_sts_cd = 'REQUEST'
+            ) AS thu
+            ON tu.user_id=thu.user_id
+        INNER JOIN (
+            SELECT hshold_id, houscplx_cd, dong_no, hose_no
+            FROM
+                T_HSHOLD_BAS
+            WHERE del_yn='N'
+            ) AS th
+            ON thu.hshold_id=th.hshold_id
+        INNER JOIN (
+            SELECT houscplx_cd, houscplx_nm
+            FROM
+                T_HOUSCPLX_BAS
+            WHERE del_yn='N'
+            ) AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        <if test="houscplxCd != null and houscplxCd != ''">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+        <if test="dongNo != null and dongNo != 'all'">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        <if test="userNm != null">
+            AND tu.user_nm like CONCAT('%',#{userNm},'%')
+        </if>
+        ORDER BY
+            thc.houscplx_nm DESC, dong_no, hose_no ASC
+    </select>
+
+    <!-- 멀티 단지 관리자: 세대구성 신청정보 목록 -->
+    <select id="selectHouseholderMultiList" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholderMultiList */
+        @num:=@num+1 as num,
+        thu.appr_dem_dt as appr_dem_dt, tu.user_nm as user_nm, thc.houscplx_nm as houscplx_nm,
+        th.dong_no as dong_no, th.hose_no as hose_no,
+        thu.hshold_id as hshold_id, tu.user_id as user_id,
+        tuc.certf_tp_cd AS certf_tp_cd
+        FROM
+        (select @num:=0) n, T_USER_BAS tu
+        JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+        ON tu.user_id=tuc.user_id
+        INNER JOIN (
+        SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt, appr_dem_dt
+        FROM
+        T_HSHOLD_USER_ITEM
+        WHERE del_yn='N'
+        AND fmly_tp_cd='REPRESENTATIVE'
+        AND appr_sts_cd is not null
+        AND appr_sts_cd = 'REQUEST'
+        ) AS thu
+        ON tu.user_id=thu.user_id
+        INNER JOIN (
+        SELECT hshold_id, houscplx_cd, dong_no, hose_no
+        FROM
+        T_HSHOLD_BAS
+        WHERE del_yn='N'
+        ) AS th
+        ON thu.hshold_id=th.hshold_id
+        INNER JOIN (
+        SELECT houscplx_cd, houscplx_nm
+        FROM
+        T_HOUSCPLX_BAS
+        WHERE del_yn='N'
+        ) AS thc
+        ON th.houscplx_cd=thc.houscplx_cd
+        INNER JOIN (
+        SELECT houscplx_cd
+        FROM
+        T_USER_HOUSCPLX_RLT
+        WHERE user_id=#{userId}
+        ) AS tuhr
+        ON thc.houscplx_cd=tuhr.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        <if test="houscplxCd != null and houscplxCd != ''">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+        <if test="dongNo != null and dongNo != 'all'">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        <if test="userNm != null">
+            AND tu.user_nm like CONCAT('%',#{userNm},'%')
+        </if>
+        ORDER BY
+        thc.houscplx_nm DESC, dong_no, hose_no ASC
+    </select>
+
+    <!-- 단지 관리자: 세대구성 신청정보 목록 -->
+    <select id="selectHouseholderList" parameterType="PipsUser" resultMap="userList">
+        SELECT /* HouseholdMapper.xml.selectHouseholderList */
+            @num:=@num+1 as num,
+            thu.appr_dem_dt as appr_dem_dt, tu.user_nm as user_nm,
+            th.dong_no as dong_no, th.hose_no as hose_no,
+            thu.hshold_id as hshold_id, tu.user_id as user_id,
+            tuc.certf_tp_cd AS certf_tp_cd
+        FROM
+            (select @num:=0) n, T_USER_BAS tu
+        JOIN (
+            SELECT user_id, certf_tp_cd
+            FROM
+                T_USER_CERTF_TKN_BAS
+            WHERE del_yn='N'
+            ) AS tuc
+            ON tu.user_id=tuc.user_id
+        INNER JOIN (
+            SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt, appr_dem_dt
+            FROM T_HSHOLD_USER_ITEM
+            WHERE del_yn='N'
+            AND fmly_tp_cd='REPRESENTATIVE'
+            AND appr_sts_cd is not null
+            AND appr_sts_cd = 'REQUEST'
+            AND hshold_id like CONCAT('%', #{houscplxCd},'%')
+            ) AS thu
+            ON tu.user_id=thu.user_id
+        LEFT OUTER JOIN (
+            SELECT hshold_id, houscplx_cd, dong_no, hose_no
+            FROM T_HSHOLD_BAS
+            WHERE del_yn='N'
+            ) AS th
+            ON thu.hshold_id=th.hshold_id
+        LEFT OUTER JOIN (
+            SELECT houscplx_cd, houscplx_nm
+            FROM T_HOUSCPLX_BAS
+            WHERE del_yn='N'
+            ) AS thc
+            ON th.houscplx_cd=thc.houscplx_cd
+        WHERE 1=1
+        AND tu.del_yn = 'N'
+        <if test="dongNo != null and dongNo != 'all'">
+            AND th.dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND th.hose_no = #{hoseNo}
+        </if>
+        <if test="userNm != null">
+            AND tu.user_nm like CONCAT('%',#{userNm},'%')
+        </if>
+        ORDER BY
+            thu.appr_dem_dt DESC
+    </select>
+
+	<!-- 시스템 관리자: 가족대표 승인/반려 이력 목록 -->
+	<select id="selectRepresentativeHistory" parameterType="PipsUser" resultMap="userList">
+		SELECT /* HouseholdMapper.xml.selectRepresentativeHistory */
+			@num:=@num+1 as num,
+			thu.appr_dem_dt as appr_dem_dt, thc.houscplx_nm as houscplx_nm,
+			th.dong_no as dong_no, th.hose_no as hose_no, thu.appr_sts_cd AS appr_sts_cd,
+			thu.hshold_id as hshold_id, tu.user_nm as user_nm, tu.user_id as user_id,
+            tuc.certf_tp_cd AS certf_tp_cd, thu.appr_dt AS appr_dt
+		FROM
+			(select @num:=0) n, T_USER_BAS tu
+		JOIN (SELECT user_id, certf_tp_cd FROM T_USER_CERTF_TKN_BAS WHERE del_yn='N') AS tuc
+			ON tu.user_id=tuc.user_id
+		INNER JOIN (
+				SELECT user_id, hshold_id, fmly_tp_cd, hshold_compo_dt, appr_dem_dt, appr_sts_cd, appr_dt
+				FROM
+					T_HSHOLD_USER_ITEM
+				WHERE del_yn = 'N'
+				AND fmly_tp_cd = 'REPRESENTATIVE'
+                AND appr_sts_cd NOT IN('REQUEST')
+				<if test="apprStsCd != null and apprStsCd != 'all'">
+					AND appr_sts_cd = #{apprStsCd}
+				</if>
+                <if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+                    AND DATE(appr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+                </if>
+                <if test="startCrDt != null and startCrDt != '' and endCrDt == ''">
+                    AND DATE(appr_dt) <![CDATA[>=]]> #{startCrDt}
+                </if>
+                <if test="endCrDt != null and endCrDt != '' and startCrDt == ''">
+                    AND DATE(appr_dt) <![CDATA[<=]]> #{endCrDt}
+                </if>
+
+		) AS thu
+			ON tu.user_id=thu.user_id
+		INNER JOIN (
+				SELECT hshold_id, houscplx_cd, dong_no, hose_no
+				FROM
+					T_HSHOLD_BAS
+				WHERE del_yn='N'
+				<if test="dongNo != null and dongNo != 'all'">
+					AND dong_no = #{dongNo}
+				</if>
+				<if test="hoseNo != null and hoseNo != 'all'">
+					AND hose_no = #{hoseNo}
+				</if>
+		) AS th
+			ON thu.hshold_id=th.hshold_id
+		INNER JOIN (
+				SELECT houscplx_cd, houscplx_nm
+				FROM
+					T_HOUSCPLX_BAS
+				WHERE del_yn='N'
+				<if test="houscplxCd != null and houscplxCd != ''">
+					AND houscplx_cd = #{houscplxCd}
+				</if>
+		) AS thc
+			ON th.houscplx_cd=thc.houscplx_cd
+		WHERE 1=1
+		AND tu.del_yn = 'N'
+		<if test="userNm != null and userNm != ''">
+			AND tu.user_nm like CONCAT('%',#{userNm},'%')
+		</if>
+		ORDER BY
+			thu.appr_dt DESC
+	</select>
+
+	<!-- 시스템 관리자: 세대장치 목록 -->
+    <select id="selectHouseholdDeviceListTest" parameterType="HouseholdDevice" resultMap="householdDeviceList">
+        SELECT /* HouseholdMapper.xml.selectHouseholdDeviceListTest */
+            tms.hmnet_id AS hmnet_id, tms.bizco_cd AS bizco_cd, thc.houscplx_nm AS houscplx_nm,
+            th.dong_no AS dong_no, th.hose_no AS hose_no, td.*
+        FROM
+            T_HOUSCPLX_BAS AS thc
+        INNER JOIN T_HMNET_SVR_BAS AS tms
+            ON tms.hmnet_id = thc.hmnet_id
+        INNER JOIN (
+            SELECT thb.houscplx_cd, thb.hshold_id, thb.dong_no, thb.hose_no
+            FROM T_HSHOLD_BAS AS thb, T_HSHOLD_USER_ITEM AS thui
+            WHERE thb.hshold_id = thui.hshold_id
+            AND thui.del_yn = #{delYn}
+            <if test="dongNo != null and dongNo != 'all'">
+                AND thb.dong_no = #{dongNo}
+            </if>
+            <if test="hoseNo != null and hoseNo != 'all'">
+                AND thb.hose_no = #{hoseNo}
+            </if>
+            GROUP BY thb.hshold_id
+            ) AS th
+            ON thc.houscplx_cd=th.houscplx_cd
+        INNER JOIN T_WPAD_BAS AS tw
+            ON tw.hshold_id=th.hshold_id
+        INNER JOIN (
+            SELECT wpad_id,
+            sum(if(device_tp_cd = 'LIGHTS', 1, 0)) AS lights,
+            sum(if(device_tp_cd = 'GASLOCK', 1, 0)) AS gaslock,
+            sum(if(device_tp_cd = 'AIRCON', 1, 0)) AS aircon,
+            sum(if(device_tp_cd = 'HEATING', 1, 0)) AS heating,
+            sum(if(device_tp_cd = 'VENTILATOR', 1, 0)) AS ventilator,
+            sum(if(device_tp_cd = 'SMART_CONSENT', 1, 0)) AS smart_consent,
+            sum(if(device_tp_cd = 'CURTAIN', 1, 0)) AS curtain
+            FROM T_DEVICE_BAS
+            WHERE device_tp_cd NOT IN ('WALL_PAD')
+            AND del_yn = 'N'
+            GROUP BY wpad_id
+            ) AS td
+            ON td.wpad_id=tw.wpad_id
+        WHERE 1=1
+        <if test="houscplxCd != null">
+            AND thc.houscplx_cd = #{houscplxCd}
+        </if>
+    </select>
+
+    <!-- 시스템 관리자: 세대장치 관리 상세 -->
+    <select id="selectHouseholdDeviceDetailTest" parameterType="HouseholdDeviceDetail" resultMap="householdDeviceDetail">
+        SELECT /* HouseholdMapper.xml.selectHouseholdDeviceDetailTest */
+            hdl.wpad_id AS wpad_id, hdl.device_tp_cd AS device_tp_cd,
+            case
+                when hdl.device_tp_cd = 'LIGHTS' then '조명'
+                when hdl.device_tp_cd = 'HEATING' then '난방'
+                when hdl.device_tp_cd = 'AIRCON' then '에어컨'
+                when hdl.device_tp_cd = 'VENTILATOR' then '환기 장치'
+                when hdl.device_tp_cd = 'CURTAIN' then '전동 커튼'
+                when hdl.device_tp_cd = 'SMART_CONSENT' then '대기전력(스마트 콘센트)'
+                when hdl.device_tp_cd = 'GASLOCK' then '가스 밸브'
+            END AS device_tp_cd_nm,
+            hdl.device_nm AS device_nm,
+            hdl.loca_nm AS loca_nm, hdl.mnfco_nm AS mnfco_nm, hdl.serl_no AS serl_no, hdl.mdl_nm AS mdl_nm,
+            hdl.device_id AS device_id, GROUP_CONCAT(hdl.device_attr_nm SEPARATOR ', ') AS device_attr_func
+        FROM (
+            SELECT
+                td.wpad_id as wpad_id, td.device_tp_cd AS device_tp_cd, td.device_nm AS device_nm,
+                td.loca_nm AS loca_nm, td.mnfco_nm AS mnfco_nm, td.serl_no AS serl_no, td.mdl_nm AS mdl_nm,
+                tda.device_attr_cd AS device_attr_cd, td.device_id AS device_id, td.cr_dt AS cr_dt,
+                case
+                    when td.device_tp_cd = 'LIGHTS' AND tda.device_attr_cd = 'POWER' then '조명 on/off'
+                    when td.device_tp_cd = 'LIGHTS' AND tda.device_attr_cd = 'DIMMING' then '밝기제어'
+                    when td.device_tp_cd = 'GASLOCK' AND tda.device_attr_cd = 'LOCK' then '밸브 열림/닫힘'
+                    when td.device_tp_cd = 'AIRCON' AND tda.device_attr_cd = 'POWER' then '에어컨 on/off'
+                    when td.device_tp_cd = 'AIRCON' AND tda.device_attr_cd = 'HTEMPERATURE' then '희망온도 설정'
+                    when td.device_tp_cd = 'HEATING' AND tda.device_attr_cd = 'POWER' then '난방 on/off'
+                    when td.device_tp_cd = 'HEATING' AND tda.device_attr_cd = 'HTEMPERATURE' then '희망온도 설정'
+                    when td.device_tp_cd = 'HEATING' AND tda.device_attr_cd = 'MODE' then '외출모드'
+                    when td.device_tp_cd = 'VENTILATOR' AND tda.device_attr_cd = 'POWER' then '환기 on/off'
+                    when td.device_tp_cd = 'VENTILATOR' AND tda.device_attr_cd = 'MODE' then '자동/수동모드'
+                    when td.device_tp_cd = 'VENTILATOR' AND tda.device_attr_cd = 'AIR_FLOW' then '세기 설정'
+                    when td.device_tp_cd = 'SMART_CONSENT' AND tda.device_attr_cd = 'POWER' then '콘센트 on/off'
+                    when td.device_tp_cd = 'CURTAIN' AND tda.device_attr_cd = 'STATE_CONTROL' then '닫힘/정지/열림'
+                END AS device_attr_nm
+            FROM
+                T_DEVICE_BAS AS td
+            INNER JOIN (
+                SELECT
+                    device_attr_cd, device_id
+                FROM
+                    T_DEVICE_ATTR_ITEM
+                WHERE device_attr_cd NOT IN ('CTEMPERATURE')
+            ) AS tda
+                ON td.device_id = tda.device_id
+            WHERE td.wpad_id = #{wpadId}
+            AND td.del_yn = #{delYn}
+            AND td.device_tp_cd NOT IN ('WALL_PAD')
+        ) hdl
+        WHERE 1=1
+        <if test="deviceTpCd != null">
+            AND hdl.device_tp_cd = #{deviceTpCd}
+        </if>
+        GROUP BY
+            hdl.device_tp_cd, hdl.device_nm, hdl.loca_nm
+        ORDER BY
+            hdl.device_tp_cd, hdl.device_nm, hdl.loca_nm
+    </select>
+
+    <!-- 공통: 세대구성 신청정보 가족 대표 요청 후 세대 승인 이력 테이블에 저장(승인 또는 반려) -->
+    <insert id="insertHouseholderApprHst" parameterType="PipsUser">
+        INSERT INTO /* HouseholdMapper.xml.insertHouseholderApprHst */
+            T_HSHOLD_APPR_HST
+        (
+            user_id, appr_dem_dt, hshold_id,
+            appr_sts_cd, appr_dt,
+            cred_id, cr_dt
+        )
+        VALUES
+        (
+            #{userId}, #{apprDemDt}, #{hsholdId},
+            #{apprStsCd}, #{apprDt},
+            #{credId}, NOW()
+        )
+    </insert>
+
+    <!-- 시스템 관리자: 세대정보 관리 회원 정보 수정 -->
+    <update id="updateUserForSysAdmin" parameterType="HouseholdUserItem">
+        UPDATE /* HouseholdMapper.xml.updateUserForSysAdmin */
+            T_HSHOLD_USER_ITEM AS thu
+        INNER JOIN T_USER_BAS AS tu
+            ON thu.user_id=tu.user_id
+        SET tu.user_nm = #{userNm},
+            tu.email_nm = #{emailNm},
+            tu.mphone_no = #{mphoneNo},
+            tu.use_yn = #{useYn},
+            tu.editer_id = #{editerId},
+            tu.edit_dt = NOW()
+        WHERE tu.user_id = #{userId}
+    </update>
+
+    <!-- 단지 관리자: 세대정보 관리 회원 정보 수정 -->
+    <update id="updateUser" parameterType="HouseholdUserItem">
+        UPDATE /* HouseholdMapper.xml.updateUser */
+            T_HSHOLD_USER_ITEM AS thu
+        INNER JOIN T_USER_BAS AS tu
+            ON thu.user_id=tu.user_id
+        SET tu.use_yn = #{useYn},
+            tu.editer_id = #{editerId},
+            tu.edit_dt = NOW()
+        WHERE tu.user_id = #{userId}
+    </update>
+
+    <!-- 공통: 세대구성 신청정보 가족 대표 요청 상태 변경(승인) -->
+    <update id="updateHouseholderForApproval" parameterType="java.util.Map">
+        UPDATE /* HouseholdMapper.xml.updateHouseholderForApproval */
+            T_HSHOLD_USER_ITEM
+        SET appr_sts_cd = #{apprStsCd}, appr_dt = #{apprDt},
+            editor_id = #{editorId}, edit_dt = NOW(),
+            hshold_compo_dt = #{hsholdCompoDt}
+        WHERE user_id in
+            <foreach collection="user_id_list" item="item" index="index" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+    </update>
+
+    <!-- 공통: 세대구성 신청정보 가족 대표 요청 상태 변경(반려) -->
+    <update id="updateHouseholderForReject" parameterType="java.util.Map">
+        UPDATE /* HouseholdMapper.xml.updateHouseholderForReject */
+            T_HSHOLD_USER_ITEM
+        SET appr_sts_cd = #{apprStsCd}, appr_dt = #{apprDt},
+            editor_id = #{editorId}, edit_dt = NOW()
+        WHERE user_id in
+            <foreach collection="user_id_list" item="item" index="index" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+    </update>
+
+    <!-- 미사용 -->
+    <!-- NOTICE: Web <-> Service API Server 영역으로 분리-->
+    <!-- 공통: 세대정보 관리 가족 대표 변경 -->
+    <update id="updateHouseholderFmlyTpCd" parameterType="String">
+        /* HouseholdMapper.xml.updateHouseholderFmlyTpCd */
+        UPDATE T_HSHOLD_USER_ITEM
+        SET fmly_tp_cd = #{fmlyTpCd}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 공통: 세대정보 관리 입주민 탈퇴 -->
+    <update id="updateLeaveTenantUser" parameterType="java.util.Map">
+        /* HouseholdMapper.xml.updateLeaveTenantUser */
+        UPDATE T_HSHOLD_USER_ITEM AS tu
+        INNER JOIN T_HSHOLD_BAS AS th
+        ON tu.hshold_id=th.hshold_id
+        SET tu.del_yn = 'Y', th.del_yn = 'Y'
+        WHERE tu.user_id in
+        <foreach collection="user_id_list" item="item" index="index" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+    </update>
+
+    <!-- 시스템 관리자: 세대정보 관리 회원 탈퇴 -->
+    <update id="updateLeaveUser" parameterType="java.util.Map">
+        /* HouseholdMapper.xml.updateLeaveUser */
+        UPDATE T_USER_BAS
+        SET del_yn = 'Y'
+        WHERE user_id in
+        <foreach collection="user_id_list" item="item" index="index" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+    </update>
+
+
+    <!-- 세대 승인 날짜 List -->
+    <select id="selectHouseHoldApproveList" parameterType="String" resultMap="HouseholdUserItem">
+        SELECT /* HouseholdMapper.xml.selectHouseHoldApproveList */
+        hshold_id, MIN(appr_dt) as appr_dt
+        FROM
+        t_hshold_user_item
+        WHERE
+        del_yn='N' AND appr_sts_cd='APPROVAL' and fmly_tp_cd='REPRESENTATIVE'
+        AND hshold_id LIKE #{housingCplxCd} AND appr_dt != ''
+        GROUP BY hshold_id
+    </select>
+</mapper>

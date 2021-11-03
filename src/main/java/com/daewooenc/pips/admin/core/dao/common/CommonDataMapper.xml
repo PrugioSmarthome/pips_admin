@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.common.CommonDataMapper">
+
+	<select id="listMenu" resultType="java.util.HashMap">
+		SELECT /* CommonDataMapper.xml.listMenu */
+			menu_no ID, menu_name NAME
+		FROM
+			T_MENU
+		ORDER BY dispaly_order, menu_no
+	</select>
+
+	<select id="listUserGroup" parameterType="String" resultType="java.util.HashMap">
+		SELECT /* CommonDataMapper.xml.listUserGroup */
+			user_group_id ID, user_group_name NAME
+		FROM
+			T_USER_GROUP
+		WHERE
+			user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+		ORDER BY user_group_id
+	</select>
+
+	<select id="listUser" resultType="java.util.HashMap">
+		SELECT /* CommonDataMapper.xml.listUser */
+			user_id ID, user_name NAME
+		FROM
+			T_USER a, T_USER_GROUP b
+		WHERE
+				a.user_group_id = b.user_group_id
+			<if test="userGroupLevel != null and userGroupLevel != 'all'">
+			AND b.user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+			</if>
+			<if test="userGroupId != null and userGroupId != 'all'">
+			AND a.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+			</if>
+		ORDER BY a.user_id
+	</select>
+
+	<select id="listCommonCode" resultType="java.util.HashMap">
+		SELECT	/* CommonDataMapper.xml.listCommonCode */ DETAIL_CODE ID,
+				CODE_NAME 	NAME
+		FROM	T_COMMON_CODE
+		WHERE	GROUP_CODE = #{code_type, jdbcType=VARCHAR}
+		ORDER BY DISPLAY_ORDER
+	</select>
+	
+	<select id="getCommonCode" resultType="java.util.HashMap">
+		SELECT	/* CommonDataMapper.xml.getCommonCode */ DETAIL_CODE ID,
+				CODE_NAME 	NAME
+		FROM	T_COMMON_CODE
+		WHERE	GROUP_CODE = #{code_type, jdbcType=VARCHAR}
+		AND		DETAIL_CODE = #{detailCode, jdbcType=VARCHAR}
+		ORDER BY DISPLAY_ORDER
+	</select>	
+</mapper>

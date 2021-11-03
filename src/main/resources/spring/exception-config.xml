@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+      http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+      ">
+	<bean id="exceptionResolver" 
+		class="com.daewooenc.pips.admin.core.exception.ExceptionResolver"
+		p:exceptionMappings-ref="exceptionMappings" 
+		p:exceptionAttribute="exceptionMessage"
+		p:statusCodes-ref="statusCodes" />
+	<util:properties id="exceptionMappings">
+		<prop key="java.lang.Exception">exception/exception</prop>
+	</util:properties>
+	<util:properties id="statusCodes">
+		<prop key="exception/exception">403</prop>
+		<prop key="exception/exception">404</prop>
+		<prop key="exception/exception">500</prop>
+	</util:properties>
+</beans>

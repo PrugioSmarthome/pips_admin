@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/rabbit
+           http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Infra Queue -->
+	<rabbit:connection-factory id="connectionFactory"
+		addresses="${rabbitmq.host}:${rabbitmq.port}" username="${rabbitmq.username}"
+		password="${rabbitmq.password}" />
+
+	<rabbit:listener-container requeue-rejected="false"
+		connection-factory="connectionFactory" prefetch="10">
+		<rabbit:listener ref="myListen"  queue-names="${rabbitmq.queue}" />
+	</rabbit:listener-container>
+
+	<bean id="messageListener" class="com.daewooenc.pips.admin.web.util.rabbitmq.AmqpMessageListener" />
+
+	<bean id="amqpMessageConverter"
+		class="org.springframework.amqp.support.converter.Jackson2JsonMessageConverter" />
+
+	<rabbit:template id="rabbitTemplate"
+		connection-factory="connectionFactory" message-converter="amqpMessageConverter"
+		retry-template="retryTemplate" />
+
+	<bean id="retryTemplate" class="org.springframework.retry.support.RetryTemplate">
+		<property name="retryPolicy">
+			<bean class="org.springframework.retry.policy.SimpleRetryPolicy">
+				<property name="maxAttempts" value="2" />
+			</bean>
+		</property>
+		<property name="backOffPolicy">
+			<bean class="org.springframework.retry.backoff.ExponentialBackOffPolicy">
+				<property name="initialInterval" value="500" />
+				<property name="multiplier" value="2.0" />
+				<property name="maxInterval" value="4000" />
+			</bean>
+		</property>
+	</bean>
+</beans>

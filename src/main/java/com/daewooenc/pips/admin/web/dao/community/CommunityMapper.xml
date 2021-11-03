@@ -1,0 +1,1202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.community.CommunityMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="NoticeItem" type="com.daewooenc.pips.admin.web.domain.dto.community.NoticeItem"></resultMap>
+	<resultMap id="NoticeFile" type="com.daewooenc.pips.admin.web.domain.dto.community.NoticeFile"></resultMap>
+    <resultMap id="Question" type="com.daewooenc.pips.admin.web.domain.dto.community.Question"></resultMap>
+    <resultMap id="QuestionCompletion" type="com.daewooenc.pips.admin.web.domain.dto.community.QuestionCompletion"></resultMap>
+    <resultMap id="QuestionDetail" type="com.daewooenc.pips.admin.web.domain.dto.community.QuestionDetail"></resultMap>
+    <resultMap id="QuestionHousingCplx" type="com.daewooenc.pips.admin.web.domain.dto.community.QuestionHousingCplx"></resultMap>
+
+	<!-- Custom resultMap 정의 -->
+	<resultMap id="noticeList" type="NoticeItem">
+		<result property="blltNo" column="bllt_no" jdbcType="NUMERIC"/>
+		<result property="crDt" column="cr_dt" jdbcType="TIMESTAMP"/>
+		<result property="houscplxCd" column="houscplx_cd" />
+		<result property="houscplxNm" column="houscplx_nm" />
+		<result property="title" column="title" />
+		<result property="tlrncYnNm" column="tlrnc_yn_nm"/>
+		<result property="houscplxCdList" column="houscplx_cd_list"/>
+	</resultMap>
+
+	<resultMap id="noticeDetail" type="NoticeItem">
+		<result property="blltNo" column="bllt_no" jdbcType="NUMERIC"/>
+		<result property="crDt" column="cr_dt" jdbcType="TIMESTAMP"/>
+		<result property="tlrncYnNm" column="tlrnc_yn_nm"/>
+		<result property="tlrncYn" column="tlrnc_yn"/>
+		<result property="houscplxNm" column="houscplx_nm" />
+		<result property="houscplxCd" column="houscplx_cd" />
+		<result property="title" column="title" />
+		<result property="cont" column="cont" />
+		<result property="mainPopupYn" column="main_popup_yn" />
+	</resultMap>
+
+	<resultMap id="noticeFile" type="NoticeFile">
+		<result property="fileNm" column="file_nm"/>
+		<result property="orgnlFileNm" column="orgnl_file_nm" />
+	</resultMap>
+
+	<resultMap id="questionList" type="Question">
+		<result property="qstNo" column="qst_no" jdbcType="NUMERIC"/>
+		<result property="crDt" column="cr_dt" jdbcType="TIMESTAMP"/>
+		<result property="qstTitle" column="qst_title"/>
+		<result property="qstStDt" column="qst_st_dt"/>
+		<result property="qstEdDt" column="qst_ed_dt"/>
+		<result property="qstStsCdNm" column="qst_sts_cd_nm"/>
+		<result property="qstStsCd" column="qst_sts_cd"/>
+		<result property="houscplxNm" column="houscplx_nm"/>
+		<result property="houscplxCd" column="houscplx_cd"/>
+	</resultMap>
+
+	<resultMap id="questionDetail" type="Question">
+		<result property="qstNo" column="qst_no" jdbcType="NUMERIC"/>
+		<result property="crDt" column="cr_dt" jdbcType="TIMESTAMP"/>
+		<result property="qstTitle" column="qst_title"/>
+		<result property="qstStDt" column="qst_st_dt"/>
+		<result property="qstEdDt" column="qst_ed_dt"/>
+		<result property="qstStsCdNm" column="qst_sts_cd_nm"/>
+		<result property="qstStsCd" column="qst_sts_cd"/>
+		<result property="qstTpCdNm" column="qst_tp_cd_nm"/>
+		<result property="qstTpCd" column="qst_tp_cd"/>
+		<result property="houscplxNm" column="houscplx_nm"/>
+		<result property="houscplxCd" column="houscplx_cd"/>
+		<result property="totalMemCnt" column="total_mem_cnt" jdbcType="NUMERIC"/>
+		<result property="votedMemCnt" column="voted_mem_cnt" jdbcType="NUMERIC"/>
+		<result property="qstAnsrTitle" column="qst_ansr_title"/>
+	</resultMap>
+
+	<resultMap id="qustionItemList" type="QuestionDetail">
+		<result property="qstItmAnsrCont" column="qst_itm_ansr_cont"/>
+		<result property="qstItmAnsrCnt" column="qst_itm_ansr_cnt" jdbcType="NUMERIC"/>
+		<result property="qstItmNo" column="qst_itm_no" jdbcType="NUMERIC"/>
+	</resultMap>
+
+	<resultMap id="questionCompletionList" type="QuestionCompletion">
+		<result property="hsholdId" column="hshold_id"/>
+		<result property="qstItmNo" column="qst_itm_no" jdbcType="NUMERIC"/>
+		<result property="qstEtcAnsr" column="qst_etc_ansr"/>
+	</resultMap>
+
+	<resultMap id="reportList" type="NoticeItem">
+		<result property="blltNo" column="bllt_no" jdbcType="NUMERIC"/>
+		<result property="crDt" column="cr_dt" jdbcType="TIMESTAMP"/>
+		<result property="houscplxCd" column="houscplx_cd" />
+		<result property="houscplxNm" column="houscplx_nm" />
+		<result property="reportDongNo" column="report_dong_no" />
+		<result property="reportHoseNo" column="report_hose_no"/>
+		<result property="blltTpDtlCdNm" column="bllt_tp_dtl_cd_nm"/>
+		<result property="blltTpDtlCd" column="bllt_tp_dtl_cd"/>
+		<result property="blltGrpNo" column="bllt_grp_no" jdbcType="NUMERIC"/>
+		<result property="title" column="title" />
+		<result property="blltStsCdNm" column="bllt_sts_cd_nm"/>
+		<result property="blltStsCd" column="bllt_sts_cd"/>
+		<result property="blltGrpTpCd" column="bllt_grp_tp_cd"/>
+	</resultMap>
+
+	<resultMap id="reportDetail" type="NoticeItem">
+		<result property="blltNo" column="bllt_no" jdbcType="NUMERIC"/>
+		<result property="crDt" column="cr_dt" jdbcType="TIMESTAMP"/>
+		<result property="houscplxCd" column="houscplx_cd" />
+		<result property="houscplxNm" column="houscplx_nm" />
+		<result property="reportDongNo" column="report_dong_no" />
+		<result property="reportHoseNo" column="report_hose_no" />
+		<result property="reportUserNm" column="report_user_nm" />
+		<result property="reportUserId" column="report_user_id" />
+		<result property="reportMphoneNo" column="report_mphone_no" />
+		<result property="reportSmsYn" column="report_sms_yn" />
+		<result property="reportAnsr" column="report_ansr" />
+		<result property="blltTpDtlCdNm" column="bllt_tp_dtl_cd_nm"/>
+		<result property="blltTpDtlCd" column="bllt_tp_dtl_cd"/>
+		<result property="blltGrpNo" column="bllt_grp_no" jdbcType="NUMERIC"/>
+		<result property="title" column="title" />
+		<result property="cont" column="cont" />
+		<result property="blltStsCdNm" column="bllt_sts_cd_nm"/>
+		<result property="blltStsCd" column="bllt_sts_cd"/>
+		<result property="blltGrpTpCd" column="bllt_grp_tp_cd"/>
+	</resultMap>
+
+	<resultMap id="reportFile" type="NoticeFile">
+		<result property="fileNm" column="file_nm"/>
+		<result property="orgnlFileNm" column="orgnl_file_nm" />
+		<result property="fileUrl" column="file_url" />
+	</resultMap>
+
+	<!-- 시스템 관리자: 단지 커뮤니티 관리 > 단지 공지사항 목록 -->
+	<select id="selectNoticeListForAdmin" parameterType="NoticeItem" resultMap="noticeList">
+		SELECT /* CommunityMapper.xml.selectNoticeListForAdmin */
+			tn.bllt_no AS bllt_no, tn.cr_dt AS cr_dt,
+			th.houscplx_nm AS houscplx_nm, tn.title AS title, tn.tlrnc_yn AS tlrnc_yn, thn.houscplx_cd AS houscplx_cd,
+			case
+				when tn.tlrnc_yn = 'N' then '게시예정'
+				when tn.tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HOUSCPLX_BAS AS th
+			ON thn.houscplx_cd = th.houscplx_cd
+		WHERE tn.bllt_tp_cd = 'NOTICE'
+		AND tn.del_yn = 'N'
+		AND tn.bllt_tp_dtl_cd = 'HOUSCPLX'
+		AND th.del_yn = #{delYn} /* 최초 delYn = 'N' */
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tn.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND th.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="title != null and title != ''">
+			AND tn.title like CONCAT('%',#{title},'%')
+		</if>
+		ORDER BY tn.cr_dt DESC
+	</select>
+
+	<!-- 멀티 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 목록 -->
+	<select id="selectMultiNoticeListForAdmin" parameterType="NoticeItem" resultMap="noticeList">
+		SELECT /* CommunityMapper.xml.selectMultiNoticeListForAdmin */
+			tn.bllt_no AS bllt_no, tn.cr_dt AS cr_dt,
+			th.houscplx_nm AS houscplx_nm, tn.title AS title, tn.tlrnc_yn AS tlrnc_yn, thn.houscplx_cd AS houscplx_cd,
+			case
+				when tn.tlrnc_yn = 'N' then '게시예정'
+				when tn.tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HOUSCPLX_BAS AS th
+			ON thn.houscplx_cd = th.houscplx_cd
+		INNER JOIN T_USER_HOUSCPLX_RLT tuh
+			ON th.houscplx_cd = tuh.houscplx_cd
+		WHERE tn.bllt_tp_cd = 'NOTICE'
+		AND th.del_yn = 'N'
+		AND tuh.user_id = #{userId}
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tn.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND th.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="title != null and title != ''">
+			AND tn.title like CONCAT('%',#{title},'%')
+		</if>
+		ORDER BY tn.cr_dt DESC
+	</select>
+
+	<!-- 시스템 관리자: 단지 커뮤니티 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 -->
+	<select id="selectNoticeDetailForAdmin" parameterType="NoticeItem" resultMap="noticeDetail">
+		SELECT /* CommunityMapper.xml.selectNoticeDetailForAdmin */
+			tn.bllt_no AS bllt_no, tn.cr_dt AS cr_dt,
+			GROUP_CONCAT(hclist.houscplx_nm SEPARATOR ', ') AS houscplx_nm,
+			tn.title AS title, hclist.houscplx_cd AS houscplx_cd,
+			case
+				when tn.tlrnc_yn = 'N' then '게시예정'
+				when tn.tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm, tn.tlrnc_yn as tlrnc_yn, tn.cont AS cont
+		FROM
+			T_NOTI_ITEM AS tn,
+			(
+				SELECT th.houscplx_nm AS houscplx_nm, th.houscplx_cd AS houscplx_cd
+				FROM
+					T_HOUSCPLX_NOTI_RLT AS thn
+				INNER JOIN T_HOUSCPLX_BAS AS th
+					ON thn.houscplx_cd = th.houscplx_cd
+				WHERE thn.bllt_no = #{blltNo}
+			) AS hclist
+		WHERE tn.bllt_tp_cd = 'NOTICE'
+		AND tn.bllt_no = #{blltNo}
+		AND hclist.houscplx_cd = #{houscplxCd}
+	</select>
+
+	<!-- 공통: 단지 커뮤니티 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 첨부파일 -->
+	<select id="selectNoticeDetailFile" parameterType="NoticeItem" resultMap="noticeFile">
+		SELECT /* CommunityMapper.xml.selectNoticeDetailFile */
+			tna.file_nm AS file_nm, tna.orgnl_file_nm AS orgnl_file_nm, tna.file_url AS file_url
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_NOTI_ATCH_FILE_DTL AS tna
+			ON tn.bllt_no = tna.bllt_no
+		WHERE tn.bllt_tp_cd = 'NOTICE'
+		AND tn.bllt_no = #{blltNo}
+		AND tna.del_yn = 'N'
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 목록 -->
+	<select id="selectNoticeList" parameterType="NoticeItem" resultMap="noticeList">
+		SELECT /* CommunityMapper.xml.selectNoticeList */
+			tn.bllt_no AS bllt_no, thn.houscplx_cd as houscplx_cd,
+			tn.cr_dt AS cr_dt, tn.title AS title,
+			case
+				when tn.tlrnc_yn = 'N' then '게시예정'
+				when tn.tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		WHERE tn.bllt_tp_cd = 'NOTICE'
+		AND tn.del_yn = 'N'
+		AND thn.houscplx_cd = #{houscplxCd}
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tn.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="title != null and title != ''">
+			AND tn.title like CONCAT('%',#{title},'%')
+		</if>
+		ORDER BY tn.cr_dt DESC
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 -->
+	<select id="selectNoticeDetail" parameterType="NoticeItem" resultMap="noticeDetail">
+		SELECT /* CommunityMapper.xml.selectNoticeDetail */
+			tn.bllt_no AS bllt_no, tn.cr_dt AS cr_dt, tn.title AS title, tn.hmnet_noti_cont AS hmnet_noti_cont, tn.main_popup_yn as main_popup_yn,
+			case
+				when tn.tlrnc_yn = 'N' then '게시예정'
+				when tn.tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm, tn.tlrnc_yn as tlrnc_yn,
+			tn.cont as cont, tn.svc_noti_tp_cd as svc_noti_tp_cd,
+			thn.houscplx_cd as houscplx_cd
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		WHERE tn.bllt_tp_cd = 'NOTICE'
+		AND tn.bllt_no = #{blltNo}
+		AND thn.houscplx_cd = #{houscplxCd}
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 서비스 공지사항 > 서비스 공지사항 목록 -->
+	<select id="selectServiceNoticeList" parameterType="NoticeItem" resultMap="noticeList">
+		SELECT /* CommunityMapper.xml.selectServiceNoticeList */
+			tni.cr_dt, tni.bllt_no, tni.title, tni.tlrnc_yn,
+			case
+				when tni.tlrnc_yn = 'N' then '게시예정'
+				when tni.tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm,
+			IFNULL(GROUP_CONCAT(thnr.HOUSCPLX_CD),'') as houscplx_cd_list FROM t_noti_item tni LEFT OUTER join t_houscplx_noti_rlt thnr
+		ON tni.bllt_no = thnr.bllt_no
+		WHERE tni.bllt_tp_cd = 'NOTICE'
+		AND tni.bllt_tp_dtl_cd = 'SERVICE'
+		AND tni.del_yn = 'N'
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tni.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="title != null">
+			AND tni.title like CONCAT('%',#{title},'%')
+		</if>
+		GROUP BY tni.bllt_no
+		ORDER BY tni.cr_dt DESC
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 -->
+	<select id="selectServiceNoticeDetail" parameterType="NoticeItem" resultMap="noticeDetail">
+		SELECT /* CommunityMapper.xml.selectServiceNoticeDetail */
+			bllt_no, cr_dt, title, main_popup_yn,
+			case
+				when tlrnc_yn = 'N' then '게시예정'
+				when tlrnc_yn = 'Y' then '게시완료'
+			END AS tlrnc_yn_nm, tlrnc_yn,
+			cont, svc_noti_tp_cd
+		FROM
+			T_NOTI_ITEM
+		WHERE bllt_tp_cd = 'NOTICE'
+		AND bllt_no = #{blltNo}
+	</select>
+
+	<select id="selectServiceHouscplxList" parameterType="NoticeItem" resultMap="NoticeItem">
+		SELECT /* CommunityMapper.xml.selectServiceHouscplxList */
+			tn.bllt_no, th.houscplx_cd, tb.houscplx_nm
+		FROM
+		T_NOTI_ITEM as tn
+		left outer join T_HOUSCPLX_NOTI_RLT as th
+		on tn.bllt_no = th.bllt_no
+		inner join T_HOUSCPLX_BAS AS tb
+		ON th.houscplx_cd = tb.houscplx_cd
+		WHERE bllt_tp_cd = 'NOTICE'
+		AND svc_noti_tp_cd = 'PART'
+		AND tb.del_yn = 'N'
+		AND tn.bllt_no = #{blltNo}
+	</select>
+
+	<!-- 시스템 관리자: 단지 커뮤니티 관리 > 설문조사 목록 -->
+    <select id="selectQuestionListForAdmin" parameterType="Question" resultMap="questionList">
+         SELECT /* CommunityMapper.xml.selectQuestionListForAdmin */
+	        tqi.qst_no as qst_no, tqi.cr_dt AS cr_dt,
+	        tb.houscplx_nm AS houscplx_nm, tqi.qst_title AS qst_title, thq.houscplx_cd AS houscplx_cd,
+	        DATE_FORMAT(STR_TO_DATE(tqi.qst_st_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_st_dt,
+	        DATE_FORMAT(STR_TO_DATE(tqi.qst_ed_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_ed_dt,
+	        case
+			    when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+			    when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 전'
+			    when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+			    when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 중'
+	            when tqi.qst_sts_cd = '3' then '설문 종료'
+	            when tqi.qst_sts_cd = '4' then '강제 설문 종료'
+	        END AS qst_sts_cd_nm,
+	        tqi.qst_sts_cd as qst_sts_cd
+         FROM
+            T_QST_INVST_BAS AS tqi
+         INNER JOIN T_HOUSCPLX_QST_RLT AS thq
+            ON thq.qst_no = tqi.qst_no
+         INNER JOIN T_HOUSCPLX_BAS AS tb
+            ON thq.houscplx_cd = tb.houscplx_cd
+	     WHERE 1=1
+	     AND tb.del_yn = #{delYn}
+		 AND  tqi.del_yn = 'N'
+	    <if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+		    AND DATE(tqi.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+	    </if>
+	    <if test="houscplxCd != null and houscplxCd != ''">
+		    AND tb.houscplx_cd = #{houscplxCd}
+	    </if>
+	    <if test="qstTitle != null and qstTitle != ''">
+		    AND tqi.qst_title like CONCAT('%',#{qstTitle},'%')
+	    </if>
+         ORDER BY tqi.cr_dt DESC
+    </select>
+
+	<!-- 시스템 관리자: 단지 커뮤니티 관리 > 설문조사 목록 > 설문조사 상세 -->
+    <select id="selectQuestionDetailForAdmin" parameterType="Question" resultMap="Question">
+	    SELECT /* CommunityMapper.xml.selectQuestionDetailForAdmin */
+	           tqi.qst_no as qst_no, tqi.cr_dt AS cr_dt, tb.houscplx_nm AS houscplx_nm,
+	           tqi.qst_title AS qst_title,
+	           DATE_FORMAT(STR_TO_DATE(tqi.qst_st_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_st_dt,
+	           DATE_FORMAT(STR_TO_DATE(tqi.qst_ed_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_ed_dt,
+	           case
+				    when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				    when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 전'
+				    when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				    when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 중'
+				    when tqi.qst_sts_cd = '3' then '설문 종료'
+				    when tqi.qst_sts_cd = '4' then '강제 설문 종료'
+	           END AS qst_sts_cd_nm, tqi.qst_sts_cd as qst_sts_cd,
+			   case
+			        when tqi.qst_tp_cd = '1' then '2지선다'
+			        when tqi.qst_tp_cd = '2' then '2지선다 + 기타'
+			        when tqi.qst_tp_cd = '3' then '3지선다'
+			        when tqi.qst_tp_cd = '4' then '3지선다 + 기타'
+			        when tqi.qst_tp_cd = '5' then '4지선다'
+			        when tqi.qst_tp_cd = '6' then '4지선다 + 기타'
+			   END AS qst_tp_cd_nm, tqi.qst_tp_cd as qst_tp_cd,
+	           (
+				    SELECT COUNT(*)
+				    FROM
+	                    T_HSHOLD_BAS tb
+				    INNER JOIN T_HSHOLD_USER_ITEM AS thui
+						ON tb.hshold_id = thui.hshold_id
+				    WHERE tb.houscplx_cd = #{houscplxCd}
+				    AND thui.fmly_tp_cd = 'REPRESENTATIVE'
+	                AND thui.del_yn = 'N'
+	           ) AS total_mem_cnt,
+	           (
+				    SELECT sum(qst_itm_ansr_cnt)
+				    FROM T_QST_INVST_DTL
+				    WHERE qst_no = #{qstNo}
+				    GROUP BY qst_no
+	           ) AS voted_mem_cnt,
+	           (
+		            SELECT qst_itm_quest_cont
+		            FROM T_QST_INVST_DTL
+		            WHERE qst_no = #{qstNo}
+					AND del_yn = 'N'
+		            LIMIT 1
+	            ) AS qst_ansr_title
+	    FROM
+	        T_QST_INVST_BAS AS tqi
+	    INNER JOIN (
+		    SELECT *
+		    FROM T_HOUSCPLX_QST_RLT
+		    WHERE houscplx_cd = #{houscplxCd}
+           ) AS thq
+	       ON thq.qst_no = tqi.qst_no
+	    INNER JOIN T_HOUSCPLX_BAS AS tb
+	    ON thq.houscplx_cd = tb.houscplx_cd
+	    WHERE thq.qst_no = #{qstNo}
+    </select>
+
+	<!-- 공통: 단지 커뮤니티 관리 > 설문조사 목록 > 설문조사 상세항목 내용 -->
+	<select id="selectQuestionItemList" parameterType="QuestionDetail" resultMap="qustionItemList">
+		SELECT /* CommunityMapper.xml.selectQuestionItemList */
+			qst_itm_ansr_cont, qst_itm_ansr_cnt, qst_itm_no
+		FROM
+			T_QST_INVST_DTL
+		WHERE qst_no = #{qstNo}
+		AND del_yn = 'N'
+	</select>
+
+	<!-- 공통 : 단지 커뮤니티 관리 > 설문조사 목록 > 설문조사 상세항목 기타 답변 -->
+	<select id="selectQuestionEtcAnswerList" parameterType="QuestionCompletion" resultMap="questionCompletionList">
+		SELECT /* CommunityMapper.xml.selectQuestionEtcAnswerList */
+			tqch.qst_etc_ansr AS qst_etc_ansr
+		FROM
+			T_QST_CMPLT_HST AS tqch
+		INNER JOIN (
+				SELECT qst_no, houscplx_cd
+				FROM
+					T_HOUSCPLX_QST_RLT
+				WHERE houscplx_cd = #{houscplxCd}
+				AND qst_no = #{qstNo}
+		) AS thq
+			ON thq.qst_no = tqch.qst_no
+		INNER JOIN T_HOUSCPLX_BAS AS tb
+			ON thq.houscplx_cd = tb.houscplx_cd
+		WHERE tqch.qst_no = #{qstNo}
+		AND tqch.qst_etc_ansr IS NOT null
+		ORDER BY
+			tqch.cr_dt DESC
+	</select>
+
+	<!-- 시스템 관리자: 단지 커뮤니티 관리 > 설문조사 목록 > 설문조사 상세 > (모달) 세대별 투표내역 -->
+	<select id="selectQuestionCompletionList" parameterType="QuestionCompletion" resultMap="questionCompletionList">
+		SELECT /* CommunityMapper.xml.selectQuestionCompletionList */
+			SUBSTRING_INDEX(tqc.hshold_id, '.', -2) AS hshold_id,
+			tqc.qst_itm_no AS qst_itm_no, IFNULL(tqc.qst_etc_ansr, '') AS qst_etc_ansr
+		FROM
+			T_QST_INVST_BAS as tqi
+		INNER JOIN T_QST_CMPLT_HST AS tqc
+			ON tqi.qst_no = tqc.qst_no
+		WHERE tqi.qst_no = #{qstNo}
+		ORDER BY
+			tqc.hshold_id DESC
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 목록 -->
+	<select id="selectQuestionList" parameterType="Question" resultMap="questionList">
+		SELECT /* CommunityMapper.xml.selectQuestionList */
+			tqi.qst_no as qst_no, tqi.cr_dt AS cr_dt, tqi.qst_title AS qst_title,
+			DATE_FORMAT(STR_TO_DATE(tqi.qst_st_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_st_dt,
+			DATE_FORMAT(STR_TO_DATE(tqi.qst_ed_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_ed_dt, thq.houscplx_cd AS houscplx_cd,
+			case
+				when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 전'
+				when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 중'
+				when tqi.qst_sts_cd = '3' then '설문 종료'
+				when tqi.qst_sts_cd = '4' then '강제 설문 종료'
+			END AS qst_sts_cd_nm,
+			tqi.qst_sts_cd as qst_sts_cd
+		FROM
+			T_QST_INVST_BAS AS tqi
+		INNER JOIN (
+				SELECT *
+				FROM T_HOUSCPLX_QST_RLT
+				WHERE HOUSCPLX_CD = #{houscplxCd}
+			) AS thq
+			ON thq.qst_no = tqi.qst_no
+		WHERE 1=1
+		AND tqi.del_yn = 'N'
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tqi.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="qstTitle != null and qstTitle != ''">
+			AND tqi.qst_title like CONCAT('%',#{qstTitle},'%')
+		</if>
+		ORDER BY tqi.cr_dt DESC
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 목록 -->
+	<select id="selectMultiQuestionList" parameterType="Question" resultMap="questionList">
+		SELECT /* CommunityMapper.xml.selectMultiQuestionList */
+			tqi.qst_no as qst_no, tqi.cr_dt AS cr_dt, tqi.qst_title AS qst_title,
+			DATE_FORMAT(STR_TO_DATE(tqi.qst_st_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_st_dt,
+			DATE_FORMAT(STR_TO_DATE(tqi.qst_ed_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_ed_dt, thq.houscplx_cd AS houscplx_cd,
+			case
+				when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 전'
+				when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 중'
+				when tqi.qst_sts_cd = '3' then '설문 종료'
+				when tqi.qst_sts_cd = '4' then '강제 설문 종료'
+			END AS qst_sts_cd_nm,
+			tqi.qst_sts_cd as qst_sts_cd,
+			thb.houscplx_nm AS houscplx_nm
+		FROM
+			T_QST_INVST_BAS AS tqi
+		INNER JOIN (
+				SELECT *
+				FROM T_HOUSCPLX_QST_RLT
+			) AS thq
+			ON thq.qst_no = tqi.qst_no
+		INNER JOIN (
+				SELECT *
+				FROM T_USER_HOUSCPLX_RLT
+			) AS tuh
+			ON thq.houscplx_cd = tuh.houscplx_cd
+		INNER JOIN (
+				SELECT *
+				FROM t_houscplx_bas
+			) AS thb
+			ON tuh.houscplx_cd = thb.houscplx_cd
+		WHERE 1=1
+		AND tqi.del_yn = 'N'
+		AND tuh.user_id = #{userId}
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND thb.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tqi.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="qstTitle != null and qstTitle != ''">
+			AND tqi.qst_title like CONCAT('%',#{qstTitle},'%')
+		</if>
+		ORDER BY tqi.cr_dt DESC
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 목록 > 설문조사 상세 -->
+    <select id="selectQuestionDetail" parameterType="Question" resultMap="Question">
+	    SELECT /* CommunityMapper.xml.selectQuestionDetail */
+		       tqi.qst_no as qst_no, tqi.cr_dt AS cr_dt, tqi.qst_title AS qst_title, thq.houscplx_cd as houscplx_cd,
+			   DATE_FORMAT(STR_TO_DATE(tqi.qst_st_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_st_dt,
+			   DATE_FORMAT(STR_TO_DATE(tqi.qst_ed_dt, '%Y%m%d'),'%Y-%m-%d') AS qst_ed_dt,
+	           case
+				    when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				    when tqi.qst_sts_cd = '1' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 전'
+				    when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d') then '설문종료'
+				    when tqi.qst_sts_cd = '2' AND tqi.qst_ed_dt <![CDATA[>]]> DATE_FORMAT(NOW(), '%Y%m%d') then '진행 중'
+				    when tqi.qst_sts_cd = '3' then '설문 종료'
+				    when tqi.qst_sts_cd = '4' then '강제 설문 종료'
+	           END AS qst_sts_cd_nm, tqi.qst_sts_cd as qst_sts_cd,
+	           case
+				    when tqi.qst_tp_cd = '1' then '2지선다'
+				    when tqi.qst_tp_cd = '2' then '2지선다 + 기타'
+				    when tqi.qst_tp_cd = '3' then '3지선다'
+				    when tqi.qst_tp_cd = '4' then '3지선다 + 기타'
+				    when tqi.qst_tp_cd = '5' then '4지선다'
+				    when tqi.qst_tp_cd = '6' then '4지선다 + 기타'
+	           END AS qst_tp_cd_nm, tqi.qst_tp_cd as qst_tp_cd,
+	           (
+				    SELECT COUNT(*)
+				    FROM
+	                    T_HSHOLD_BAS tb
+				    INNER JOIN T_HSHOLD_USER_ITEM AS thui
+						ON tb.hshold_id = thui.hshold_id
+				    WHERE tb.houscplx_cd = #{houscplxCd}
+				    AND thui.fmly_tp_cd = 'REPRESENTATIVE'
+	           ) AS total_mem_cnt,
+	           (
+				    SELECT sum(qst_itm_ansr_cnt)
+				    FROM T_QST_INVST_DTL
+				    WHERE qst_no = #{qstNo}
+				    GROUP BY qst_no
+	           ) AS voted_mem_cnt,
+	           (
+				    SELECT qst_itm_quest_cont
+				    FROM T_QST_INVST_DTL
+				    WHERE qst_no = #{qstNo}
+					AND del_yn = 'N'
+				    LIMIT 1
+	           ) AS qst_ansr_title
+	    FROM T_QST_INVST_BAS AS tqi
+	    INNER JOIN (
+            SELECT *
+            FROM T_HOUSCPLX_QST_RLT
+            WHERE houscplx_cd = #{houscplxCd}
+           ) AS thq
+	       ON thq.qst_no = tqi.qst_no
+	    WHERE thq.qst_no = #{qstNo}
+
+    </select>
+
+	<!-- 배치 Job: 설문기한이 지난 설문목록 조회 -->
+	<select id="selectQuestionEndList" resultMap="Question">
+		SELECT /* CommunityMapper.xml.selectQuestionEndList */
+			qst_no
+		FROM
+			T_QST_INVST_BAS
+		WHERE qst_ed_dt <![CDATA[<]]> DATE_FORMAT(NOW(), '%Y%m%d')
+		AND qst_sts_cd != '3'
+		AND qst_sts_cd != '4'
+	</select>
+
+	<!-- 공통: 단지 커뮤니티 관리 > 생활불편신고 목록 -->
+	<select id="selectReportListForAdmin" parameterType="NoticeItem" resultMap="reportList">
+		SELECT /* CommunityMapper.xml.selectReportListForAdmin */
+			tn.cr_dt AS cr_dt, th.houscplx_nm AS houscplx_nm, th.houscplx_cd AS houscplx_cd,
+			thb.dong_no AS report_dong_no, thb.hose_no AS report_hose_no,
+			case
+				when tn.bllt_tp_dtl_cd = 'DAMAGE' then '단지 시설물 파손'
+				when tn.bllt_tp_dtl_cd = 'NOISE' then '층간 소음'
+				when tn.bllt_tp_dtl_cd = 'DUMP' then '쓰레기 방치 투기'
+				when tn.bllt_tp_dtl_cd = 'MALFUNCTION' then '기기 작동불량'
+				when tn.bllt_tp_dtl_cd = 'ETC' then '기타신고'
+				when tn.bllt_tp_dtl_cd = 'PUBLIC_FACLT' then '공용부 하자'
+				when tn.bllt_tp_dtl_cd = 'COMM_FACLT' then '커뮤니티 시설 하자'
+				when tn.bllt_tp_dtl_cd = 'SMOKING' then '흡연'
+				when tn.bllt_tp_dtl_cd = 'CAR_PARKING' then '차량/주차장'
+			END AS bllt_tp_dtl_cd_nm, tn.bllt_tp_dtl_cd AS bllt_tp_dtl_cd, tn.bllt_grp_no AS bllt_grp_no,
+			tn.title AS title,
+			case
+				when tn.bllt_sts_cd = 'PROCESSING' then '처리 중'
+				when tn.bllt_sts_cd = 'REGISTER' then '등록'
+				when tn.bllt_sts_cd = 'COMPLETE' then '처리 완료'
+			END AS bllt_sts_cd_nm, tn.bllt_sts_cd AS bllt_sts_cd,
+			tn.bllt_grp_tp_cd AS bllt_grp_tp_cd, tn.bllt_no AS bllt_no
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HOUSCPLX_BAS AS th
+			ON thn.houscplx_cd = th.houscplx_cd
+		INNER JOIN T_HSHOLD_USER_ITEM AS thu
+			ON tn.crer_id = thu.user_id
+		INNER JOIN T_HSHOLD_BAS AS thb
+			ON thu.hshold_id = thb.hshold_id
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND th.del_yn = #{delYn}
+		<if test="startCrDt != null and startCrDt != '' and endCrDt != null and endCrDt != ''">
+			AND DATE(tn.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND th.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="title != null and title != ''">
+			AND tn.title like CONCAT('%',#{title},'%')
+		</if>
+		ORDER BY tn.cr_dt DESC
+	</select>
+
+	<!-- 멀티 단지 관리자: 단지 커뮤니티 관리 > 생활불편신고 목록 -->
+	<select id="selectMultiReportListForAdmin" parameterType="NoticeItem" resultMap="reportList">
+		SELECT /* CommunityMapper.xml.selectMultiReportListForAdmin */
+			tn.cr_dt AS cr_dt, th.houscplx_nm AS houscplx_nm, th.houscplx_cd AS houscplx_cd,
+			thb.dong_no AS report_dong_no, thb.hose_no AS report_hose_no,
+			case
+				when tn.bllt_tp_dtl_cd = 'DAMAGE' then '단지 시설물 파손'
+				when tn.bllt_tp_dtl_cd = 'NOISE' then '층간 소음'
+				when tn.bllt_tp_dtl_cd = 'DUMP' then '쓰레기 방치 투기'
+				when tn.bllt_tp_dtl_cd = 'MALFUNCTION' then '기기 작동불량'
+				when tn.bllt_tp_dtl_cd = 'ETC' then '기타신고'
+				when tn.bllt_tp_dtl_cd = 'PUBLIC_FACLT' then '공용부 하자'
+				when tn.bllt_tp_dtl_cd = 'COMM_FACLT' then '커뮤니티 시설 하자'
+				when tn.bllt_tp_dtl_cd = 'SMOKING' then '흡연'
+				when tn.bllt_tp_dtl_cd = 'CAR_PARKING' then '차량/주차장'
+			END AS bllt_tp_dtl_cd_nm, tn.bllt_tp_dtl_cd AS bllt_tp_dtl_cd, tn.bllt_grp_no AS bllt_grp_no,
+			tn.title AS title,
+			case
+				when tn.bllt_sts_cd = 'PROCESSING' then '처리 중'
+				when tn.bllt_sts_cd = 'REGISTER' then '등록'
+				when tn.bllt_sts_cd = 'COMPLETE' then '처리 완료'
+			END AS bllt_sts_cd_nm, tn.bllt_sts_cd AS bllt_sts_cd,
+			tn.bllt_grp_tp_cd AS bllt_grp_tp_cd, tn.bllt_no AS bllt_no
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HOUSCPLX_BAS AS th
+			ON thn.houscplx_cd = th.houscplx_cd
+		INNER JOIN T_HSHOLD_USER_ITEM AS thu
+			ON tn.crer_id = thu.user_id
+		INNER JOIN T_HSHOLD_BAS AS thb
+			ON thu.hshold_id = thb.hshold_id
+		INNER JOIN T_USER_HOUSCPLX_RLT AS tuh
+			ON th.houscplx_cd = tuh.houscplx_cd
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND th.del_yn = 'N'
+		AND tuh.USER_ID = #{userId}
+		<if test="startCrDt != null and startCrDt != '' and endCrDt != null and endCrDt != ''">
+			AND DATE(tn.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND th.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="title != null and title != ''">
+			AND tn.title like CONCAT('%',#{title},'%')
+		</if>
+		ORDER BY tn.cr_dt DESC
+	</select>
+
+	<!-- 공통: 단지 커뮤니티 관리 > 생활불편신고 목록 > 생활불편신고 상세 -->
+	<select id="selectReportDetailForAdmin" parameterType="map" resultMap="reportDetail">
+		SELECT /* CommunityMapper.xml.selectReportDetailForAdmin */
+			   th.houscplx_nm AS houscplx_nm, thb.dong_no AS report_dong_no, thb.hose_no AS report_hose_no,
+			   tu.user_nm AS report_user_nm, tn.sms_yn AS report_sms_yn, tu.user_id AS report_user_id,
+			   cast(aes_decrypt(from_base64(tu.mphone_no), sha2(#{encKey}, 512)) as char(128)) AS report_mphone_no,
+			   case
+				when tn.bllt_tp_dtl_cd = 'DAMAGE' then '단지 시설물 파손'
+				when tn.bllt_tp_dtl_cd = 'NOISE' then '층간 소음'
+				when tn.bllt_tp_dtl_cd = 'DUMP' then '쓰레기 방치 투기'
+				when tn.bllt_tp_dtl_cd = 'MALFUNCTION' then '기기 작동불량'
+				when tn.bllt_tp_dtl_cd = 'ETC' then '기타신고'
+				when tn.bllt_tp_dtl_cd = 'PUBLIC_FACLT' then '공용부 하자'
+				when tn.bllt_tp_dtl_cd = 'COMM_FACLT' then '커뮤니티 시설 하자'
+				when tn.bllt_tp_dtl_cd = 'SMOKING' then '흡연'
+				when tn.bllt_tp_dtl_cd = 'CAR_PARKING' then '차량/주차장'
+			   END AS bllt_tp_dtl_cd_nm, tn.bllt_tp_dtl_cd AS bllt_tp_dtl_cd,
+			   case
+				when tn.bllt_sts_cd = 'PROCESSING' then '처리 중'
+				when tn.bllt_sts_cd = 'REGISTER' then '등록'
+				when tn.bllt_sts_cd = 'COMPLETE' then '처리 완료'
+			   END AS bllt_sts_cd_nm, tn.bllt_sts_cd AS bllt_sts_cd,
+			   tn.cr_dt AS cr_dt, tn.title AS title,
+			   tn.cont AS cont, tn.bllt_no AS bllt_no,
+			   (
+				SELECT cont
+				FROM
+					T_NOTI_ITEM
+				WHERE bllt_grp_tp_cd = 'ANSWER'
+				AND bllt_grp_no = #{blltNo}
+				AND del_yn = 'N'
+			   ) AS report_ansr
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HOUSCPLX_BAS AS th
+			ON thn.houscplx_cd = th.houscplx_cd
+		INNER JOIN T_HSHOLD_USER_ITEM AS thu
+			ON tn.crer_id = thu.user_id
+		INNER JOIN T_HSHOLD_BAS AS thb
+			ON thu.hshold_id = thb.hshold_id
+		INNER JOIN T_USER_BAS AS tu
+			ON thu.user_id = tu.user_id
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND tn.bllt_no = #{blltNo}
+		AND thn.houscplx_cd = #{houscplxCd}
+		AND thu.hshold_id = #{hsholdId}
+	</select>
+
+	<!-- 공통: 생활불편신고 상세 파일목록 -->
+	<select id="selectReportDetailFile" parameterType="NoticeItem" resultMap="reportFile">
+		SELECT /* CommunityMapper.xml.selectReportDetailFile */
+		tna.file_nm AS file_nm, tna.orgnl_file_nm as orgnl_file_nm, tna.file_url AS file_url
+		FROM
+		T_NOTI_ITEM AS tn
+		INNER JOIN T_NOTI_ATCH_FILE_DTL AS tna
+		ON tn.bllt_no = tna.bllt_no
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND tn.bllt_grp_tp_cd = 'QUESTION'
+		AND tn.bllt_no = #{blltNo}
+	</select>
+
+	<!-- 공통: 생활불편신고 상세답변 파일목록 -->
+	<select id="selectReportDetailAnswerFile" parameterType="NoticeItem" resultMap="reportFile">
+		SELECT /* CommunityMapper.xml.selectReportDetailAnswerFile */
+		tna.file_nm AS file_nm, tna.orgnl_file_nm as orgnl_file_nm, tna.file_url as file_url
+		FROM
+		T_NOTI_ITEM AS tn
+		INNER JOIN T_NOTI_ATCH_FILE_DTL AS tna
+		ON tn.bllt_no = tna.bllt_no
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND tn.bllt_grp_tp_cd = 'ANSWER'
+		AND tn.bllt_grp_no = #{blltNo}
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 생활불편신고 목록 -->
+	<select id="selectReportList" parameterType="NoticeItem" resultMap="reportList">
+		SELECT /* CommunityMapper.xml.selectReportList */
+			   tn.cr_dt AS cr_dt, thb.dong_no AS report_dong_no, thb.hose_no AS report_hose_no,
+			   case
+					when tn.bllt_tp_dtl_cd = 'DAMAGE' then '단지 시설물 파손'
+					when tn.bllt_tp_dtl_cd = 'NOISE' then '층간 소음'
+					when tn.bllt_tp_dtl_cd = 'DUMP' then '쓰레기 방치 투기'
+					when tn.bllt_tp_dtl_cd = 'MALFUNCTION' then '기기 작동불량'
+					when tn.bllt_tp_dtl_cd = 'ETC' then '기타신고'
+					when tn.bllt_tp_dtl_cd = 'PUBLIC_FACLT' then '공용부 하자'
+					when tn.bllt_tp_dtl_cd = 'COMM_FACLT' then '커뮤니티 시설 하자'
+					when tn.bllt_tp_dtl_cd = 'SMOKING' then '흡연'
+					when tn.bllt_tp_dtl_cd = 'CAR_PARKING' then '차량/주차장'
+			   END AS bllt_tp_dtl_cd_nm, tn.bllt_grp_no AS bllt_grp_no,
+			   tn.title AS title,
+			   case
+				when tn.bllt_sts_cd = 'PROCESSING' then '처리 중'
+				when tn.bllt_sts_cd = 'REGISTER' then '등록'
+				when tn.bllt_sts_cd = 'COMPLETE' then '처리 완료'
+			   END AS bllt_sts_cd_nm, tu.user_nm AS user_nm,
+			   tu.mphone_no AS mphone_no, tn.sms_yn AS sms_yn,
+			   tn.cont AS cont, tn.bllt_no AS bllt_no, th.houscplx_cd as houscplx_cd
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HSHOLD_USER_ITEM AS thu
+			ON tn.crer_id = thu.user_id
+		INNER JOIN T_HSHOLD_BAS AS thb
+			ON thu.hshold_id = thb.hshold_id
+		INNER JOIN T_USER_BAS AS tu
+			ON thu.user_id = tu.user_id
+		INNER JOIN t_houscplx_bas AS th
+		ON thn.houscplx_cd = th.houscplx_cd
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND thn.houscplx_cd = thb.houscplx_cd
+		AND thb.houscplx_cd = #{houscplxCd}
+		<if test="startCrDt != null and endCrDt != null">
+			AND DATE(tn.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="title != null">
+			AND tn.title like CONCAT('%',#{title},'%')
+		</if>
+		ORDER BY tn.cr_dt DESC
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 생활불편신고 목록 > 생활불편신고 상세 -->
+	<select id="selectReportDetail" parameterType="map" resultMap="reportDetail">
+		SELECT /* CommunityMapper.xml.selectReportDetail */
+			   thb.dong_no AS report_dong_no, thb.hose_no AS report_hose_no,
+		       tu.user_nm AS report_user_nm, tn.sms_yn AS report_sms_yn, tu.user_id AS report_user_id,
+			   cast(aes_decrypt(from_base64(tu.mphone_no), sha2(#{encKey}, 512)) as char(128)) AS report_mphone_no,
+			   case
+				when tn.bllt_tp_dtl_cd = 'DAMAGE' then '단지 시설물 파손'
+				when tn.bllt_tp_dtl_cd = 'NOISE' then '층간 소음'
+				when tn.bllt_tp_dtl_cd = 'DUMP' then '쓰레기 방치 투기'
+				when tn.bllt_tp_dtl_cd = 'MALFUNCTION' then '기기 작동불량'
+				when tn.bllt_tp_dtl_cd = 'ETC' then '기타신고'
+				when tn.bllt_tp_dtl_cd = 'PUBLIC_FACLT' then '공용부 하자'
+				when tn.bllt_tp_dtl_cd = 'COMM_FACLT' then '커뮤니티 시설 하자'
+				when tn.bllt_tp_dtl_cd = 'SMOKING' then '흡연'
+				when tn.bllt_tp_dtl_cd = 'CAR_PARKING' then '차량/주차장'
+			   END AS bllt_tp_dtl_cd_nm, tn.bllt_tp_dtl_cd as bllt_tp_dtl_cd,
+			   case
+				when tn.bllt_sts_cd = 'PROCESSING' then '처리 중'
+				when tn.bllt_sts_cd = 'REGISTER' then '등록'
+				when tn.bllt_sts_cd = 'COMPLETE' then '처리 완료'
+			   END AS bllt_sts_cd_nm, tn.bllt_sts_cd as bllt_sts_cd,
+			   tn.cr_dt AS cr_dt, tn.title AS title,
+			   tn.cont AS cont, tn.bllt_no AS bllt_no, th.houscplx_cd AS houscplx_cd,
+				(
+					SELECT cont
+					FROM
+					T_NOTI_ITEM
+					WHERE bllt_grp_tp_cd = 'ANSWER'
+					AND bllt_grp_no = #{blltNo}
+					AND del_yn = 'N'
+				) AS report_ansr
+		FROM
+			T_NOTI_ITEM AS tn
+		INNER JOIN T_HOUSCPLX_NOTI_RLT AS thn
+			ON tn.bllt_no = thn.bllt_no
+		INNER JOIN T_HSHOLD_USER_ITEM AS thu
+			ON tn.crer_id = thu.user_id
+		INNER JOIN T_HSHOLD_BAS AS thb
+			ON thu.hshold_id = thb.hshold_id
+		INNER JOIN T_USER_BAS AS tu
+			ON thu.user_id = tu.user_id
+		INNER JOIN t_houscplx_bas AS th
+		ON thn.houscplx_cd = th.houscplx_cd
+		WHERE tn.bllt_tp_cd = 'REPORT'
+		AND thn.houscplx_cd = thb.houscplx_cd
+		AND thb.houscplx_cd = #{houscplxCd}
+		AND tn.bllt_no = #{blltNo}
+		AND thu.hshold_id = #{hsholdId}
+	</select>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 신규등록 -->
+	<insert id="insertNotice" parameterType="NoticeItem" useGeneratedKeys="true" keyProperty="blltNo">
+		INSERT INTO /* CommunityMapper.xml.insertNotice */
+			T_NOTI_ITEM
+		(
+			title, cont, hmnet_noti_cont, bllt_tp_cd, bllt_tp_dtl_cd, bllt_sts_cd, svc_noti_tp_cd,
+			tlrnc_yn, del_yn, crer_id, cr_dt, editer_id, edit_dt, MAIN_POPUP_YN
+		)
+		VALUES
+		(
+			#{title}, #{cont}, #{hmnetNotiCont}, 'NOTICE', #{blltTpDtlCd}, 'REGISTER', #{svcNotiTpCd},
+			#{tlrncYn}, 'N', #{crerId}, NOW(), #{crerId}, NOW(), #{mainPopupYn}
+		)
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 신규등록 파일 업로드 -->
+	<insert id="insertNoticeFile" parameterType="NoticeFile">
+		INSERT INTO /* CommunityMapper.xml.insertNoticeFile */
+			T_NOTI_ATCH_FILE_DTL
+		(
+			bllt_no, bllt_ord_no, file_nm, orgnl_file_nm,
+			file_path_cont, file_url, crer_id, cr_dt, del_yn, editer_id, edit_dt
+		)
+		VALUES
+		(
+			#{blltNo}, #{blltOrdNo}, #{fileNm}, #{orgnlFileNm},
+			#{filePathCont}, #{fileUrl}, #{crerId}, NOW(), 'N', #{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지와 공지사항 관계처리 -->
+	<insert id="insertNoticeRelation" parameterType="NoticeItem">
+		INSERT INTO /* CommunityMapper.xml.insertNoticeRelation */
+			T_HOUSCPLX_NOTI_RLT
+		(
+			houscplx_cd, bllt_no, crer_id, cr_dt
+		)
+		VALUES
+		(
+			#{houscplxCd}, #{blltNo}, #{crerId}, NOW()
+		)
+	</insert>
+
+	<insert id="insertNoticeRelationList" parameterType="NoticeItem">
+		INSERT INTO /* CommunityMapper.xml.insertNoticeRelationList */
+		T_HOUSCPLX_NOTI_RLT
+		(
+		houscplx_cd, bllt_no, crer_id, cr_dt
+		)
+		VALUES
+		<foreach item="item" index="index" collection="houscplxList" separator=" , ">
+			(
+			#{item.houscplxCd}, #{blltNo}, #{crerId}, NOW()
+			)
+		</foreach>
+	</insert>
+
+	<delete id="deleteNoticeRelationList" parameterType="NoticeItem">
+		DELETE FROM /* CommunityMapper.xml.deleteNoticeRelationList */
+		  T_HOUSCPLX_NOTI_RLT
+		WHERE bllt_no = #{blltNo}
+	</delete>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 관리 > 설문조사 목록 > 설문조사 신규등록 -->
+	<insert id="insertQuestion" parameterType="Question" useGeneratedKeys="true" keyProperty="qstNo">
+		INSERT INTO /* CommunityMapper.xml.insertQuestion */
+			T_QST_INVST_BAS
+		(
+			qst_title, qst_st_dt, qst_ed_dt, del_yn,
+			qst_tp_cd, qst_sts_cd, crer_id, cr_dt, editer_id, edit_dt
+		)
+		VALUES
+		(
+			#{qstTitle}, #{qstStDt}, #{qstEdDt}, 'N',
+			#{qstTpCd}, #{qstStsCd}, #{crerId}, NOW(), #{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 관리 > 설문조사 목록 > 설문조사 신규등록 상세항목 내용 등록 -->
+	<insert id="insertQuestionDetail" parameterType="java.util.Map">
+		INSERT INTO /* CommunityMapper.xml.insertQuestionDetail */
+		T_QST_INVST_DTL
+		(
+			qst_no, qst_itm_quest_cont, qst_itm_ansr_cont, qst_itm_ansr_cnt,
+			del_yn, crer_id, cr_dt, editer_id, edit_dt
+		)
+		VALUES
+		<foreach item="item" index="index" collection="list" separator=" , ">
+		(
+			#{item.qstNo}, #{item.qstItmQuestCont}, #{item.qstItmAnsrCont}, #{item.qstItmAnsrCnt},
+			'N', #{item.crerId}, NOW(), #{item.crerId}, NOW()
+		)
+		</foreach>
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 관리 > 설문조사 목록 > 설문조사 신규등록 상세항목 내용 등록 -->
+	<insert id="insertQuestionDetailForNewItem" parameterType="java.util.Map">
+		INSERT INTO /* CommunityMapper.xml.insertQuestionDetailForNewItem */
+			T_QST_INVST_DTL
+		(
+			qst_no, qst_itm_quest_cont, qst_itm_ansr_cont, qst_itm_ansr_cnt,
+			del_yn, crer_id, cr_dt, editer_id, edit_dt
+		)
+		VALUES
+		<foreach item="item" index="index" collection="list" separator=" , ">
+			(
+				#{item.qstNo}, #{item.qstItmQuestCont}, #{item.qstItmAnsrCont}, #{item.qstItmAnsrCnt},
+				'N', #{item.crerId}, NOW(), #{item.crerId}, NOW()
+			)
+		</foreach>
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 설문조사 관리 > 단지와 설문조사의 관계처리 -->
+	<insert id="insertQuestionRelation" parameterType="Question">
+		INSERT INTO /* CommunityMapper.xml.insertQuestionRelation */
+		T_HOUSCPLX_QST_RLT
+		(
+			houscplx_cd, qst_no, crer_id, cr_dt
+		)
+		VALUES
+		(
+			#{houscplxCd}, #{qstNo}, #{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 생활불편신고 관리 > 생활불편신고 목록 > 생활불편신고 상세_답변작성 -->
+	<insert id="insertReportAnswer" parameterType="NoticeItem" useGeneratedKeys="true" keyProperty="blltNo">
+		INSERT INTO /* CommunityMapper.xml.insertReportAnswer */
+		T_NOTI_ITEM
+		(
+			cont, bllt_tp_cd, bllt_grp_no, bllt_tp_dtl_cd, del_yn,
+			bllt_sts_cd, bllt_grp_tp_cd, crer_id, cr_dt, editer_id, edit_dt
+		)
+		VALUES
+		(
+			#{cont}, 'REPORT', #{blltGrpNo}, #{blltTpDtlCd}, 'N',
+			#{blltStsCd}, 'ANSWER', #{crerId}, NOW(), #{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 > 단지 공지사항 수정 -->
+	<update id="updateNotice" parameterType="NoticeItem">
+		UPDATE /* CommunityMapper.xml.updateNotice */
+			T_NOTI_ITEM
+		SET title = #{title},
+			cont = #{cont},
+			hmnet_noti_cont = #{hmnetNotiCont},
+			svc_noti_tp_cd = #{svcNotiTpCd},
+			editer_id = #{editerId},
+			edit_dt = NOW(),
+			main_popup_yn = #{mainPopupYn}
+		WHERE bllt_no = #{blltNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 수정파일 업로드 -->
+	<update id="updateNoticeFile" parameterType="NoticeFile">
+		INSERT INTO /* CommunityMapper.xml.updateNoticeFile */
+		T_NOTI_ATCH_FILE_DTL
+		(
+			BLLT_NO, BLLT_ORD_NO, FILE_PATH_CONT, FILE_NM,
+			ORGNL_FILE_NM, FILE_URL, DEL_YN, CRER_ID, EDITER_ID,
+			CR_DT, EDIT_DT
+		)
+		VALUES
+		(
+			#{blltNo}, #{blltOrdNo}, #{filePathCont}, #{fileNm},
+			#{orgnlFileNm}, #{fileUrl}, #{delYn}, #{editerId}, #{editerId},
+			NOW(), NOW()
+		)
+		ON DUPLICATE KEY UPDATE
+			del_yn = #{delYn},
+			file_nm = #{fileNm},
+			orgnl_file_nm = #{orgnlFileNm},
+			file_path_cont = #{filePathCont},
+			file_url = #{fileUrl},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 > 단지 공지사항 삭제 -->
+	<update id="deleteNotice" parameterType="NoticeItem">
+		UPDATE /* CommunityMapper.xml.deleteNotice */
+			T_NOTI_ITEM
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE bllt_no = #{blltNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 업로드 파일 삭제 -->
+	<update id="deleteNoticeFile" parameterType="NoticeFile">
+		UPDATE /* CommunityMapper.xml.deleteNoticeFile */
+			T_NOTI_ATCH_FILE_DTL
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE bllt_no = #{blltNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 공지게시/공지취소 버튼 -->
+	<update id="updateNoticeTlrncYn" parameterType="NoticeItem">
+		UPDATE /* CommunityMapper.xml.updateNoticeTlrncYn */
+			T_NOTI_ITEM
+		SET tlrnc_yn = #{tlrncYn},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE bllt_no = #{blltNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 관리 > 설문조사 목록 > 설문조사 상세 > 설문조사 수정 -->
+	<update id="updateQuestion" parameterType="Question">
+		UPDATE /* CommunityMapper.xml.updateQuestion */
+			T_QST_INVST_BAS
+		SET qst_title = #{qstTitle},
+			qst_tp_cd = #{qstTpCd},
+			qst_st_dt = #{qstStDt},
+			qst_ed_dt = #{qstEdDt},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE
+			qst_no = #{qstNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 관리 > 설문조사 목록 > 설문조사 상세 > 설문조사 수정 -->
+	<update id="updateQuestionDetail" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* CommunityMapper.xml.updateQuestionDetail */
+				T_QST_INVST_DTL
+			SET qst_itm_quest_cont = #{item.qstItmQuestCont},
+				qst_itm_ansr_cont = #{item.qstItmAnsrCont},
+				editer_id = #{item.editerId},
+				edit_dt = NOW()
+			WHERE
+				qst_no = #{item.qstNo}
+			AND
+				qst_itm_no = #{item.qstItmNo}
+		</foreach>
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 설문조사 관리 > 설문조사 목록 > 설문조사 상세 설문게시 버튼-->
+	<update id="updateQuestionStsCd" parameterType="Question">
+		UPDATE /* CommunityMapper.xml.updateQuestionStsCd */
+			T_QST_INVST_BAS
+		SET qst_sts_cd = #{qstStsCd},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE qst_no = #{qstNo}
+	</update>
+
+	<!-- 공통: 세대구성 신청정보 가족 대표 요청 상태 변경(승인) -->
+	<update id="updateEndQuestionStsCd" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* CommunityMapper.xml.updateEndQuestionStsCd */
+				T_QST_INVST_BAS
+			SET qst_sts_cd = '3',
+				editer_id = #{editerId},
+				edit_dt = NOW()
+			WHERE qst_no in
+				#{item.qstNo}
+		</foreach>
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 생활불편신고 관리 > 생활불편신고 목록 > 생활불편신고 상세_답변작성 처리중 체크박스 -->
+	<update id="updateReportBlltStsCd" parameterType="NoticeItem">
+		UPDATE /* CommunityMapper.xml.updateReportBlltStsCd */
+			T_NOTI_ITEM
+		SET bllt_sts_cd = #{blltStsCd}
+		WHERE bllt_no = #{blltNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 설문조사 관리 > 단지 설문조사 목록 > 단지 설문조사 상세 > 단지 설문조사 삭제 -->
+	<update id="deleteQuestion" parameterType="Question">
+		UPDATE /* CommunityMapper.xml.deleteQuestion */
+			T_QST_INVST_BAS
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE qst_no = #{qstNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 설문조사 관리 > 단지 설문조사 목록 > 단지 설문조사 항목 삭제 -->
+	<update id="deleteQuestionDetail">
+		UPDATE /* CommunityMapper.xml.deleteQuestionDetail */
+			T_QST_INVST_DTL
+		SET del_yn = 'Y',
+			editer_id = #{adminId},
+			edit_dt = NOW()
+		WHERE qst_no = #{qstNo}
+	</update>
+
+	<!-- 단지 관리자: 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 > 단지 공지사항 수정 첨부파일 삭제 -->
+	<update id="deleteUnusedNoticeFile" parameterType="NoticeFile">
+		DELETE FROM /* CommunityMapper.xml.deleteUnusedNoticeFile */
+			T_NOTI_ATCH_FILE_DTL
+		WHERE bllt_no = #{blltNo}
+		AND bllt_ord_no = #{blltOrdNo}
+		AND file_nm = like CONCAT('%',#{fileNm},'%')
+	</update>
+
+	<!-- 단지 커뮤니티 관리 > 단지 공지사항 관리 > 단지 공지사항 목록 > 단지 공지사항 상세 > 수정/삭제/공지상태 변경 시 사용자 공지사항 확인여부 삭제 -->
+	<delete id="deleteUserNotiCfRlt" parameterType="NoticeFile">
+		DELETE FROM /* CommunityMapper.xml.deleteUserNotiCfRlt */
+			T_USER_NOTI_CF_RLT
+		WHERE bllt_no = #{blltNo}
+	</delete>
+
+	<!-- 시스탬: 시스템 관리 > 서비스 공지사항 > 공지사항 수정  -->
+	<select id="selectHouscplxBasAll" resultMap="NoticeItem">
+		SELECT /* CommunityMapper.xml.selectHouscplxBasAll */
+		houscplx_cd, houscplx_nm
+		FROM
+		T_HOUSCPLX_BAS
+		WHERE
+		del_yn = 'N'
+	</select>
+
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.homenet.HomenetMapper">
+    <resultMap id="HomenetSvr" type="com.daewooenc.pips.admin.web.domain.dto.homenet.HomenetSvr"></resultMap>
+
+    <!-- 공통: 단지 등록, 수정시 홈넷서버 목록 조회 및 사용여부 체크 -->
+    <select id="selectHomenetMetaList" parameterType="HomenetSvr" resultMap="HomenetSvr">
+        SELECT hmnet_id, hmnet_nm, bizco_cd, svr_tp_cd
+        FROM t_hmnet_svr_bas
+	    WHERE del_yn = 'N'
+	    AND svr_tp_cd = #{svrTpCd}
+	    <if test="hmnetId != null">
+		    AND hmnet_id = #{hmnetId}
+	    </if>
+    </select>
+
+	<!-- 공통: 단지 등록, 수정시 사용되고 있는 홈넷 체크 -->
+	<select id="checkUsedHomenet" parameterType="HomenetSvr" resultMap="HomenetSvr">
+		SELECT hmnet_id, bizco_cd, svr_tp_cd,
+				(
+					SELECT COUNT(*)
+					FROM t_houscplx_bas AS thb
+					WHERE hmnet_id = #{hmnetId}
+				) AS used_cnt
+		FROM t_hmnet_svr_bas
+		WHERE del_yn = 'N'
+		AND svr_tp_cd = #{svrTpCd}
+		<if test="hmnetId != null">
+			AND hmnet_id = #{hmnetId}
+		</if>
+	</select>
+
+	<!-- 공통: 홈넷 아이디 확인 -->
+	<select id="getHomenetId" parameterType="String" resultType="String">
+		SELECT hmnet_id
+		FROM t_houscplx_bas
+		WHERE houscplx_cd = #{houscplxCd}
+	</select>
+
+	<!-- 공통: 홈넷 이름 확인 -->
+	<select id="getHomenetNm" parameterType="String" resultType="String">
+		SELECT
+			case when bizco_cd = 'COMAX' then '코맥스'
+				 when bizco_cd = 'HYUNDAITEL' then '현대통신'
+				 when bizco_cd = 'ICONTROLS' then 'HDC 아이콘트롤스'
+				 when bizco_cd = 'KOCOM' then '코콤'
+				 when bizco_cd = 'OTHER' then '기타'
+			END AS bizco_cd
+		FROM T_HMNET_SVR_BAS
+		WHERE hmnet_id = #{hmnetId}
+	</select>
+
+</mapper>

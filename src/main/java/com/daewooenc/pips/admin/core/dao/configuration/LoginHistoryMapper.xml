@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.configuration.LoginHistoryMapper">
+
+	<select id="list" parameterType="LoginHistoryCondition" resultType="LoginHistory">
+		SELECT /* LoginHistoryMapper.xml.list */
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id = b.user_group_id) user_group_name,
+			b.user_id,
+			b.user_name,
+			a.seq,
+			a.login_date,
+			a.login_time,
+			a.login_gateway_ip
+		FROM
+			T_LOGIN_HIST a, T_USER b, T_USER_GROUP c
+		WHERE
+				a.user_id = b.user_id
+			AND b.user_group_id = c.user_group_id
+			<if test="userGroupId != null and userGroupId != 'all'">
+			AND b.user_group_id = #{user_group_id, jdbcType=VARCHAR}
+			</if>
+			<if test="userId != null and userId != 'all'">
+			AND a.user_id = #{userId, jdbcType=VARCHAR}
+			</if>
+			AND a.login_date between #{startDate, jdbcType=VARCHAR} and #{endDate, jdbcType=VARCHAR}
+			<if test="userGroupLevel != null">
+			AND c.user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+			</if>
+		ORDER BY
+			a.login_date desc, a.login_time desc
+     </select>
+
+	<select id="count" parameterType="LoginHistoryCondition" resultType="int">
+		SELECT /* LoginHistoryMapper.xml.count */
+			count(0)
+		FROM
+			T_LOGIN_HIST a, T_USER b, T_USER_GROUP c
+		WHERE
+				a.user_id = b.user_id
+			AND b.user_group_id = c.user_group_id
+			<if test="userGroupId != null and userGroupId != 'all'">
+			AND b.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+			</if>
+			<if test="userId != null and userId != 'all'">
+			AND a.user_id = #{userId, jdbcType=VARCHAR}
+			</if>
+			AND a.login_date between #{startDate, jdbcType=VARCHAR} and #{endDate, jdbcType=VARCHAR}
+			<if test="userGroupLevel != null">
+			AND c.user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+			</if>
+     </select>
+
+	<insert id="insert" parameterType="LoginHistory">
+		INSERT /* LoginHistoryMapper.xml.insert */ INTO
+			T_LOGIN_HIST
+		(
+			user_id,
+			seq,
+			login_date,
+			login_time,
+			login_gateway_ip
+		)
+
+		<choose>
+			<when test="'${dbms.kind}' == 'MYSQL'">
+			VALUES
+			(
+				#{userId, jdbcType=VARCHAR},
+				(
+					SELECT
+						COALESCE(max(seq) + 1, 1)
+					FROM
+						T_LOGIN_HIST a
+					WHERE
+						user_id = #{userId}
+					AND login_date = DATE_FORMAT(NOW(), '%Y%m%d')
+				),
+				DATE_FORMAT(NOW(), '%Y%m%d'),
+				DATE_FORMAT(NOW(), '%H%i%s'),
+				#{loginGatewayIp, jdbcType=VARCHAR}
+			)
+			</when>
+			<when test="'${dbms.kind}' == 'MSSQL'">
+			VALUES
+			(
+				#{userId, jdbcType=VARCHAR},
+				(
+					SELECT
+						COALESCE(max(seq) + 1, 1)
+					FROM
+						T_LOGIN_HIST a
+					WHERE
+						user_id = #{userId}
+					AND login_date = CONVERT(VARCHAR(8), GETDATE(), 112)
+				),
+				CONVERT(VARCHAR(8), GETDATE(), 112),
+				REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108),':',''),
+				#{loginGatewayIp, jdbcType=VARCHAR}
+			)
+			</when>			
+			<otherwise>
+			VALUES
+			(
+				#{userId, jdbcType=VARCHAR},
+				(
+					SELECT
+						COUNT(1) + 1
+					FROM
+						T_LOGIN_HIST a
+					WHERE
+						user_id = #{userId, jdbcType=VARCHAR}
+					AND login_date = TO_CHAR(SYSDATE, 'YYYYMMDD')
+				),
+				TO_CHAR(SYSDATE, 'YYYYMMDD'),
+				TO_CHAR(SYSDATE, 'HH24MISS'),
+				#{loginGatewayIp, jdbcType=VARCHAR}
+			)
+			</otherwise>
+		</choose>
+     </insert>
+
+
+	<select id="listExcel" parameterType="LoginHistoryCondition" resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+		SELECT /* LoginHistoryMapper.xml.listExcel */
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id = b.user_group_id) as "사용자그룹",
+			b.user_id as "사용자ID",
+			b.user_name as "사용자",
+			a.seq as "Seq",
+			a.login_date as "일자",
+			a.login_time as "시간",
+			a.login_gateway_ip as "IP"
+		FROM
+			T_LOGIN_HIST a, T_USER b, T_USER_GROUP c
+		WHERE
+				a.user_id = b.user_id
+			AND b.user_group_id = c.user_group_id
+			<if test="userGroupId != null and userGroupId != 'all'">
+			AND b.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+			</if>
+			<if test="userId != null and userId != 'all'">
+			AND a.user_id = #{userId, jdbcType=VARCHAR}
+			</if>
+			AND a.login_date between #{startDate, jdbcType=VARCHAR} and #{endDate, jdbcType=VARCHAR}
+			<if test="userGroupLevel != null">
+			AND c.user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+			</if>
+		ORDER BY
+			a.login_date desc, a.login_time desc
+     </select>
+
+</mapper>

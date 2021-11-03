@@ -1,0 +1,191 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #f5f5f5;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 420px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-label-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.form-label-group > input,
+.form-label-group > label {
+  height: 3.125rem;
+  padding: .75rem;
+}
+
+.form-label-group > label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  margin-bottom: 0; /* Override default `<label>` margin */
+  line-height: 1.5;
+  color: #495057;
+  pointer-events: none;
+  cursor: text; /* Match the input under the label */
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  transition: all .1s ease-in-out;
+}
+
+.form-label-group input::-webkit-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input:-ms-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::-ms-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::-moz-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::placeholder {
+  color: transparent;
+}
+
+.form-label-group input:not(:placeholder-shown) {
+  padding-top: 1.25rem;
+  padding-bottom: .25rem;
+}
+
+.form-label-group input:not(:placeholder-shown) ~ label {
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+  font-size: 12px;
+  color: #777;
+}
+
+/* Fallback for Edge
+-------------------------------------------------- */
+@supports (-ms-ime-align: auto) {
+  .form-label-group > label {
+    display: none;
+  }
+  .form-label-group input::-ms-input-placeholder {
+    color: #777;
+  }
+}
+
+/* Fallback for IE
+-------------------------------------------------- */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .form-label-group > label {
+    display: none;
+  }
+  .form-label-group input:-ms-input-placeholder {
+    color: #777;
+  }
+}
+
+.caixa{
+padding: 20px;
+border-radius: 5px;
+border: 1px solid rgba(0,0,0,.2);
+box-shadow: 0 0 20px rgba(0,0,0,.2);
+margin-top: 25%;
+background-color: #fff !important;
+z-index: 99;
+}
+
+.formRow {
+position: relative;
+width: 100%;
+border-color: transparent;
+padding: 0;margin: 0;
+}
+
+.formRow--item {
+display: block;
+width: 100%;
+}
+
+.formRow--input {
+background-color: transparent;
+position: relative;
+padding: 15px 0 11px;
+width: 100%;
+outline: none;
+border-bottom: 1.5px solid rgba(0,0,0,.3);
+border-left: transparent;
+border-right: transparent;
+border-top: transparent;
+letter-spacing: .2px;
+font-weight: 400;
+font-size: 16px;
+resize: none;
+-webkit-transition: all .2s ease;
+transition: all .2s ease;
+}
+
+.formRow--input-wrapper {
+position: relative;
+display: block;
+width: 100%;
+}
+
+.formRow--input-wrapper.active .placeholder {
+top: -5px;
+background-color: transparent;
+color: rgba(0,0,0,.5);
+font-size: 11px;
+-webkit-transform: translateY(0);
+transform: translateY(0);
+font-family: sans-serif;
+}
+
+.formRow .placeholder {
+position: absolute;
+top: 50%;
+left: 10px;
+display: block;
+color: rgba(0,0,0,.5);
+white-space: nowrap;
+letter-spacing: .2px;
+-webkit-transition: all, .2s;
+transition: all, .2s;
+-webkit-transform: translateY(-50%);
+transform: translateY(-50%);
+pointer-events: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+font-family: sans-serif;
+font-weight: 600;
+font-size: 14px;
+}
+
+.vamos_mudar_um_pouco{
+height: 100%;
+width: 100%;
+border-radius: 0;
+border: 2px solid rgba(0,0,0,.2);
+background-color: #5a667c;
+cursor: pointer;
+color: #fff;
+text-shadow: 2px 2px 10px rgba(255,255,255,.5);
+}

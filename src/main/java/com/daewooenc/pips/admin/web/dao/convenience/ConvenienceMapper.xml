@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.convenience.ConvenienceMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="Convenience" type="com.daewooenc.pips.admin.web.domain.dto.convenience.Convenience"></resultMap>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 편의 시설 관리 > 편의 시설 목록 -->
+	<select id="selectSystemConvenienceList" parameterType="Convenience" resultMap="Convenience">
+		SELECT /* ConvenienceMapper.xml.selectSystemConvenienceList */
+			houscplx_cd, houscplx_nm, hmnet_id, bizco_cd, group_concat(CAR) AS CAR , group_concat(CCTV) AS CCTV, group_concat(CHARGING_POINT_STATE) AS CHARGING_POINT_STATE,
+			group_concat(CNVC_FACL) AS CNVC_FACL , group_concat(ELEVATOR) AS ELEVATOR, group_concat(FMLY_SCH) AS FMLY_SCH,
+			group_concat(HOUSCPLX_INFO) AS HOUSCPLX_INFO , group_concat(PARCEL_BOX) AS PARCEL_BOX, group_concat(PARKING_LOCATION) AS PARKING_LOCATION,
+			group_concat(VISITOR) AS VISITOR , group_concat(VISIT_CAR) AS VISIT_CAR, group_concat(WEATHER_INFO) AS WEATHER_INFO,
+			group_concat(S_ELECT) AS S_ELECT
+		FROM
+		(
+			SELECT
+				thsi.houscplx_cd AS houscplx_cd, thb.houscplx_nm AS houscplx_nm, thb.hmnet_id AS hmnet_id, thsv.bizco_cd AS bizco_cd,
+				case when thsi.skil_cd = 'CAR' then thsi.screen_yn END AS CAR,
+				case when thsi.skil_cd = 'CCTV' then thsi.screen_yn END AS CCTV,
+				case when thsi.skil_cd = 'CHARGING_POINT_STATE' then thsi.screen_yn END AS CHARGING_POINT_STATE,
+				case when thsi.skil_cd = 'CNVC_FACL' then thsi.screen_yn END AS CNVC_FACL,
+				case when thsi.skil_cd = 'ELEVATOR' then thsi.screen_yn END AS ELEVATOR,
+				case when thsi.skil_cd = 'FMLY_SCH' then thsi.screen_yn END AS FMLY_SCH,
+				case when thsi.skil_cd = 'HOUSCPLX_INFO' then thsi.screen_yn END AS HOUSCPLX_INFO,
+				case when thsi.skil_cd = 'PARCEL_BOX' then thsi.screen_yn END AS PARCEL_BOX,
+				case when thsi.skil_cd = 'PARKING_LOCATION' then thsi.screen_yn END AS PARKING_LOCATION,
+				case when thsi.skil_cd = 'VISITOR' then thsi.screen_yn END AS VISITOR,
+				case when thsi.skil_cd = 'VISIT_CAR' then thsi.screen_yn END AS VISIT_CAR,
+				case when thsi.skil_cd = 'WEATHER_INFO' then thsi.screen_yn END AS WEATHER_INFO,
+				case when thsi.skil_cd = 'S_ELECT' then thsi.screen_yn END AS S_ELECT
+			FROM
+				T_HOUSCPLX_SKIL_ITEM thsi, T_HOUSCPLX_BAS thb, t_hmnet_svr_bas thsv
+			WHERE
+				thsi.houscplx_cd = thb.houscplx_cd
+			AND
+				thb.hmnet_id = thsv.hmnet_id
+			<if test="houscplxCd != null and houscplxCd != ''">
+			AND
+				thsi.houscplx_cd = #{houscplxCd}
+			</if>
+			ORDER BY thsi.cr_dt DESC ) AS t
+		GROUP BY t.houscplx_cd
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 편의 시설 관리 > 편의 시설 목록 > 편의 시설 수정 -->
+	<select id="selectSystemConvenienceEdit" parameterType="Convenience" resultMap="Convenience">
+		SELECT /* ConvenienceMapper.xml.selectSystemConvenienceEdit */
+			houscplx_cd, houscplx_nm, hmnet_id, bizco_cd, group_concat(CAR) AS CAR , group_concat(CCTV) AS CCTV, group_concat(CHARGING_POINT_STATE) AS CHARGING_POINT_STATE,
+			group_concat(CNVC_FACL) AS CNVC_FACL , group_concat(ELEVATOR) AS ELEVATOR, group_concat(FMLY_SCH) AS FMLY_SCH,
+			group_concat(HOUSCPLX_INFO) AS HOUSCPLX_INFO , group_concat(PARCEL_BOX) AS PARCEL_BOX, group_concat(PARKING_LOCATION) AS PARKING_LOCATION,
+			group_concat(VISITOR) AS VISITOR , group_concat(VISIT_CAR) AS VISIT_CAR, group_concat(WEATHER_INFO) AS WEATHER_INFO,
+			group_concat(S_ELECT) AS S_ELECT
+		FROM
+		(
+			SELECT
+				thsi.houscplx_cd AS houscplx_cd, thb.houscplx_nm AS houscplx_nm, thb.hmnet_id AS hmnet_id, thsv.bizco_cd AS bizco_cd,
+				case when thsi.skil_cd = 'CAR' then thsi.screen_yn END AS CAR,
+				case when thsi.skil_cd = 'CCTV' then thsi.screen_yn END AS CCTV,
+				case when thsi.skil_cd = 'CHARGING_POINT_STATE' then thsi.screen_yn END AS CHARGING_POINT_STATE,
+				case when thsi.skil_cd = 'CNVC_FACL' then thsi.screen_yn END AS CNVC_FACL,
+				case when thsi.skil_cd = 'ELEVATOR' then thsi.screen_yn END AS ELEVATOR,
+				case when thsi.skil_cd = 'FMLY_SCH' then thsi.screen_yn END AS FMLY_SCH,
+				case when thsi.skil_cd = 'HOUSCPLX_INFO' then thsi.screen_yn END AS HOUSCPLX_INFO,
+				case when thsi.skil_cd = 'PARCEL_BOX' then thsi.screen_yn END AS PARCEL_BOX,
+				case when thsi.skil_cd = 'PARKING_LOCATION' then thsi.screen_yn END AS PARKING_LOCATION,
+				case when thsi.skil_cd = 'VISITOR' then thsi.screen_yn END AS VISITOR,
+				case when thsi.skil_cd = 'VISIT_CAR' then thsi.screen_yn END AS VISIT_CAR,
+				case when thsi.skil_cd = 'WEATHER_INFO' then thsi.screen_yn END AS WEATHER_INFO,
+				case when thsi.skil_cd = 'S_ELECT' then thsi.screen_yn END AS S_ELECT
+			FROM
+				T_HOUSCPLX_SKIL_ITEM thsi, T_HOUSCPLX_BAS thb, t_hmnet_svr_bas thsv
+			WHERE
+				thsi.houscplx_cd = thb.houscplx_cd
+			AND
+				thb.hmnet_id = thsv.hmnet_id
+			AND
+				thsi.houscplx_cd = #{houscplxCd}
+			ORDER BY thsi.cr_dt DESC ) AS t
+		GROUP BY t.houscplx_cd
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 편의 시설 관리 > 편의 시설 수정 > 수정 -->
+	<insert id="insertConvenience" parameterType="Convenience">
+		INSERT INTO /* ConvenienceMapper.xml.insertConvenience */
+		T_HOUSCPLX_SKIL_ITEM
+			(
+			CR_DT,
+			HOUSCPLX_CD,
+			CRER_ID,
+			REF_CONT,
+			SKIL_GRP_CD,
+			SKIL_CD,
+			SCREEN_YN
+			)
+		VALUES
+			(
+			NOW(),
+			#{houscplxCd},
+			#{crerId},
+			'',
+			'CNVC_SKIL',
+			#{skilCd},
+			#{screenYn}
+			)
+	</insert>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 편의 시설 관리 > 편의 시설 수정 > 수정 시 삭제 -->
+	<delete id="deleteConvenience" parameterType="Convenience">
+		DELETE /* ConvenienceMapper.xml.deleteConvenience */
+		FROM T_HOUSCPLX_SKIL_ITEM
+		WHERE houscplx_cd = #{houscplxCd}
+	</delete>
+
+
+</mapper>

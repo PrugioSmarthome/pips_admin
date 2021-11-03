@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.common.CommCodeMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="CommCode" type="com.daewooenc.pips.admin.web.domain.dto.common.CommCode"></resultMap>
+	<resultMap id="CommCodeDetail" type="com.daewooenc.pips.admin.web.domain.dto.common.CommCodeDetail"></resultMap>
+
+	<!-- 공통: 대우건설 스마트홈 푸르지오 플랫폼용 그룹공통코드를 통해 세부공통코드 목록조회 -->
+	<select id="selectCommCodeList" parameterType="CommCodeDetail" resultMap="CommCodeDetail">
+		SELECT /* CommCodeMapper.xml.selectCommCodeList */
+			tccd.comm_cd_nm AS comm_cd_nm, tccd.comm_cd AS comm_cd
+		FROM
+			T_COMM_CD_BAS AS tccb
+		INNER JOIN T_COMM_CD_DTL AS tccd
+			ON tccb.comm_cd_grp_cd=tccd.comm_cd_grp_cd
+		WHERE tccb.comm_cd_grp_cd = #{commCdGrpCd}
+		ORDER BY tccd.array_ord_no
+	</select>
+</mapper>

@@ -1,0 +1,978 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.housingcplx.HousingCplxMapper">
+    <!-- 기본 dto 정의 -->
+    <resultMap id="CCTV" type="com.daewooenc.pips.admin.web.domain.dto.cctv.CCTV"></resultMap>
+    <resultMap id="Household" type="com.daewooenc.pips.admin.web.domain.dto.household.Household"></resultMap>
+    <resultMap id="HousingCplx" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplx"></resultMap>
+    <resultMap id="HousingCplxCaddr" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplxCaddr"></resultMap>
+    <resultMap id="HousingCplxCaddrGdnc" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplxCaddrGdnc"></resultMap>
+    <resultMap id="HousingCplxEnergyUnit" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplxEnergyUnit"></resultMap>
+    <resultMap id="HousingCplxPtype" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplxPtype"></resultMap>
+    <resultMap id="HousingCplxServiceLink" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplxServiceLink"></resultMap>
+    <resultMap id="HousingCplxSkillItem" type="com.daewooenc.pips.admin.web.domain.dto.housingcplx.HousingCplxSkillItem"></resultMap>
+	<resultMap id="ServiceLink" type="com.daewooenc.pips.admin.web.domain.dto.servicelink.ServiceLink"></resultMap>
+	<resultMap id="ServiceLinkDetail" type="com.daewooenc.pips.admin.web.domain.dto.servicelink.ServiceLinkDetail"></resultMap>
+    <resultMap id="FacilityBizco" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizco"></resultMap>
+    <resultMap id="FacilityBizcoCaddr" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizcoCaddr"></resultMap>
+    <resultMap id="FacilityBizcoCaddrRelation" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizcoCaddrRelation"></resultMap>
+
+    <!-- Custom resultMap 정의 -->
+    <resultMap id="housingCplxMetaList" type="HousingCplx">
+        <result property="houscplxCd" column="houscplx_cd"/>
+        <result property="houscplxNm" column="houscplx_nm"/>
+        <result property="cnt" column="cnt"/>
+    </resultMap>
+
+    <resultMap id="housingCplxList" type="HousingCplx">
+        <result property="houscplxCd" column="houscplx_cd"/>
+        <result property="houscplxNm" column="houscplx_nm"/>
+        <result property="hmnetId" column="hmnet_id"/>
+        <result property="bizcoCd" column="bizco_cd"/>
+        <result property="delYn" column="del_yn"/>
+        <result property="crDt" column="cr_dt"/>
+    </resultMap>
+
+    <resultMap id="housingCplxPtypeList" type="HousingCplxPtype">
+        <result property="houscplxCd" column="houscplx_cd"/>
+        <result property="ptypeNm" column="ptype_nm"/>
+        <result property="ptypeDimQty" column="ptype_dim_qty"/>
+        <result property="stosOrgnlPlnfigNm" column="stos_orgnl_plnfig_nm"/>
+        <result property="stosReducePlnfigNm" column="stos_reduce_plnfig_nm"/>
+        <result property="orgnlPlnfigFileUrlCont" column="orgnl_plnfig_file_url_cont"/>
+        <result property="reducePlnfigFileUrlCont" column="reduce_plnfig_file_url_cont"/>
+        <result property="supDimQty" column="sup_dim_qty"/>
+        <result property="ordNo" column="ord_no" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <resultMap id="householdList" type="Household">
+        <result property="hsholdId" column="hshold_id"/>
+        <result property="houscplxCd" column="houscplx_cd"/>
+        <result property="dongNo" column="dong_no"/>
+        <result property="hoseNo" column="hose_no"/>
+        <result property="ptypeNm" column="ptype_nm"/>
+        <result property="dimQty" column="dim_qty"/>
+        <result property="userCnt" column="user_cnt"/>
+    </resultMap>
+
+    <!-- 공통: 검색영역의 단지선택 클릭시 보여지는 모달 -->
+    <select id="selectHousingcplxMetaList" parameterType="HousingCplx" resultMap="housingCplxMetaList" >
+        SELECT /* HousingCplxMapper.xml.selectHousingcplxMetaList */
+            houscplx_cd, houscplx_nm
+        FROM
+            T_HOUSCPLX_BAS
+        WHERE 1=1
+        <if test="delYn != null and delYn != 'all'">
+            AND del_yn = #{delYn}
+        </if>
+    </select>
+
+    <!-- 공통: 검색영역의 단지선택 클릭시 보여지는 모달(멀티 단지 관리자용) -->
+    <select id="selectMultiHousingcplxMetaList" parameterType="HousingCplx" resultMap="housingCplxMetaList" >
+        SELECT /* HousingCplxMapper.xml.selectMultiHousingcplxMetaList */
+            th.houscplx_cd as houscplx_cd,
+            th.houscplx_nm as houscplx_nm
+        FROM
+            T_HOUSCPLX_BAS th, T_USER_HOUSCPLX_RLT tu
+        WHERE
+            th.houscplx_cd = tu.houscplx_cd
+        AND
+            tu.user_id = #{userId}
+        <if test="delYn != null and delYn != 'all'">
+        AND
+            th.del_yn = #{delYn}
+        </if>
+    </select>
+
+    <!-- 공통: 검색영역의 단지선택 클릭시 보여지는 모달(수정) -->
+    <select id="selectHousingcplxMetaListSelectModify" parameterType="HousingCplx" resultMap="housingCplxMetaList" >
+        SELECT a.houscplx_cd as houscplx_cd,
+               a.houscplx_nm as houscplx_nm,
+               count(*) as cnt
+          FROM
+            (SELECT houscplx_cd,houscplx_nm
+               FROM T_HOUSCPLX_BAS
+              WHERE del_yn = 'N'
+
+              UNION all
+
+            SELECT houscplx_cd,lnk_svc_id
+              FROM T_HOUSCPLX_LNK_SVC_RLT
+             WHERE lnk_svc_id = #{lnkSvcId}
+               AND banr_lnk_cls = #{banrLnkCls}
+               AND houscplx_cd != '000000')a
+         GROUP BY HOUSCPLX_CD
+
+    </select>
+
+    <!-- 시스템 관리자: 서비스 공지사항의 단지선택 클릭시 보여지는 모달(수정) -->
+    <select id="selectHousingcplxMetaListSelectModifyNoti" parameterType="String" resultMap="housingCplxMetaList" >
+        SELECT a.houscplx_cd as houscplx_cd,
+            a.houscplx_nm as houscplx_nm,
+            count(*) as cnt
+        FROM
+            (SELECT houscplx_cd,houscplx_nm
+            FROM T_HOUSCPLX_BAS
+            WHERE del_yn = 'N'
+
+        UNION ALL
+
+            SELECT houscplx_cd,bllt_no
+            FROM t_houscplx_noti_rlt
+            WHERE bllt_no = #{blltNo})a
+        GROUP BY HOUSCPLX_CD
+
+    </select>
+
+    <!-- 시스템 관리자: 등록된 단지 개수 조회 -->
+    <select id="selectHousingCplxCnt" resultType="int">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxCnt */
+            COUNT(*)
+        FROM
+            T_HOUSCPLX_BAS
+    </select>
+
+    <!-- 시스템 괸리자: 단지에 등록된 회원 Count조회 -->
+    <select id="selectHousingCplxUserCnt" parameterType="HousingCplx" resultType="int">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxUserCnt */
+            COUNT(*)
+        FROM
+            T_USER_BAS
+        WHERE
+            houscplx_cd = #{houscplxCd}
+        AND
+            del_yn = 'N'
+    </select>
+
+    <!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지목록 -->
+    <select id="selectAllHousingCplxList" parameterType="HousingCplx" resultMap="housingCplxList">
+        SELECT /* HousingCplxMapper.xml.selectAllHousingCplxList */
+                th.cr_dt AS cr_dt, th.del_yn AS del_yn,
+                th.houscplx_nm AS houscplx_nm,
+                ths.hmnet_id AS hmnet_id, ths.bizco_cd as bizco_cd, th.enrg_meas_ymd as enrg_meas_ymd, th.houscplx_cd as houscplx_cd
+        FROM
+            T_HOUSCPLX_BAS AS th
+        INNER JOIN (
+                SELECT hmnet_id, bizco_cd
+                FROM T_HMNET_SVR_BAS
+                WHERE 1=1
+                <if test="svrTpCd != null and svrTpCd != 'all'">
+                    AND svr_tp_cd = #{svrTpCd}
+                </if>
+                <if test="hmnetNm != null and hmnetNm != ''">
+                    AND hmnet_nm like CONCAT('%',#{hmnetNm},'%')
+                </if>
+                ) as ths
+            ON th.hmnet_id = ths.hmnet_id
+        WHERE 1=1
+        <if test="houscplxCd != null and houscplxCd != ''">
+            AND houscplx_cd = #{houscplxCd}
+        </if>
+        <if test="delYn != null and delYn != 'all'">
+            AND del_yn = #{delYn}
+        </if>
+        <if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+            AND DATE(cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+        </if>
+        ORDER BY
+            th.cr_dt DESC
+    </select>
+
+    <!-- 멀티 단지 관리자: 단지 관리 > 단지정보 관리 > 단지목록 -->
+    <select id="selectMultiHousingCplxList" parameterType="HousingCplx" resultMap="housingCplxList">
+        SELECT /* HousingCplxMapper.xml.selectMultiHousingCplxList */
+                th.cr_dt AS cr_dt, th.del_yn AS del_yn,
+                th.houscplx_nm AS houscplx_nm,
+                ths.hmnet_id AS hmnet_id, ths.bizco_cd as bizco_cd, th.enrg_meas_ymd as enrg_meas_ymd, th.houscplx_cd as houscplx_cd
+        FROM
+            T_HOUSCPLX_BAS AS th
+        INNER JOIN (
+                SELECT hmnet_id, bizco_cd
+                FROM T_HMNET_SVR_BAS
+                WHERE 1=1
+                ) as ths
+            ON th.hmnet_id = ths.hmnet_id
+        INNER JOIN (
+                SELECT houscplx_cd
+                FROM t_user_houscplx_rlt
+                WHERE user_id = #{userId}
+                ) AS tuh
+            ON th.houscplx_cd = tuh.houscplx_cd
+        WHERE 1=1
+        <if test="houscplxCd != null and houscplxCd != ''">
+            AND th.houscplx_cd = #{houscplxCd}
+        </if>
+        <if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+            AND DATE(cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+        </if>
+        ORDER BY
+            th.cr_dt DESC
+    </select>
+
+    <!-- 공통: 단지 관리 > 단지정보 관리 > 단지정보 상세 -->
+    <select id="selectHousingCplxDetail" parameterType="HousingCplx" resultMap="HousingCplx">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxDetail */
+            thb.houscplx_nm AS houscplx_nm, thb.screen_houscplx_nm AS screen_houscplx_nm, thb.houscplx_cd AS houscplx_cd, thb.del_yn AS del_yn, thb.post_no AS post_no,
+            thb.roadnm_bas_addr_cont AS roadnm_bas_addr_cont, thb.area_bas_addr_cont AS area_bas_addr_cont,
+            thb.land_dim_qty AS land_dim_qty, thb.arch_dim_qty AS arch_dim_qty, thb.busi_appr_ymd AS busi_appr_ymd, thb.busi_conend_ymd AS busi_conend_ymd,
+            thb.whole_hshold_cnt AS whole_hshold_cnt, thb.whole_dong_cnt AS whole_dong_cnt,
+            thb.addr_si_do_nm AS addr_si_do_nm, thb.addr_si_gun_gu_nm AS addr_si_gun_gu_nm, thb.addr_eup_myeon_dong_nm AS addr_eup_myeon_dong_nm,
+            thb.lwst_ungr_flrcnt AS lwst_ungr_flrcnt, thb.hgst_abgr_flrcnt AS hgst_abgr_flrcnt, thb.hmnet_id AS hmnet_id,
+            thb.wr_meas_x_coor_no AS wr_meas_x_coor_no, thb.wr_meas_y_coor_no AS wr_meas_y_coor_no,
+            thb.latud_cont AS latud_cont, thb.lotud_cont AS lotud_cont,thb.hmnet_id AS hmnet_id, thsb.hmnet_nm AS hmnet_nm, thsb.svr_tp_cd AS svr_tp_cd,
+            (
+                SELECT tccd.comm_cd_nm
+                FROM
+                    T_COMM_CD_DTL AS tccd
+                WHERE tccd.comm_cd = thsb.bizco_cd
+            ) as bizco_nm,
+            (
+                SELECT tccd.comm_cd
+                FROM
+                    T_COMM_CD_DTL AS tccd
+                WHERE tccd.comm_cd = thsb.bizco_cd
+            ) as bizco_cd,
+            (
+                SELECT tccd.comm_cd_nm
+                FROM
+                    T_COMM_CD_DTL AS tccd
+                WHERE tccd.comm_cd = heat_tp_cd
+            ) as heat_tp_nm, whole_wl_lcnt, hshold_wl_lcnt, excwk_bizco_nm, heat_tp_cd
+        FROM
+            T_HOUSCPLX_BAS AS thb
+        INNER JOIN T_HMNET_SVR_BAS AS thsb
+            ON thb.hmnet_id = thsb.hmnet_id
+        WHERE houscplx_cd = #{houscplxCd}
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > 단지목록 > 단지배치도 or 타입별 평면도 목록 -->
+    <select id="selectHousingCplxPtypeList" parameterType="HousingCplxPtype" resultMap="housingCplxPtypeList">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxPtypeList */
+               thpb.houscplx_cd AS houscplx_cd, thpb.ptype_nm AS ptype_nm, thpb.ptype_dim_qty AS ptype_dim_qty,
+               thpb.stos_orgnl_plnfig_nm AS stos_orgnl_plnfig_nm, thpb.stos_reduce_plnfig_nm AS stos_reduce_plnfig_nm,
+               thpb.orgnl_plnfig_file_url_cont AS orgnl_plnfig_file_url_cont, thpb.reduce_plnfig_file_url_cont AS reduce_plnfig_file_url_cont,
+               thpb.sup_dim_qty AS sup_dim_qty, thpb.ord_no -1 AS ord_no
+        FROM t_houscplx_ptype_bas AS thpb
+        INNER JOIN t_houscplx_bas AS thb
+            ON thpb.houscplx_cd = thb.houscplx_cd
+        WHERE thpb.houscplx_cd = #{houscplxCd}
+        AND thpb.ptype_tp_cd = #{ptypeTpCd}
+        AND thpb.del_yn = 'N'
+        ORDER BY thpb.ord_no
+    </select>
+
+    <!-- 공통: 등록된 우리 단지 알림 or 단지배치도 or 평면도 이미지 개수 조회 -->
+    <select id="selectHousingCplxPtypeCnt" parameterType="HousingCplxPtype" resultType="int">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxPtypeCnt */
+            COUNT(*)
+        FROM
+            T_HOUSCPLX_PTYPE_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+        AND ptype_tp_cd = #{ptypeTpCd}
+        AND del_yn = 'N'
+    </select>
+
+    <!-- 공통: 단지 관리 > 단지정보 관리 > 단지정보 > 세대별 평형 목록 -->
+    <select id="selectHouseholdList" parameterType="Household" resultMap="householdList">
+        SELECT /* HousingCplxMapper.xml.selectHouseholdList */
+                ths.hshold_id as hshold_id, ths.houscplx_cd AS houscplx_cd,
+                ths.dong_no as dong_no, ths.hose_no as hose_no,
+                ths.ptype_nm as ptype_nm, ths.dim_qty as dim_qty,
+                (
+                    SELECT COUNT(*)
+                    FROM T_HSHOLD_USER_ITEM AS thui
+                    WHERE thui.hshold_id = ths.hshold_id
+                    AND thui.del_yn = 'N'
+                ) AS user_cnt
+        FROM
+            T_HSHOLD_BAS as ths
+        INNER JOIN T_HOUSCPLX_BAS as th
+            ON ths.houscplx_cd=th.houscplx_cd
+        WHERE 1=1
+        AND ths.houscplx_cd=#{houscplxCd}
+        <if test="hsholdId != null">
+            AND hshold_id = #{hsholdId}
+        </if>
+        <if test="dongNo != null and dongNo != 'all'">
+            AND dong_no = #{dongNo}
+        </if>
+        <if test="hoseNo != null and hoseNo != 'all'">
+            AND hose_no = #{hoseNo}
+        </if>
+        ORDER BY
+            ths.dong_no, ths.hose_no
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > 세대별 평형정보 상세 동 리스트 조회-->
+    <select id="selectHouseholdDongList" parameterType="Household" resultMap="householdList">
+        SELECT /* HousingCplxMapper.xml.selectHouseholdDongList */
+        hshold_id, dong_no, hose_no, dim_qty, ptype_nm, houscplx_cd
+        FROM
+        T_HSHOLD_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+        AND del_yn = 'N'
+        GROUP BY dong_no
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > 세대별 평형정보 상세 -->
+    <select id="selectHouseholdDetail" parameterType="Household" resultMap="householdList">
+        SELECT /* HousingCplxMapper.xml.selectHouseholdDetail */
+            hshold_id, dong_no, hose_no, dim_qty, ptype_nm, houscplx_cd,
+            (
+                SELECT COUNT(*)
+                FROM T_HSHOLD_USER_ITEM
+                WHERE hshold_id = th.hshold_id
+            ) AS user_cnt
+        FROM
+            T_HSHOLD_BAS AS th
+        WHERE houscplx_cd = #{houscplxCd}
+        <if test="dongNo != null and dongNo != 'all'">
+            AND dong_no = #{dongNo}
+        </if>
+        AND del_yn = 'N'
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > 세대별 평형정보 입주민 정보 조회 -->
+    <select id="selectHouseholdCnt" parameterType="Household" resultType="int">
+        SELECT /* HousingCplxMapper.xml.selectHouseholdCount */
+            COUNT(*) AS cnt
+        FROM t_hshold_bas th
+        INNER JOIN t_hshold_user_item thui
+        ON th.hshold_id = thui.hshold_id
+        WHERE th.houscplx_cd = #{houscplxCd}
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > 관리실/경비실 연락처 정보 상세 -->
+    <select id="selectHousingCplxCaddrList" parameterType="String" resultMap="HousingCplxCaddr">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxCaddrList */
+	           cast(aes_decrypt(from_base64(thca.caddr_cont), sha2(#{encKey}, 512)) as char(128)) AS caddr_cont,
+               thca.rem AS rem, thca.cntct_stime AS cntct_stime, thca.cntct_etime AS cntct_etime,
+               thca.workp_tp_cd AS workp_tp_cd, thca.houscplx_cd AS houscplx_cd, thca.ord_no AS ord_no
+        FROM
+            T_HOUSCPLX_CADDR_BAS AS thca
+        WHERE thca.houscplx_cd = #{houscplxCd}
+        AND thca.del_yn = 'N'
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > 관리실/경비실 부가정보 상세 -->
+    <select id="selectHousingCplxCaddrGdncList" parameterType="String" resultMap="HousingCplxCaddrGdnc">
+        SELECT /* HousingCplxMapper.xml.selectHousingCplxCaddrGdncList */
+            thcgb.cont AS cont, thcgb.workp_tp_cd AS workp_tp_cd
+        FROM T_HOUSCPLX_CADDR_GDNC_BAS AS thcgb
+        WHERE thcgb.houscplx_cd = #{houscplxCd}
+        AND thcgb.del_yn = 'N'
+        AND thcgb.workp_tp_cd is NOT NULL
+        AND thcgb.workp_tp_cd NOT IN ('LIFE_ICVNC_OFC')
+    </select>
+
+    <!-- 공통 : 단지 관리 > 단지정보 관리 > CCTV 정보 상세 -->
+    <select id="selectCCTVInfo" parameterType="CCTV" resultMap="CCTV">
+        SELECT /* HousingCplxMapper.xml.selectCCTVInfo */
+            cctv_nm, cont, url_cont, houscplx_cd
+        FROM
+            T_CCTV_INFO_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+    </select>
+
+    <!-- 공통: 단지 관리 > 단지정보 관리 > 단지정보 > 기타 정보(검침일, 반경) -->
+    <select id="selectEtcHousingCplx" parameterType="HousingCplx" resultMap="HousingCplx">
+        SELECT /* HousingCplxMapper.xml.selectEtcHousingCplx */
+            enrg_meas_ymd, qry_range_cont, houscplx_cd
+        FROM
+            T_HOUSCPLX_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+    </select>
+
+    <!-- 공통: 단지 관리 > 단지정보 관리 > 단지정보 > 기타 정보(에너지 단위 및 그래프 최대값 설정) -->
+    <select id="selectEtcEnergyUnit" parameterType="HousingCplx" resultMap="HousingCplxEnergyUnit">
+        SELECT /* HousingCplxMapper.xml.selectEtcEnergyUnit */
+            houscplx_cd, enrg_tp_cd, enrg_unt_cd, enrg_max_qty
+        FROM
+            t_houscplx_enrg_unt_bas
+        WHERE houscplx_cd = #{houscplxCd}
+    </select>
+
+    <!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지목록 > 단지 신규등록_ 단지개요 -->
+    <insert id="insertHousingCplx" parameterType="HousingCplx">
+        INSERT INTO /* HousingCplxMapper.xml.insertHousingCplx */
+            T_HOUSCPLX_BAS
+        (
+            houscplx_cd, houscplx_nm, screen_houscplx_nm, post_no,
+            roadnm_bas_addr_cont, area_bas_addr_cont,
+            land_dim_qty, arch_dim_qty,
+            busi_appr_ymd, busi_conend_ymd,
+            whole_hshold_cnt, whole_dong_cnt,
+            lwst_ungr_flrcnt, hgst_abgr_flrcnt,
+            hmnet_id, heat_tp_cd, whole_wl_lcnt, hshold_wl_lcnt,
+            excwk_bizco_nm, addr_si_gun_gu_nm,
+            addr_si_do_nm, addr_eup_myeon_dong_nm,
+            latud_cont, lotud_cont,
+            wr_meas_x_coor_no, wr_meas_y_coor_no,
+            qry_range_cont, enrg_meas_ymd,
+            crer_id, cr_dt, del_yn, editer_id, edit_dt
+        )
+        VALUES
+        (
+            #{houscplxCd}, #{houscplxNm}, #{screenHouscplxNm}, #{postNo},
+            #{roadnmBasAddrCont}, #{areaBasAddrCont},
+            #{landDimQty}, #{archDimQty},
+            #{busiApprYmd}, #{busiConendYmd},
+            #{wholeHsholdCnt}, #{wholeDongCnt},
+            #{lwstUngrFlrcnt}, #{hgstAbgrFlrcnt},
+            #{hmnetId}, #{heatTpCd}, #{wholeWlLcnt}, #{hsholdWlLcnt},
+            #{excwkBizcoNm}, #{addrSiGunGuNm},
+            #{addrSiDoNm}, #{addrEupMyeonDongNm},
+            #{latudCont}, #{lotudCont},
+            #{wrMeasXCoorNo}, #{wrMeasYCoorNo},
+            #{qryRangeCont}, #{enrgMeasYmd},
+            #{crerId}, NOW(), 'N', #{crerId}, NOW()
+        )
+    </insert>
+
+    <!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지목록 > 단지 신규등록_ 세대별 평형 정보 등록 -->
+    <insert id="insertHousehold" parameterType="java.util.Map">
+        <foreach collection="list" item="item" separator=";">
+            INSERT INTO /* HousingCplxMapper.xml.insertHousehold */
+            T_HSHOLD_BAS
+            (
+                hshold_id, houscplx_cd, dong_no, hose_no,
+                ptype_nm, dim_qty, enrg_dim_qty,
+                crer_id, cr_dt, del_yn, editer_id, edit_dt
+            )
+            VALUES
+            (
+                #{item.hsholdId}, #{item.houscplxCd}, #{item.dongNo}, #{item.hoseNo},
+                #{item.ptypeNm}, #{item.dimQty}, #{item.enrgDimQty},
+                #{item.crerId}, NOW(), 'N', #{item.crerId}, NOW()
+            )
+            ON DUPLICATE KEY UPDATE
+            houscplx_cd = #{item.houscplxCd},
+            hshold_id = #{item.hsholdId},
+            ptype_nm = #{item.ptypeNm},
+            dim_qty = #{item.dimQty},
+            enrg_dim_qty = #{item.enrgDimQty},
+            editer_id = #{item.editerId},
+            edit_dt = NOW()
+        </foreach>
+    </insert>
+
+    <!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지목록 > 단지 신규등록_ 연계 웹/앱 정보 등록 -->
+    <insert id="insertHousingCplxServiceLink" parameterType="java.util.Map">
+        INSERT INTO /* HousingCplxMapper.xml.insertHousingCplxServiceLink */
+            T_HOUSCPLX_LNK_SVC_RLT
+        (
+            houscplx_cd, lnk_svc_id, banr_lnk_cls,
+            crer_id, cr_dt
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=" , ">
+            (
+                #{item.houscplxCd}, #{item.lnkSvcId}, 'L',
+                #{item.crerId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지목록 > 단지상세 > 기타 배너 정보 등록 -->
+    <insert id="insertHousingCplxBanner" parameterType="java.util.Map">
+        INSERT INTO /* HousingCplxMapper.xml.insertHousingCplxBanner */
+            T_HOUSCPLX_LNK_SVC_RLT
+        (
+            houscplx_cd, lnk_svc_id, banr_lnk_cls,
+            crer_id, cr_dt
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=" , ">
+            (
+                #{item.houscplxCd}, #{item.lnkSvcId}, 'B',
+                #{item.crerId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지목록 > 단지 신규등록_ 에너지 단위 정보 등록 -->
+    <insert id="insertHousingCplxEnrgUnt" parameterType="java.util.Map">
+        INSERT INTO /* HousingCplxMapper.xml.insertHousingCplxEnrgUnt */
+            T_HOUSCPLX_ENRG_UNT_BAS
+        (
+            houscplx_cd, enrg_tp_cd, enrg_unt_cd,
+            crer_id, cr_dt, del_yn, enrg_max_qty, editer_id, edit_dt
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=" , ">
+            (
+                #{item.houscplxCd}, #{item.enrgTpCd}, #{item.enrgUntCd},
+                #{item.crerId}, NOW(), 'N', #{item.enrgMaxQty}, #{item.crerId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지배치도 및 타입별 평면도 정보 등록 -->
+    <insert id="insertHousingCplxImageInfo" parameterType="HousingCplxPtype">
+        INSERT INTO /* HousingCplxMapper.xml.insertHousingCplxPtype */
+            T_HOUSCPLX_PTYPE_BAS
+        (
+            houscplx_cd, ptype_nm, ptype_tp_cd, ptype_dim_qty, sup_dim_qty, ord_no,
+            stos_orgnl_plnfig_nm, stos_reduce_plnfig_nm, orgnl_plnfig_file_path_cont, reduce_plnfig_file_path_cont,
+            orgnl_plnfig_file_url_cont, reduce_plnfig_file_url_cont, crer_id, cr_dt, del_yn, editer_id, edit_dt
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=" , ">
+            (
+                #{item.houscplxCd}, #{item.ptypeNm}, #{item.ptypeTpCd}, #{item.ptypeDimQty}, #{item.supDimQty}, #{item.ordNo},
+                #{item.stosOrgnlPlnfigNm}, #{item.stosReducePlnfigNm}, #{item.orgnlPlnfigFilePathCont}, #{item.reducePlnfigFilePathCont},
+                #{item.orgnlPlnfigFileUrlCont}, #{item.reducePlnfigFileUrlCont}, #{item.crerId}, NOW(), 'N', #{item.crerId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지관리 단지 연락처 기본(관리실/경비실/생활불편신고) 정보 등록 -->
+    <insert id="insertHousingCplxCaddr" parameterType="HousingCplxCaddr">
+        INSERT INTO /* HousingCplxMapper.xml.insertHouseholdCaddr */
+        T_HOUSCPLX_CADDR_BAS
+        (
+            ord_no, houscplx_cd, workp_tp_cd, caddr_tp_cd,
+            caddr_cont, rem, cntct_stime, cntct_etime,
+            crer_id, cr_dt, del_yn, editer_id, edit_dt
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=" , ">
+            (
+                #{item.ordNo}, #{item.houscplxCd}, #{item.workpTpCd}, #{item.caddrTpCd},
+                to_base64(aes_encrypt(#{item.caddrCont}, sha2(#{item.encKey}, 512))), #{item.rem},
+                #{item.cntctStime}, #{item.cntctEtime},
+                #{item.crerId}, NOW(), 'N', #{item.crerId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지관리 단지 연락처 안내 부가(관리실/경비실/생활불편신고) 정보 등록 -->
+    <insert id="insertHousingCplxCaddrGdnc" parameterType="HousingCplxCaddrGdnc">
+        INSERT INTO /* HousingCplxMapper.xml.insertHouseholdCaddrGdnc */
+        T_HOUSCPLX_CADDR_GDNC_BAS
+        (
+            houscplx_cd, workp_tp_cd, cont,
+            crer_id, cr_dt, del_yn, editer_id, edit_dt
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=" , ">
+            (
+                #{item.houscplxCd}, #{item.workpTpCd}, #{item.cont},
+                #{item.crerId}, NOW(), 'N', #{item.crerId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지관리 개요 정보 수정 -->
+    <update id="updateHousingCplx" parameterType="HousingCplx">
+        UPDATE /* HousingCplxMapper.xml.updateHousingCplx */
+            T_HOUSCPLX_BAS
+        SET houscplx_nm = #{houscplxNm},
+            screen_houscplx_nm = #{screenHouscplxNm},
+            post_no = #{postNo},
+            roadnm_bas_addr_cont = #{roadnmBasAddrCont},
+            area_bas_addr_cont = #{areaBasAddrCont},
+            hmnet_id = #{hmnetId},
+            land_dim_qty = #{landDimQty},
+            arch_dim_qty = #{archDimQty},
+            busi_appr_ymd = #{busiApprYmd},
+            busi_conend_ymd = #{busiConendYmd},
+            whole_hshold_cnt = #{wholeHsholdCnt},
+            whole_dong_cnt = #{wholeDongCnt},
+            lwst_ungr_flrcnt = #{lwstUngrFlrcnt},
+            hgst_abgr_flrcnt = #{hgstAbgrFlrcnt},
+            heat_tp_cd = #{heatTpCd},
+            whole_wl_lcnt = #{wholeWlLcnt},
+            hshold_wl_lcnt = #{hsholdWlLcnt},
+            latud_cont = #{latudCont},
+            lotud_cont = #{lotudCont},
+            wr_meas_x_coor_no = #{wrMeasXCoorNo},
+            wr_meas_y_coor_no = #{wrMeasYCoorNo},
+            addr_si_gun_gu_nm = #{addrSiGunGuNm},
+            addr_si_do_nm = #{addrSiDoNm},
+            addr_eup_myeon_dong_nm = #{addrEupMyeonDongNm},
+            editer_id = #{editerId},
+            edit_dt = NOW()
+        WHERE houscplx_cd = #{houscplxCd}
+    </update>
+
+    <!-- 공통: 우리 단지 알림 이미지 수정 -->
+    <update id="updateHousingCplxNoticeImageInfo" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            UPDATE /* HousingCplxMapper.xml.updateHousingCplxNoticeImageInfo */
+                T_HOUSCPLX_PTYPE_BAS
+            SET stos_orgnl_plnfig_nm = #{item.stosOrgnlPlnfigNm},
+                stos_reduce_plnfig_nm = #{item.stosReducePlnfigNm},
+                orgnl_plnfig_file_url_cont = #{item.orgnlPlnfigFileUrlCont},
+                reduce_plnfig_file_url_cont = #{item.reducePlnfigFileUrlCont},
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+            WHERE ptype_tp_cd = 'HOUSCPLX_INFO'
+            AND houscplx_cd = #{item.houscplxCd}
+            AND stos_reduce_plnfig_nm = #{item.prevFileNm}
+        </foreach>
+    </update>
+
+    <!-- 공통: 단지배치도 이미지 수정 -->
+    <update id="updateHousingCplxPlotImageInfo" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            UPDATE /* HousingCplxMapper.xml.updateHousingCplxPlotImageInfo */
+                T_HOUSCPLX_PTYPE_BAS
+            SET stos_orgnl_plnfig_nm = #{item.stosOrgnlPlnfigNm},
+                stos_reduce_plnfig_nm = #{item.stosReducePlnfigNm},
+                orgnl_plnfig_file_url_cont = #{item.orgnlPlnfigFileUrlCont},
+                reduce_plnfig_file_url_cont = #{item.reducePlnfigFileUrlCont},
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+            WHERE ptype_tp_cd = 'PLOT_PLAN'
+            AND houscplx_cd = #{item.houscplxCd}
+            AND stos_reduce_plnfig_nm = #{item.prevFileNm}
+        </foreach>
+    </update>
+
+    <!-- 공통: 타입별 평면도 이미지 수정 -->
+    <update id="updateHousingCplxFloorImageInfo" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            UPDATE /* HousingCplxMapper.xml.updateHousingCplxFloorImageInfo */
+                T_HOUSCPLX_PTYPE_BAS
+            SET stos_orgnl_plnfig_nm = #{item.stosOrgnlPlnfigNm},
+                stos_reduce_plnfig_nm = #{item.stosReducePlnfigNm},
+                orgnl_plnfig_file_url_cont = #{item.orgnlPlnfigFileUrlCont},
+                reduce_plnfig_file_url_cont = #{item.reducePlnfigFileUrlCont},
+                ptype_nm = #{item.ptypeNm},
+                ptype_dim_qty = #{item.ptypeDimQty},
+                sup_dim_qty = #{item.supDimQty},
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+            WHERE ptype_tp_cd = 'FLOOR_PLAN'
+            AND houscplx_cd = #{item.houscplxCd}
+            AND stos_reduce_plnfig_nm = #{item.prevFileNm}
+        </foreach>
+    </update>
+
+    <update id="updateHousingCplxImageDataInfo" parameterType="HousingCplxPtype">
+        UPDATE /* HousingCplxMapper.xml.updateHousingCplxImageDataInfo */
+            T_HOUSCPLX_PTYPE_BAS
+        SET ptype_nm = #{ptypeNm},
+            ptype_dim_qty = #{ptypeDimQty},
+            sup_dim_qty = #{supDimQty},
+            editer_id = #{editerId},
+            edit_dt = NOW()
+        WHERE ptype_tp_cd = 'FLOOR_PLAN'
+        AND houscplx_cd = #{houscplxCd}
+        AND stos_reduce_plnfig_nm = #{prevFileNm}
+    </update>
+
+    <!-- 공통: 배치도 or 평면도 이미지 순서 수정 -->
+    <update id="updateHousingCplxImageOrder" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            UPDATE /* HousingCplxMapper.xml.updateHousingCplxImageOrder */
+                T_HOUSCPLX_PTYPE_BAS
+            SET ord_no = #{item.ordNo},
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+            WHERE ptype_tp_cd = #{item.ptypeTpCd}
+            AND houscplx_cd = #{item.houscplxCd}
+            AND stos_reduce_plnfig_nm = #{item.stosReducePlnfigNm}
+        </foreach>
+    </update>
+
+    <!-- 공통: 배치도 or 평면도 삭제할 이미지 수정 -->
+    <update id="updateHousingCplxImageStatus" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            UPDATE /* HousingCplxMapper.xml.updateHousingCplxImageStatus */
+                T_HOUSCPLX_PTYPE_BAS
+            SET del_yn = 'Y',
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+            WHERE ptype_tp_cd = #{item.ptypeTpCd}
+            AND houscplx_cd = #{item.houscplxCd}
+            AND stos_reduce_plnfig_nm = #{item.stosReducePlnfigNm}
+        </foreach>
+    </update>
+
+    <!-- 공통: 단지관리 세대별 평형 정보 수정 -->
+    <insert id="updateHousehold" parameterType="java.util.Map">
+        <foreach collection="list" item="item" separator=";">
+        INSERT INTO /* HousingCplxMapper.xml.updateHousehold */
+        T_HSHOLD_BAS
+        (
+            houscplx_cd, hshold_id, dong_no, hose_no, ptype_nm,
+            dim_qty, enrg_dim_qty, del_yn, crer_id, cr_dt, editer_id, edit_dt
+        )
+        VALUES
+        (
+            #{item.houscplxCd}, #{item.hsholdId}, #{item.dongNo}, #{item.hoseNo}, #{item.ptypeNm},
+            #{item.dimQty}, #{item.enrgDimQty}, 'N', #{item.crerId}, NOW(), #{item.crerId}, NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            houscplx_cd = #{item.houscplxCd},
+            hshold_id = #{item.hsholdId},
+            ptype_nm = #{item.ptypeNm},
+            dim_qty = #{item.dimQty},
+            enrg_dim_qty = #{item.enrgDimQty},
+            editer_id = #{item.editerId},
+            edit_dt = NOW()
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지관리 단지 연락처 기본(관리실/경비실/생활불편신고) 정보 수정 -->
+    <insert id="updateHousingCplxCaddr" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            INSERT INTO /* HousingCplxMapper.xml.updateHousingCplxCaddr */
+            T_HOUSCPLX_CADDR_BAS
+            (
+                ord_no, houscplx_cd, workp_tp_cd, caddr_tp_cd,
+                caddr_cont, rem, cntct_stime, cntct_etime,
+                crer_id, cr_dt, del_yn, editer_id, edit_dt
+            )
+            VALUES
+            (
+                #{item.ordNo}, #{item.houscplxCd}, #{item.workpTpCd}, #{item.caddrTpCd},
+                to_base64(aes_encrypt(#{item.caddrCont}, sha2(#{item.encKey}, 512))), #{item.rem},
+                #{item.cntctStime}, #{item.cntctEtime},
+                #{item.crerId}, NOW(), 'N', #{item.crerId}, NOW()
+            )
+            ON DUPLICATE KEY UPDATE
+                ord_no = #{item.ordNo},
+                workp_tp_cd = #{item.workpTpCd},
+                houscplx_cd = #{item.houscplxCd},
+                caddr_cont = to_base64(aes_encrypt(#{item.caddrCont}, sha2(#{item.encKey}, 512))),
+                cntct_stime = #{item.cntctStime},
+                cntct_etime = #{item.cntctEtime},
+                rem = #{item.rem},
+                del_yn = 'N',
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지관리 단지 연락처 기본(관리실/경비실/생활불편신고) 정보 수정 -->
+    <insert id="updateHousingCplxCaddrGdnc" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+        INSERT INTO /* HousingCplxMapper.xml.updateHousingCplxCaddrGdnc */
+            T_HOUSCPLX_CADDR_GDNC_BAS
+        (
+            houscplx_cd, workp_tp_cd, cont,
+            crer_id, cr_dt, del_yn, editer_id, edit_dt
+            )
+        VALUES
+            (
+                #{item.houscplxCd}, #{item.workpTpCd}, #{item.cont},
+                #{item.crerId}, NOW(), 'N', #{item.crerId}, NOW()
+            )
+        ON DUPLICATE KEY UPDATE
+            houscplx_cd = #{item.houscplxCd},
+            workp_tp_cd = #{item.workpTpCd},
+            editer_id = #{item.editerId},
+            cont = #{item.cont},
+            del_yn = 'N',
+            edit_dt = NOW()
+        </foreach>
+    </insert>
+
+    <!-- 공통: 단지관리 기타 (단지관련) 정보 수정 -->
+    <update id="updateHousingCplxEtc" parameterType="HousingCplx">
+        UPDATE /* HousingCplxMapper.xml.updateHousingCplxEtc */
+            T_HOUSCPLX_BAS AS th
+        SET th.qry_range_cont = #{qryRangeCont},
+            th.enrg_meas_ymd = #{enrgMeasYmd},
+            th.editer_id = #{editerId},
+            th.edit_dt = NOW()
+        WHERE houscplx_cd = #{houscplxCd}
+    </update>
+
+    <!-- 공통: 단지관리 기타 (에너지단위 관련) 정보 수정 -->
+    <update id="updateHousingCplxEnrgUnt" parameterType="java.util.Map">
+        <foreach item="item" index="index" collection="list" separator=";">
+            UPDATE /* HousingCplxMapper.xml.updateHousingCplxEnrgUnt */
+                T_HOUSCPLX_ENRG_UNT_BAS
+            SET enrg_unt_cd = #{item.enrgUntCd},
+                enrg_max_qty = #{item.enrgMaxQty},
+                editer_id = #{item.editerId},
+                edit_dt = NOW()
+            WHERE houscplx_cd = #{item.houscplxCd}
+            AND enrg_tp_cd = #{item.enrgTpCd}
+        </foreach>
+    </update>
+
+    <!-- 시스템 관리자: 세대별 평형 정보 삭제 -->
+    <delete id="deleteHouseholdPtype" parameterType="Household">
+        DELETE FROM /* HousingCplxMapper.xml.deleteHouseholdPtype */
+            T_HSHOLD_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+        <if test="hsholdId != null and hsholdId != 'all'">
+            AND hshold_id = #{hsholdId}
+        </if>
+    </delete>
+
+    <!-- 시스템 관리자: 연계 웹/앱 정보 삭제 -->
+    <delete id="deleteHousingCplxServiceLink" parameterType="String">
+        DELETE FROM /* HousingCplxMapper.xml.deleteHousingCplxServiceLink */
+            T_HOUSCPLX_LNK_SVC_RLT
+        WHERE houscplx_cd = #{houscplxCd}
+          AND banr_lnk_cls = 'L'
+    </delete>
+
+    <!-- 시스템 관리자: 배너 정보 삭제 -->
+    <delete id="deleteHousingCplxBanner" parameterType="String">
+        DELETE FROM /* HousingCplxMapper.xml.deleteHousingCplxBanner */
+            T_HOUSCPLX_LNK_SVC_RLT
+        WHERE houscplx_cd = #{houscplxCd}
+          AND BANR_LNK_CLS = 'B'
+    </delete>
+
+    <!-- 공통: 연락처 삭제 -->
+    <delete id="deleteAddress" parameterType="HousingCplxCaddr">
+        UPDATE /* HousingCplxMapper.xml.deleteAddress */
+            T_HOUSCPLX_CADDR_BAS
+        SET del_yn = 'Y',
+            editer_id = #{editerId},
+            edit_dt = NOW()
+        WHERE houscplx_cd = #{houscplxCd}
+        <if test="ordNo != null">
+            AND ord_no = #{ordNo}
+        </if>
+        <if test="workpTpCd != null and workpTpCd != 'all'">
+            AND workp_tp_cd = #{workpTpCd}
+
+        </if>
+    </delete>
+
+    <!-- 공통: 연락처 부가정보 삭제 -->
+    <delete id="deleteAddressDescription" parameterType="HousingCplxCaddr">
+        DELETE FROM /* HousingCplxMapper.xml.deleteAddressDescription */
+            T_HOUSCPLX_CADDR_GDNC_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+        AND workp_tp_cd = #{workpTpCd}
+    </delete>
+
+    <!-- 시스템 관리자: 단지관리 CCTV 정보 등록 -->
+    <insert id="insertCCTVInfo" parameterType="CCTV">
+        INSERT INTO /* HousingCplxMapper.xml.insertCCTVInfo */
+            T_CCTV_INFO_BAS
+        (
+            houscplx_cd, cctv_nm,
+            url_cont, cont,
+            crer_id, cr_dt, del_yn
+        )
+        VALUES
+        (
+            #{houscplxCd}, #{cctvNm},
+            #{urlCont}, #{cont},
+            #{crerId}, NOW(), #{delYn}
+        )
+    </insert>
+
+    <!-- 시스템 관리자: 단지관리 활성화 or 비활성화 -->
+    <update id="updateHousingCplxDelyn" parameterType="HousingCplx">
+        UPDATE /* HousingCplxMapper.xml.updateHousingCplxDelyn */
+            T_HOUSCPLX_BAS
+        SET del_yn = #{delYn},
+            editer_id = #{editerId},
+            edit_dt = NOW()
+        WHERE houscplx_cd = #{houscplxCd}
+    </update>
+
+
+    <!-- 공통: 단지관리 CCTV 정보 수정 -->
+    <update id="updateCCTV" parameterType="java.util.Map">
+        <foreach collection="list" item="item" index="index" separator=";">
+            INSERT /* HousingCplxMapper.xml.updateCCTV */ INTO
+            T_CCTV_INFO_BAS
+            (
+                houscplx_cd, cctv_nm,
+                url_cont, cont,
+                crer_id, cr_dt, del_yn,
+                editer_id, edit_dt
+            )
+            VALUES
+            (
+                #{item.houscplxCd}, #{item.cctvNm},
+                #{item.urlCont}, #{item.cont},
+                #{item.crerId}, NOW(), #{item.delYn},
+                #{item.crerId}, NOW()
+            )
+            ON DUPLICATE KEY UPDATE
+                edit_dt=now(),
+                editer_id=#{item.editerId},
+                url_cont=#{item.urlCont},
+                cont=#{item.cont}
+        </foreach>
+    </update>
+
+    <!-- 공통: 단지관리 CCTV 정보 삭제 -->
+    <update id="deleteCCTV" parameterType="String">
+        DELETE /* HousingCplxMapper.xml.deleteCCTV */
+        FROM
+            T_CCTV_INFO_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+    </update>
+
+    <!-- 단지 등록시 편의시설 정보 자동 등록 -->
+    <insert id="insertConvenience" parameterType="java.util.HashMap">
+        INSERT INTO /* HousingCplxMapper.xml.insertConvenience */
+            T_HOUSCPLX_SKIL_ITEM
+        (
+            CR_DT
+           ,HOUSCPLX_CD
+           ,CRER_ID
+           ,REF_CONT
+           ,SKIL_GRP_CD
+           ,SKIL_CD
+           ,SCREEN_YN
+        )
+            VALUES
+        <foreach collection="convenienceList" item="item" separator=",">
+        (
+            NOW()
+           ,#{houscplxCd}
+           ,'sysadmin'
+           ,''
+           ,'CNVC_SKIL'
+           ,#{item}
+           ,'Y'
+        )
+        </foreach>
+    </insert>
+
+    <!-- 단지 등록시 장치 정보 자동 등록 -->
+    <insert id="insertDevice" parameterType="java.util.HashMap">
+        INSERT INTO /* HousingCplxMapper.xml.insertDevice */
+            T_HOUSCPLX_DEVICE_ITEM
+        (
+            CR_DT
+           ,HOUSCPLX_CD
+           ,CRER_ID
+           ,DEVICE_TP_CD
+           ,SCREEN_YN
+        )
+            VALUES
+        <foreach collection="deviceList" item="item" separator=",">
+        (
+            NOW()
+           ,#{houscplxCd}
+           ,'sysadmin'
+           ,#{item}
+           ,'Y'
+        )
+        </foreach>
+    </insert>
+
+    <select id="selectHouscplxNm" parameterType="String" resultType="String">
+        /* HousingCplxMapper.xml.selectHouscplxNm */
+        SELECT houscplx_nm
+        FROM T_HOUSCPLX_BAS
+        WHERE houscplx_cd = #{houscplxCd}
+    </select>
+
+    <select id="selectFailureOccurrence" resultMap="HousingCplx">
+        /* HousingCplxMapper.xml.selectFailureOccurrence */
+        SELECT houscplx_nm, houscplx_cd, hmnet_id
+        FROM T_HOUSCPLX_BAS
+        ORDER BY houscplx_nm
+    </select>
+
+</mapper>

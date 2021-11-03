@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>이벤트</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="./css/basic.css">
+    <link rel="stylesheet" href="./css/event.css">
+    <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/link.js"></script>
+    <script type="text/javascript">
+        function APP_EVENT(label) {
+            var ga_data = {};
+
+            ga_data.type = 'E'; //페이지뷰 : 'P' , 이벤트 'E' 
+            ga_data.title = '쇼핑뉴스>상세'; //화면명 : '쿠폰 메인' 
+            ga_data.category = 'APP_쇼핑뉴스상세'; //카테고리명 
+            ga_data.action = '본점_GS자이_클럽_혜택'; //액션명 
+            ga_data.label = label; //라벨명
+
+            // 2019.07.23 셋팅되지 않은 값들도 빈값 처리
+            ga_data.dimension1 = undefined; // 고객_회원일련번호 
+            ga_data.dimension2 = undefined;
+            ga_data.dimension3 = undefined;
+            ga_data.dimension4 = undefined;
+            ga_data.dimension5 = undefined;
+            ga_data.dimension6 = undefined;
+            ga_data.dimension7 = 'A';
+            ga_data.dimension8 = undefined;
+            ga_data.dimension9 = undefined;
+            ga_data.dimension10 = undefined;
+            ga_data.dimension11 = '1'; //화면_GA용카테고리_코드
+
+
+            var browserInfo = navigator.userAgent;
+            if (browserInfo.indexOf("LD_Android") > -1) {
+                window.Android.GA_DATA(JSON.stringify(ga_data));
+            } else if (browserInfo.indexOf("LD_iOS") > -1) {
+                webkit.messageHandlers.callbackHandler.postMessage(JSON.stringify(ga_data));
+            }
+        }
+        $(document).ready(function() {
+            //        LinkSetting("link1", "BrowserOpen", "yes", "lottecoupon://gate?page=a0180&cstrCd=0001&cstrDspNm=본점&cstrLrclsCd=C00110&lrclsDtlCdNm=백화점&cstrMdclsCd=C00111&mdclsDtlCdNm=서울점");  //
+            LinkSetting("link1", "BrowserOpen", "yes", "./install_app.html"); //  가입하러가기
+        });
+    </script>
+</head>
+
+<body>
+    <div class="canvas">
+        <div class="container">
+            <div class="eventBox">
+                <div class="img_box">
+                    <img src="./images/event/img_01.jpg">
+                    <img src="./images/event/img_02.jpg">
+                    <img src="./images/event/img_03.jpg">
+                    <a href="https://m.lotteshopping.com/a0083/SNM00000000000116769/lms"><img src="./images/event/img_04.jpg" alt="클럽 가입 바로가기"></a>
+
+                </div>
+
+                <!--
+				<div class="img_box">
+					<a id="link1"><img src="./images/event/img04.jpg" alt="보기" onclick="APP_EVENT('')"></a>
+				</div>
+				-->
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.device.DeviceMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="SystemDevice" type="com.daewooenc.pips.admin.web.domain.dto.device.SystemDevice"></resultMap>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 목록 (단지별) -->
+	<select id="selectSystemDeviceList" parameterType="SystemDevice" resultMap="SystemDevice">
+		SELECT /* DeviceMapper.xml.selectSystemDeviceList */
+			t.houscplx_cd, t.houscplx_nm, t.hmnet_id, t.bizco_cd,
+			IFNULL(GROUP_CONCAT(t.airconYn),'') AS airconYn, IFNULL(GROUP_CONCAT(t.curtainYn),'') AS curtainYn,
+			IFNULL(GROUP_CONCAT(t.gaslockYn),'') AS gaslockYn, IFNULL(GROUP_CONCAT(t.heatingYn),'') AS heatingYn,
+			IFNULL(GROUP_CONCAT(t.lightsYn),'') AS lightsYn, IFNULL(GROUP_CONCAT(t.lightSwitchYn),'') AS lightSwitchYn,
+			IFNULL(GROUP_CONCAT(t.smartConsentYn),'') AS smartConsentYn, IFNULL(GROUP_CONCAT(t.ventilatorYn),'') AS ventilatorYn
+		FROM
+			(
+				SELECT
+					thb.HOUSCPLX_CD, thb.houscplx_nm, thsb.hmnet_id, thsb.bizco_cd,
+					case when thdi.DEVICE_TP_CD = 'AIRCON' then thdi.screen_yn END AS airconYn,
+					case when thdi.DEVICE_TP_CD = 'CURTAIN' then thdi.screen_yn END AS curtainYn,
+					case when thdi.DEVICE_TP_CD = 'GASLOCK' then thdi.screen_yn END AS gaslockYn,
+					case when thdi.DEVICE_TP_CD = 'HEATING' then thdi.screen_yn END AS heatingYn,
+					case when thdi.DEVICE_TP_CD = 'LIGHTS' then thdi.screen_yn END AS lightsYn,
+					case when thdi.DEVICE_TP_CD = 'LIGHT_SWITCH' then thdi.screen_yn END AS lightSwitchYn,
+					case when thdi.DEVICE_TP_CD = 'SMART_CONSENT' then thdi.screen_yn END AS smartConsentYn,
+					case when thdi.DEVICE_TP_CD = 'VENTILATOR' then thdi.screen_yn END AS ventilatorYn
+				FROM
+					t_houscplx_device_item thdi, t_houscplx_bas thb, t_hmnet_svr_bas thsb
+				WHERE
+					thdi.houscplx_cd = thb.houscplx_cd
+				AND
+					thb.hmnet_id = thsb.hmnet_id
+				AND
+					thb.del_yn = 'N'
+				<if test="houscplxCd != null and houscplxCd != ''">
+				AND
+					thb.houscplx_cd = #{houscplxCd}
+				</if>
+			) t
+		GROUP BY t.HOUSCPLX_CD
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 (단지별) -->
+	<select id="selectSystemDeviceEdit" parameterType="SystemDevice" resultMap="SystemDevice">
+		SELECT /* DeviceMapper.xml.selectSystemDeviceEdit */
+			t.houscplx_cd, t.houscplx_nm, t.hmnet_id, t.bizco_cd,
+			IFNULL(GROUP_CONCAT(t.airconYn),'') AS airconYn, IFNULL(GROUP_CONCAT(t.curtainYn),'') AS curtainYn,
+			IFNULL(GROUP_CONCAT(t.gaslockYn),'') AS gaslockYn, IFNULL(GROUP_CONCAT(t.heatingYn),'') AS heatingYn,
+			IFNULL(GROUP_CONCAT(t.lightsYn),'') AS lightsYn, IFNULL(GROUP_CONCAT(t.lightSwitchYn),'') AS lightSwitchYn,
+			IFNULL(GROUP_CONCAT(t.smartConsentYn),'') AS smartConsentYn, IFNULL(GROUP_CONCAT(t.ventilatorYn),'') AS ventilatorYn
+		FROM
+			(
+				SELECT
+					thb.HOUSCPLX_CD, thb.houscplx_nm, thsb.hmnet_id, thsb.bizco_cd,
+					case when thdi.DEVICE_TP_CD = 'AIRCON' then thdi.screen_yn END AS airconYn,
+					case when thdi.DEVICE_TP_CD = 'CURTAIN' then thdi.screen_yn END AS curtainYn,
+					case when thdi.DEVICE_TP_CD = 'GASLOCK' then thdi.screen_yn END AS gaslockYn,
+					case when thdi.DEVICE_TP_CD = 'HEATING' then thdi.screen_yn END AS heatingYn,
+					case when thdi.DEVICE_TP_CD = 'LIGHTS' then thdi.screen_yn END AS lightsYn,
+					case when thdi.DEVICE_TP_CD = 'LIGHT_SWITCH' then thdi.screen_yn END AS lightSwitchYn,
+					case when thdi.DEVICE_TP_CD = 'SMART_CONSENT' then thdi.screen_yn END AS smartConsentYn,
+					case when thdi.DEVICE_TP_CD = 'VENTILATOR' then thdi.screen_yn END AS ventilatorYn
+				FROM
+					t_houscplx_device_item thdi, t_houscplx_bas thb, t_hmnet_svr_bas thsb
+				WHERE
+					thdi.houscplx_cd = thb.houscplx_cd
+				AND
+					thb.hmnet_id = thsb.hmnet_id
+				AND
+					thb.del_yn = 'N'
+				AND
+					thb.houscplx_cd = #{houscplxCd}
+			) t
+		GROUP BY t.HOUSCPLX_CD
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 > 수정 (단지별) -->
+	<update id="updateDevice" parameterType="SystemDevice">
+		UPDATE /* DeviceMapper.xml.updateDevice */
+			T_HOUSCPLX_DEVICE_ITEM
+		SET
+			screen_yn = #{screenYn}
+		WHERE
+			houscplx_cd = #{houscplxCd}
+		AND
+			device_tp_cd = #{deviceTpCd}
+	</update>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 > 수정 (단지별(세대별 일괄 수정)) -->
+	<update id="updateDeviceHshold" parameterType="SystemDevice">
+		UPDATE /* DeviceMapper.xml.updateDeviceHshold */
+			T_DEVICE_BAS
+		SET
+			screen_yn = #{screenYn}
+		WHERE
+			wpad_id LIKE CONCAT('%',#{houscplxCd},'%')
+		AND
+			device_tp_cd = #{deviceTpCd}
+	</update>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 > 수정 (세대별) -->
+	<update id="updateHsholdDevice" parameterType="SystemDevice">
+		UPDATE /* DeviceMapper.xml.updateHsholdDevice */
+			T_DEVICE_BAS
+		SET
+			screen_yn = #{screenYn},
+			editer_id = #{crerId},
+			edit_dt = NOW()
+		WHERE
+			wpad_id = #{wpadId}
+		AND
+			device_tp_cd = #{deviceTpCd}
+	</update>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 목록 (세대별)-->
+	<select id="selectSystemDeviceHsholdList" parameterType="SystemDevice" resultMap="SystemDevice">
+		SELECT /* DeviceMapper.xml.selectSystemDeviceHsholdList */
+		tms.hmnet_id AS hmnet_id, tms.bizco_cd AS bizco_cd, thc.houscplx_nm AS houscplx_nm, thc.houscplx_cd AS houscplx_cd,
+		th.dong_no AS dong_no, th.hose_no AS hose_no, td.wpad_id as wpad_id,
+		sum(td.lights) as lights, sum(td.lightsY) AS lightsY, sum(td.lightsN) AS lightsN,
+		sum(td.gaslock) as gaslock, sum(td.gaslockY) AS gaslockY, sum(td.gaslockN) AS gaslockN,
+		sum(td.aircon) as aircon, sum(td.airconY) AS airconY, sum(td.airconN) AS airconN,
+		sum(td.heating) as heating, sum(td.heatingY) AS heatingY, sum(td.heatingN) AS heatingN,
+		sum(td.ventilator) as ventilator, sum(td.ventilatorY) AS ventilatorY, sum(td.ventilatorN) AS ventilatorN,
+		sum(td.smart_consent) as smart_consent, sum(td.smart_consentY) AS smart_consentY, sum(td.smart_consentN) AS smart_consentN,
+		sum(td.curtain) as curtain, sum(td.curtainY) AS curtainY, sum(td.curtainN) AS curtainN,
+		sum(td.light_switch) as light_switch, sum(td.light_switchY) AS light_switchY, sum(td.light_switchN) AS light_switchN
+		FROM
+		T_HOUSCPLX_BAS AS thc
+		INNER JOIN T_HMNET_SVR_BAS AS tms
+		ON tms.hmnet_id = thc.hmnet_id
+		INNER JOIN (
+		SELECT thb.houscplx_cd, thb.hshold_id, thb.dong_no, thb.hose_no
+		FROM
+		T_HSHOLD_BAS AS thb, T_HSHOLD_USER_ITEM AS thui
+		WHERE thb.hshold_id = thui.hshold_id
+		AND thui.del_yn = 'N'
+		<if test="dongNo != null and dongNo != 'all'">
+			AND thb.dong_no = #{dongNo}
+		</if>
+		<if test="hoseNo != null and hoseNo != 'all'">
+			AND thb.hose_no = #{hoseNo}
+		</if>
+		GROUP BY thb.hshold_id
+		) AS th
+		ON thc.houscplx_cd=th.houscplx_cd
+		INNER JOIN T_WPAD_BAS AS tw
+		ON tw.hshold_id=th.hshold_id
+		INNER JOIN (
+		SELECT wpad_id,
+		sum(if(device_tp_cd = 'LIGHTS', 1, 0)) AS lights,
+		sum(if(device_tp_cd = 'LIGHTS' AND screen_yn = 'Y', 1, 0)) AS lightsY,
+		sum(if(device_tp_cd = 'LIGHTS' AND screen_yn = 'N', 1, 0)) AS lightsN,
+		sum(if(device_tp_cd = 'GASLOCK', 1, 0)) AS gaslock,
+		sum(if(device_tp_cd = 'GASLOCK' AND screen_yn = 'Y', 1, 0)) AS gaslockY,
+		sum(if(device_tp_cd = 'GASLOCK' AND screen_yn = 'N', 1, 0)) AS gaslockN,
+		sum(if(device_tp_cd = 'AIRCON', 1, 0)) AS aircon,
+		sum(if(device_tp_cd = 'AIRCON' AND screen_yn = 'Y', 1, 0)) AS airconY,
+		sum(if(device_tp_cd = 'AIRCON' AND screen_yn = 'N', 1, 0)) AS airconN,
+		sum(if(device_tp_cd = 'HEATING', 1, 0)) AS heating,
+		sum(if(device_tp_cd = 'HEATING' AND screen_yn = 'Y', 1, 0)) AS heatingY,
+		sum(if(device_tp_cd = 'HEATING' AND screen_yn = 'N', 1, 0)) AS heatingN,
+		sum(if(device_tp_cd = 'VENTILATOR', 1, 0)) AS ventilator,
+		sum(if(device_tp_cd = 'VENTILATOR' AND screen_yn = 'Y', 1, 0)) AS ventilatorY,
+		sum(if(device_tp_cd = 'VENTILATOR' AND screen_yn = 'N', 1, 0)) AS ventilatorN,
+		sum(if(device_tp_cd = 'SMART_CONSENT', 1, 0)) AS smart_consent,
+		sum(if(device_tp_cd = 'SMART_CONSENT' AND screen_yn = 'Y', 1, 0)) AS smart_consentY,
+		sum(if(device_tp_cd = 'SMART_CONSENT' AND screen_yn = 'N', 1, 0)) AS smart_consentN,
+		sum(if(device_tp_cd = 'CURTAIN', 1, 0)) AS curtain,
+		sum(if(device_tp_cd = 'CURTAIN' AND screen_yn = 'Y', 1, 0)) AS curtainY,
+		sum(if(device_tp_cd = 'CURTAIN' AND screen_yn = 'N', 1, 0)) AS curtainN,
+		sum(if(device_tp_cd = 'LIGHT_SWITCH', 1, 0)) AS light_switch,
+		sum(if(device_tp_cd = 'LIGHT_SWITCH' AND screen_yn = 'Y', 1, 0)) AS light_switchY,
+		sum(if(device_tp_cd = 'LIGHT_SWITCH' AND screen_yn = 'N', 1, 0)) AS light_switchN
+		FROM
+		T_DEVICE_BAS
+		WHERE device_tp_cd NOT IN ('WALL_PAD')
+		AND del_yn = 'N'
+		GROUP by wpad_id
+		) AS td
+		ON td.wpad_id = tw.wpad_id
+		WHERE 1=1
+		AND thc.del_yn = 'N'
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND	thc.houscplx_cd = #{houscplxCd}
+		</if>
+		GROUP BY td.wpad_id
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 > 장치 설정 상세 (세대별)-->
+	<select id="selectDeviceHsholdDetail" parameterType="SystemDevice" resultMap="SystemDevice">
+		SELECT /* DeviceMapper.xml.selectDeviceHsholdDetail */
+			device_id, device_tp_cd, device_nm, loca_nm, wpad_id,
+			mnfco_nm, serl_no, mdl_nm, screen_yn,
+			case
+			when device_tp_cd = 'LIGHTS' then '조명'
+			when device_tp_cd = 'HEATING' then '난방'
+			when device_tp_cd = 'AIRCON' then '에어컨'
+			when device_tp_cd = 'VENTILATOR' then '환기장치'
+			when device_tp_cd = 'CURTAIN' then '전동커튼'
+			when device_tp_cd = 'SMART_CONSENT' then '대기전력(스마트 콘센트)'
+			when device_tp_cd = 'GASLOCK' then '가스밸브'
+			when device_tp_cd = 'LIGHT_SWITCH' then '일괄스위치'
+			END AS device_tp_cd_nm
+		FROM
+			T_DEVICE_BAS
+		WHERE
+			del_yn = 'N'
+		and
+			wpad_id = #{wpadId}
+	</select>
+
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 > 장치 설정 상세 > 수정 (세대별)-->
+	<update id="updateHsholdDeviceView" parameterType="SystemDevice">
+		UPDATE /* DeviceMapper.xml.updateHsholdDeviceView */
+			T_DEVICE_BAS
+		SET
+			screen_yn = #{screenYn},
+			editer_id = #{crerId},
+			edit_dt = NOW()
+		WHERE
+			device_id = #{deviceId}
+		AND
+			wpad_id = #{wpadId}
+	</update>
+
+	<!-- 시스템 관리자 : 장치 및 편의 시설 관리 > 장치 설정 > 장치 설정 수정 > 장치 설정 상세 (세대별)-->
+	<select id="selectDeviceHsholdDetailNm" parameterType="String" resultType="String">
+		SELECT /* DeviceMapper.xml.selectDeviceHsholdDetailNm */
+			houscplx_nm
+		FROM
+			T_HOUSCPLX_BAS
+		WHERE
+			houscplx_cd = #{houscplxCd}
+	</select>
+
+</mapper>

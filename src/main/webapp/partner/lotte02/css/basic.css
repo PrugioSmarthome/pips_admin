@@ -1,0 +1,52 @@
+@charset "utf-8";
+/*------------------------------------------------------------------------------------------------------------------------------------
+	File : Base.css
+	Company : The Webstyle co.,ltd
+	Author : neocave
+	CSS 적용순서 : 아이디 > 태그와 클래스 > 클래스 > 태그
+	CSS 선택자 선언순서 : Type Selector, Layout Selector, Class Selector, Etc
+	CSS 속성 선언순서 : float/clear, display, position, width/height, margin/padding, overflow, border, background, font/color, align, etc
+------------------------------------------------------------------------------------------------------------------------------------*/
+
+*, *:before, *:after {margin:0; padding:0; border:0; box-sizing:border-box; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; -o-box-sizing:border-box;}
+html {height:100%; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; -o-box-sizing:border-box; min-height:10px;}
+body {height:100%; font-size:15px; line-height:1; color:#262626; min-height:10px;}
+address, article, aside, canvas, details, figure, figcaption, footer, header, menu, nav, section {display:block; margin:0; padding:0;}
+h1, h2, h3, h4, h5, h6 {font-size:100%; font-weight:normal;}
+img {vertical-align:middle;}
+ol, ul, li, dl, dt, dd {list-style:none;}
+table {width:100%; border-spacing:0px; border-collapse:collapse;}
+th, td {word-break:break-all; font-weight:normal;}
+fieldset, iframe {width:100%;}
+em, address {font-style:normal;}
+button, select, input, label {vertical-align:middle;}
+hr {display:none;}
+legend {position:absolute; left:-9999em; top:-9999em;}
+caption {visibility:hidden; height:0; line-height:0; font-size:0;}
+a, a:hover, a:visited, a:focus {text-decoration:none; color:#262626;}
+
+img{min-height:10px;} /* LG나 샤오미 폰에서 이미지 인식이 안되는 에러 방지 */
+
+/*
+@font-face {
+    font-family:"NBG"; src:url('../fonts/NanumBarunGothic.eot'); src:local('※'),
+		url('../fonts/NanumBarunGothic.eot?#iefix') format('embedded-opentype'),
+	    url('../fonts/NanumBarunGothic.woff') format('woff');}
+@font-face {
+    font-family:"NBGB"; src:url('../fonts/NanumBarunGothicBold.eot'); src:local('※'),
+		url('../fonts/NanumBarunGothicBold.eot?#iefix') format('embedded-opentype'),
+	    url('../fonts/NNanumBarunGothicBold.woff') format('woff');}
+*/
+
+/* 모바일앱, 모바일웹 버튼 Change */
+button.app_only, a.app_only {display:inline-block;}
+button.mow_only, a.mow_only {display:none;}
+button.pcw_only, a.pcw_only {display:none;}
+.useMOW .mow_only {display:inline-block !important;}
+.useMOW .app_only {display:none !important;}
+.usePCW .pcw_only {display:inline-block !important;}
+.usePCW .app_only {display:none !important;}
+
+@media all and (max-width: 720px) {
+	body {}
+}

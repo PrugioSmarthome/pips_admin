@@ -1,0 +1,99 @@
+
+h1.cheader {
+	padding: 10px 0 10px 0;
+	font-family: Arial;
+	color: #666;
+	background:-webkit-gradient(linear, 0 30%, 0 97%, from(#eee), to(#ccc));
+	width:100%;
+	margin:0 0 10px 0;
+	text-align:center;
+	vertical-align:middle;
+}
+h1.cheader a{color:#666; text-decoration:none; letter-spacing:-3px}
+h1.cheader a:hover{color:#f7941d}
+.cal{
+	border-collapse: collapse;
+	border: 1px solid #ccc;
+	border-spacing:0!important;
+	margin: 23px 0 0 70px;
+	width:232px;
+	float:left;
+}
+.cal_group{text-align:center; width:100%; border:1px solid #ccc; height:310px}
+.cal caption{display:block; position:absolute; margin:-55px 0 0 -1px; color:#fff; padding:6px 0 0 0;width:230px; border:1px solid #000; height:20px; background:-webkit-gradient(linear, 0 30%, 0 97%, from(#61615C), to(#393936));}
+.cal thead{border-right:1px solid #ccc;}
+.cal td {
+	width: 31px;
+	height: 29px;
+	text-align: center;
+	vertical-align: middle;
+	background: #FBFBFB;
+	color: #444;
+	position: relative;
+	font:12px Verdana;
+	border:1px solid #ddd;
+
+}
+.cal th {
+	height: 30px;
+	background:#E6EBEF!important;
+	font:11px "Malgun Gothic", "�������", sans-serif;
+	font-weight:100;
+}
+.cal td:hover {
+	background: url(/images/todayBg.png) -32px 0;
+	color: #222;
+}
+.cal td.date_has_event {
+	background: url(/images/cells.png);
+	background-position: 162px 0px;
+	color: white;
+}
+.cal td.date_has_event:hover {
+	background-position: 162px -81px;
+}
+.cal td.padding {
+	background:#fff;
+}
+.cal td.today {
+	background: url(/images/todayBg.png);
+	color: white;
+}
+.cal td.today:hover {
+	background-position: 81px -81px;
+}
+.cal .events {
+	position: relative;
+}
+.cal .events ul {
+	text-align: left;
+	position: absolute;
+	display: none;
+	z-index: 1000;
+	padding: 15px;
+	background: #E7ECF2 url(/images/popup.png) no-repeat;
+	color: white;
+	border: 1px solid white;
+	font-size: 15px;
+	width: 200px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-border-radius: 3px;
+	list-style: none;
+	color: #444444;
+	-webkit-box-shadow: 0px 8px 8px #333;
+}
+.cal .events li {
+	padding-bottom: 5px;
+}
+.cal .events li span {
+	display: block;
+	font-size: 12px;
+	text-align: justify;
+	color: #555;
+}
+.cal .events li span.title {
+	font-weight: bold;
+	color: #222;
+}

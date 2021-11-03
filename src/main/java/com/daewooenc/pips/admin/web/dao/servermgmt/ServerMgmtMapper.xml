@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.servermgmt.ServerMgmtMapper">
+    <insert id="insertServerMgmt" parameterType="com.daewooenc.pips.admin.web.domain.vo.servermgmt.ServerMgmtVo">
+        INSERT INTO T_HMNET_SVR_BAS /* ServerMgmtMapper.xml.insertServerMgmt */
+        (
+            hmnet_id,
+            hmnet_nm,
+            hmnet_key_cd,
+            svr_tp_cd,
+            bizco_cd,
+            serl_no,
+            url_cont,
+            sts_cd,
+            keep_alive_cycle_cont,
+            dat_trnsm_cycle_cont,
+            ctl_exprtn_cycle_cont,
+            use_yn,
+            del_yn,
+            crer_id,
+            editer_id,
+            cr_dt,
+            edit_dt
+        )
+            VALUES
+        (
+            #{hmnetId,jdbcType=VARCHAR},
+            #{hmnetNm,jdbcType=VARCHAR},
+            #{hmnetKeyCd,jdbcType=VARCHAR},
+            #{svrTpCd,jdbcType=VARCHAR},
+            #{bizcoCd,jdbcType=VARCHAR},
+            #{serlNo,jdbcType=VARCHAR},
+            #{urlCont,jdbcType=VARCHAR},
+            #{stsCd,jdbcType=VARCHAR},
+            #{keepAliveCycleCont,jdbcType=VARCHAR},
+            #{datTrnsmCycleCont,jdbcType=VARCHAR},
+            #{ctlExprtnCycleCont,jdbcType=VARCHAR},
+            #{useYn,jdbcType=VARCHAR},
+            #{delYn,jdbcType=VARCHAR},
+            #{crerId,jdbcType=VARCHAR},
+            #{editerId,jdbcType=VARCHAR},
+            NOW(),
+            NOW()
+    )
+    </insert>
+    <update id="updateServerMgmt" parameterType="com.daewooenc.pips.admin.web.domain.vo.servermgmt.ServerMgmtVo">
+        UPDATE T_HMNET_SVR_BAS /* ServerMgmtMapper.xml.updateServerMgmt */
+        SET
+        url_cont =  #{urlCont,jdbcType=VARCHAR},
+        hmnet_nm =  #{hmnetNm,jdbcType=VARCHAR},
+        editer_id = #{editerId,jdbcType=VARCHAR},
+        edit_dt =  NOW()
+        WHERE
+        hmnet_id = #{hmnetId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="confControlUpdateServerMgmt" parameterType="com.daewooenc.pips.admin.web.domain.vo.servermgmt.ServerConfCtrVo">
+        UPDATE T_HMNET_SVR_BAS /* ServerMgmtMapper.xml.confControlUpdateServerMgmt */
+        SET
+        <if test="keepAliveCycleCont != null">
+            keep_alive_cycle_cont =  #{keepAliveCycleCont,jdbcType=VARCHAR},
+        </if>
+        <if test="datTrnsmCycleCont != null">
+            dat_trnsm_cycle_cont =  #{datTrnsmCycleCont,jdbcType=VARCHAR},
+        </if>
+        <if test="ctlExprtnCycleCont != null">
+            ctl_exprtn_cycle_cont =  #{ctlExprtnCycleCont,jdbcType=VARCHAR},
+        </if>
+        editer_id = #{userId,jdbcType=VARCHAR},
+        edit_dt =  NOW()
+        WHERE
+        hmnet_id = #{hmnetId,jdbcType=VARCHAR}
+    </update>
+    <update id="dataSendControlUpdateServerMgmt" parameterType="com.daewooenc.pips.admin.web.domain.vo.servermgmt.ServerDataSendCtrVo">
+        UPDATE T_HMNET_SVR_BAS /* ServerMgmtMapper.xml.dataSendControlUpdateServerMgmt */
+        SET
+        use_yn =  #{trnsmYn,jdbcType=VARCHAR},
+        editer_id = #{adminId,jdbcType=VARCHAR},
+        edit_dt =  NOW()
+        WHERE
+        hmnet_id = #{hmnetId,jdbcType=VARCHAR}
+    </update>
+
+
+    <select id="selectServerMgmtList" parameterType="ServerMgmtCondition" resultType="com.daewooenc.pips.admin.web.domain.dto.servermgmt.ServerMgmt">
+
+        SELECT /* ServerMgmtMapper.xml.selectServerMgmtList */
+        hmnet_id,
+        hmnet_nm,
+        hmnet_key_cd,
+        svr_tp_cd,
+        bizco_cd,
+        serl_no,
+        url_cont,
+        sts_cd,
+        keep_alive_cycle_cont,
+        dat_trnsm_cycle_cont,
+        ctl_exprtn_cycle_cont,
+        use_yn,
+        del_yn,
+        crer_id,
+        editer_id,
+        cr_dt,
+        edit_dt
+        FROM
+        t_hmnet_svr_bas
+        WHERE 1 = 1
+        <if test="svrTpCd != null and svrTpCd != 'all'">
+            AND svr_tp_cd = #{svrTpCd}
+        </if>
+        <if test="bizcoCd != null and bizcoCd != 'all'">
+            AND bizco_cd = #{bizcoCd}
+        </if>
+        <if test="stsCd != null and stsCd != 'all'">
+            AND sts_cd = #{stsCd}
+        </if>
+        ORDER BY cr_dt DESC
+    </select>
+
+
+    <select id="getServerMgmt" parameterType="String" resultType="com.daewooenc.pips.admin.web.domain.dto.servermgmt.ServerMgmt">
+        SELECT /* ServerMgmtMapper.xml.getServerMgmt */
+            hmnet_id,
+            hmnet_nm,
+            hmnet_key_cd,
+            svr_tp_cd,
+            bizco_cd,
+            serl_no,
+            url_cont,
+            sts_cd,
+            keep_alive_cycle_cont,
+            dat_trnsm_cycle_cont,
+            ctl_exprtn_cycle_cont,
+            use_yn,
+            del_yn,
+            crer_id,
+            editer_id,
+            cr_dt,
+            edit_dt
+        FROM
+            t_hmnet_svr_bas
+        WHERE 1 = 1
+        <if test="homenetId != null">
+            AND hmnet_id = #{homenetId, jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <update id="statusUpdateServerMgmt" parameterType="com.daewooenc.pips.admin.web.domain.vo.servermgmt.ServerMgmtVo">
+        UPDATE T_HMNET_SVR_BAS /* ServerMgmtMapper.xml.statusUpdateServerMgmt */
+        SET
+        sts_cd =  #{stsCd,jdbcType=VARCHAR}
+        WHERE
+        hmnet_id = #{hmnetId,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

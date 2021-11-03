@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.authorization.UserGroupMapper">
+
+	<select id="getUserGroup" parameterType="String" resultType="UserGroup">
+		SELECT /* UserGroupMapper.xml.getUserGroup */
+			*
+		FROM
+			T_USER_GROUP
+		WHERE
+			user_group_id = #{userGroupId, jdbcType=VARCHAR}
+     </select>
+
+	<insert id="insert" parameterType="UserGroup">
+		INSERT /* UserGroupMapper.xml.insert */ INTO
+			T_USER_GROUP
+		(
+		    user_group_id,
+			user_group_name,
+			user_group_level,
+			description
+		)
+		VALUES
+		(
+			#{userGroupId, jdbcType=VARCHAR},
+			#{userGroupName, jdbcType=VARCHAR},
+			#{userGroupLevel, jdbcType=VARCHAR},
+			#{description, jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<select id="getUserGroupID" resultType="String">
+		SELECT /* UserGroupMapper.xml.getUserGroupID */
+			CASE WHEN LENGTH(COALESCE(MAX(user_group_id), 0) + 1 ) = 1 THEN CONCAT('00', COALESCE(MAX(user_group_id), 0) + 1)
+			     WHEN LENGTH( COALESCE(MAX(user_group_id), 0) + 1 ) = 3 THEN COALESCE(MAX(user_group_id), 0) + 1
+			     ELSE CONCAT('0', COALESCE(MAX(user_group_id), 0) + 1)
+			END AS user_group_id
+		FROM T_USER_GROUP
+     </select>
+
+	<update id="update" parameterType="UserGroup">
+		UPDATE /* UserGroupMapper.xml.update */
+			T_USER_GROUP
+		SET
+			user_group_name = #{userGroupName} ,
+			user_group_level = #{userGroupLevel} ,
+			description = #{description}
+		WHERE
+			user_group_id = #{userGroupId}
+     </update>
+
+	<delete id="delete" parameterType="String">
+		DELETE /* UserGroupMapper.xml.delete */ FROM
+			T_USER_GROUP
+		WHERE
+			user_group_id = #{userGroupId, jdbcType=VARCHAR}
+     </delete>
+
+	<select id="isExist" parameterType="UserGroup" resultType="int">
+		SELECT /* UserGroupMapper.xml.isExist */
+			count(0)
+		FROM
+			T_USER_GROUP
+		WHERE
+			user_group_name = #{userGroupName, jdbcType=VARCHAR}
+		<if test="userGroupId != null">
+		AND user_group_id not in (#{userGroupId, jdbcType=VARCHAR})
+		</if>
+     </select>
+
+	<select id="listUserGroup"
+			parameterType="String"
+			resultType="UserGroup">
+		SELECT /* UserGroupMapper.xml.listUserGroup */
+			user_group_id, user_group_name
+		FROM
+			T_USER_GROUP
+		WHERE
+			user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+		ORDER BY user_group_id
+	</select>
+
+	<select id="listUserGroupExcel"
+			parameterType="String"
+			resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+		SELECT /* UserGroupMapper.xml.listUserGroupExcel */
+			user_group_id as "유저그룹ID", user_group_name as "유저그룹"
+		FROM
+			T_USER_GROUP
+		WHERE
+			user_group_level <![CDATA[>=]]> #{userGroupLevel, jdbcType=VARCHAR}
+		ORDER BY user_group_id
+	</select>
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.manufacturerByDevice.ManufacturerByDeviceMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="ManufacturerByDevice" type="com.daewooenc.pips.admin.web.domain.dto.manufacturerByDevice.ManufacturerByDevice"></resultMap>
+
+	<!-- 시스템 관리자 : 장치 및 편의시설 설정 > 장치별 제조사 관리 > 장치별 제조사 목록 -->
+	<select id="selectManufacturerByDeviceList" parameterType="ManufacturerByDevice" resultMap="ManufacturerByDevice">
+		SELECT /* ManufacturerByDeviceMapper.xml.selectManufacturerByDeviceList */
+			thdmr.houscplx_cd, thdmr.DEVICE_MF_CD, thb.houscplx_nm, tccd.comm_cd_nm, thdmr.device_tp_cd AS device_tp_cd_orgn,
+			case when thdmr.device_tp_cd = 'LIGHTS' then '조명'
+				 when thdmr.device_tp_cd = 'HEATING' then '난방'
+				 when thdmr.device_tp_cd = 'AIRCON' then '에어컨'
+				 when thdmr.device_tp_cd = 'VENTILATOR' then '환기'
+			  	 when thdmr.device_tp_cd = 'CURTAIN' then '전동 커튼'
+				 when thdmr.device_tp_cd = 'SMART_CONSENT' then '대기전력'
+				 when thdmr.device_tp_cd = 'GASLOCK' then '가스밸브' END AS device_tp_cd
+		FROM
+			T_HOUSCPLX_DEVICE_MF_RLT thdmr, T_HOUSCPLX_BAS thb, T_COMM_CD_DTL tccd
+		WHERE
+			thdmr.houscplx_cd = thb.houscplx_cd
+		AND
+			thdmr.device_mf_cd = tccd.comm_cd
+		<if test="houscplxCd != null and houscplxCd != ''">
+		AND
+			thdmr.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="deviceTpCd != null and deviceTpCd != ''">
+		AND
+			thdmr.device_tp_cd = #{deviceTpCd}
+		</if>
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의시설 설정 > 장치별 제조사 관리 > 장치별 제조사 목록 > 삭제-->
+	<delete id="deleteManufacturerByDevice" parameterType="ManufacturerByDevice">
+		DELETE /* ManufacturerByDeviceMapper.xml.deleteManufacturerByDevice */
+		FROM
+			T_HOUSCPLX_DEVICE_MF_RLT
+		WHERE
+			houscplx_cd = #{houscplxCd}
+		AND
+			device_tp_cd = #{deviceTpCd}
+		AND
+			device_mf_cd = #{deviceMfCd}
+	</delete>
+
+	<!-- 시스템 관리자 : 장치 및 편의시설 설정 > 장치별 제조사 관리 > 장치별 제조사 등록 > 장치제조사 목록 -->
+	<select id="selectDeviceMfList" parameterType="ManufacturerByDevice" resultMap="ManufacturerByDevice">
+		SELECT /* ManufacturerByDeviceMapper.xml.selectDeviceMfList */
+			comm_cd_nm, comm_cd
+		FROM
+			T_COMM_CD_DTL
+		WHERE
+			comm_cd_grp_cd = 'DEVICE_MF_CD'
+		<if test="commCdNm != null and commCdNm != ''">
+		AND
+			comm_cd_nm = #{commCdNm}
+		</if>
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의시설 설정 > 장치별 제조사 관리 > 장치별 제조사 등록 > 등록 -->
+	<insert id="insertManufacturerByDevice" parameterType="ManufacturerByDevice">
+		INSERT INTO /* ManufacturerByDeviceMapper.xml.insertManufacturerByDevice */
+			T_HOUSCPLX_DEVICE_MF_RLT
+		(
+			 HOUSCPLX_CD
+			,DEVICE_TP_CD
+			,DEVICE_MF_CD
+			,CRER_ID
+			,CR_DT
+		)
+		VALUES
+		(
+			#{houscplxCd}
+		   ,#{deviceTpCd}
+		   ,#{deviceMfCd}
+		   ,#{crerId}
+		   ,NOW()
+		)
+	</insert>
+
+	<!-- 시스템 관리자 : 장치 및 편의시설 설정 > 장치별 제조사 관리 > 장치별 제조사 등록 > 중복 제조사 체크 -->
+	<select id="checkDeviceMf" parameterType="ManufacturerByDevice" resultType="int">
+		SELECT /* ManufacturerByDeviceMapper.xml.checkDeviceMf */
+			COUNT(*)
+		FROM
+			T_HOUSCPLX_DEVICE_MF_RLT
+		WHERE
+			houscplx_cd = #{houscplxCd}
+		AND
+			device_tp_cd = #{deviceTpCd}
+		AND
+			device_mf_cd = #{deviceMfCd}
+	</select>
+
+	<!-- 시스템 관리자 : 장치 및 편의시설 설정 > 장치별 제조사 관리 > 장치별 제조사 수정 -->
+	<select id="selectManufacturerByDeviceEdit" parameterType="ManufacturerByDevice" resultType="ManufacturerByDevice">
+		SELECT /* ManufacturerByDeviceMapper.xml.selectManufacturerByDeviceEdit */
+			thdmr.houscplx_cd, thdmr.DEVICE_MF_CD, thb.houscplx_nm, tccd.comm_cd_nm, thdmr.device_tp_cd AS device_tp_cd_orgn,
+			case when thdmr.device_tp_cd = 'LIGHTS' then '조명'
+			when thdmr.device_tp_cd = 'HEATING' then '난방'
+			when thdmr.device_tp_cd = 'AIRCON' then '에어컨'
+			when thdmr.device_tp_cd = 'VENTILATOR' then '환기'
+			when thdmr.device_tp_cd = 'CURTAIN' then '전동 커튼'
+			when thdmr.device_tp_cd = 'SMART_CONSENT' then '대기전력'
+			when thdmr.device_tp_cd = 'GASLOCK' then '가스밸브' END AS device_tp_cd
+		FROM
+			T_HOUSCPLX_DEVICE_MF_RLT thdmr, T_HOUSCPLX_BAS thb, T_COMM_CD_DTL tccd
+		WHERE
+			thdmr.houscplx_cd = thb.houscplx_cd
+		AND
+			thdmr.device_mf_cd = tccd.comm_cd
+		AND
+			thdmr.houscplx_cd = #{houscplxCd}
+		AND
+			thdmr.device_tp_cd = #{deviceTpCd}
+		AND
+			thdmr.device_mf_cd = #{deviceMfCd}
+	</select>
+
+	<update id="updateManufacturerByDevice" parameterType="ManufacturerByDevice">
+		UPDATE /* ManufacturerByDeviceMapper.xml.updateManufacturerByDevice */
+			T_HOUSCPLX_DEVICE_MF_RLT
+		SET
+			houscplx_cd = #{houscplxCd}
+		   ,device_tp_cd = #{deviceTpCd}
+		   ,device_mf_cd = #{deviceMfCd}
+		   ,editer_id = #{editerId}
+		   ,edit_dt = NOW()
+		WHERE
+			houscplx_cd = #{houscplxCdDB}
+		AND
+			device_tp_cd = #{deviceTpCdDB}
+		AND
+			device_mf_cd = #{deviceMfCdDB}
+	</update>
+
+
+</mapper>

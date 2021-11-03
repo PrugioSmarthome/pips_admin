@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.externalsvcinfo.ExternalSvcInfoMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="ExternalServiceInfo" type="com.daewooenc.pips.admin.web.domain.dto.externalsvcinfo.ExternalServiceInfo"></resultMap>
+
+	<select id="getExternalServiceInfo" parameterType="map" resultType="com.daewooenc.pips.admin.web.domain.dto.externalsvcinfo.ExternalServiceInfo">
+		SELECT /* ExternalServiceMapper.xml.getExternalServiceInfo */
+			svc_id,
+			cr_dt,
+			edit_dt,
+			crer_id,
+			editer_id,
+			del_yn,
+			svc_nm,
+			svc_tp_cd,
+			svc_grp_tp_cd,
+			user_id,
+			svc_key_cd,
+			url_cont,
+			cont
+		FROM
+			T_EXTNL_SVC_BAS
+		WHERE
+			svc_grp_tp_cd=#{serviceTpGrCd}
+		AND
+			svc_tp_cd=#{serviceTpCd}
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 외부연계 관리 > 외부연계 관리 목록  -->
+	<select id="getExternalServiceList" parameterType="ExternalServiceInfo" resultType="ExternalServiceInfo">
+		SELECT /* ExternalServiceMapper.xml.getExternalServiceList */
+			svc_id, svc_tp_cd, svc_grp_tp_cd, svc_nm, user_id,
+			svc_key_cd, exprtn_ymd, url_cont, cont
+		FROM
+			T_EXTNL_SVC_BAS
+		WHERE
+			DEL_YN = 'N'
+		<if test="svcTpCd != null and svcTpCd != 'all'">
+			AND svc_tp_cd = #{svcTpCd}
+		</if>
+		ORDER BY cr_dt DESC
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 외부연계 관리 > 외부연계 관리 목록 > 서비스명 중복체크  -->
+	<select id="getExternalServiceListCount" parameterType="ExternalServiceInfo" resultType="int">
+		SELECT /* ExternalServiceMapper.xml.getExternalServiceList */
+		COUNT(*)
+		FROM
+		T_EXTNL_SVC_BAS
+		WHERE
+		DEL_YN = 'N'
+		AND svc_tp_cd = #{svcTpCd}
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 외부연계 관리 > 외부연계 관리 목록 > 외부연계 관리 정보 상세 -->
+	<select id="getExternalServiceDetail" parameterType="ExternalServiceInfo" resultType="ExternalServiceInfo">
+		SELECT /* ExternalServiceMapper.xml.getExternalServiceDetail */
+			svc_id, svc_tp_cd, svc_grp_tp_cd, svc_nm, user_id,
+			svc_key_cd, exprtn_ymd, url_cont, cont
+		FROM
+			T_EXTNL_SVC_BAS
+		WHERE
+			del_yn = 'N'
+		<if test="svcId != null and svcId != 'all'">
+			AND svc_id = #{svcId}
+		</if>
+		<if test="svcTpCd != null and svcTpCd != 'all'">
+			AND svc_tp_cd = #{svcTpCd}
+		</if>
+		<if test="svcGrpTpCd != null and svcGrpTpCd != 'all'">
+			AND svc_grp_tp_cd = #{svcGrpTpCd}
+		</if>
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 외부연계 관리 > 외부연계 관리 목록 > 외부연계 관리 정보 신규등록 -->
+	<insert id="insertExternalServiceInfo" parameterType="ExternalServiceInfo" >
+		INSERT INTO /* ExternalServiceMapper.xml.insertExternalServiceInfo */
+		T_EXTNL_SVC_BAS
+		(
+			svc_tp_cd, svc_grp_tp_cd, svc_nm, user_id, svc_key_cd,
+			url_cont, cont, exprtn_ymd, crer_id, cr_dt, editer_id, edit_dt, del_yn
+		)
+		VALUES
+		(
+			#{svcTpCd}, #{svcGrpTpCd}, #{svcNm}, #{userId}, #{svcKeyCd},
+			#{urlCont}, #{cont}, #{exprtnYmd}, #{crerId}, NOW(), #{crerId}, NOW(), 'N'
+		)
+	</insert>
+
+	<!-- 시스템 관리자: 시스템 관리 > 외부연계 관리 > 외부연계 관리 목록 > 외부연계 관리 정보 상세 > 외부연계 관리 정보 수정 -->
+	<update id="updateExternalServiceInfo" parameterType="ExternalServiceInfo" >
+		UPDATE /* ExternalServiceMapper.xml.updateExternalServiceInfo */
+			T_EXTNL_SVC_BAS
+		SET svc_tp_cd = #{svcTpCd},
+			svc_grp_tp_cd = #{svcGrpTpCd},
+			svc_nm = #{svcNm},
+			user_id = #{userId},
+			svc_key_cd = #{svcKeyCd},
+			url_cont = #{urlCont},
+			cont = #{cont},
+			exprtn_ymd = #{exprtnYmd},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE svc_id = #{svcId}
+	</update>
+
+	<!-- 시스템 관리자: 시스템 관리 > 외부연계 관리 > 외부연계 관리 목록 > 외부연계 관리 정보 상세 > 외부연계 관리 정보 삭제 상태로 변경 -->
+	<update id="deleteExternalServiceInfo" parameterType="ExternalServiceInfo" >
+		UPDATE /* ExternalServiceMapper.xml.deleteExternalServiceInfo */
+			T_EXTNL_SVC_BAS
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE svc_id = #{svcId}
+	</update>
+
+</mapper>

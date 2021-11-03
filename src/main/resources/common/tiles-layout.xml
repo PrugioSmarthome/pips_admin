@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<!-- Temp New Layout Definition -->
+	<definition name=".nondecoration_new" template="/WEB-INF/tiles/template/layout.simple.new.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/default.stylesheet.new.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.new.jsp" />
+	</definition>
+	<!-- 약관 화면 -->
+	<definition name=".policy_layout" template="/WEB-INF/tiles/template/layout.simple.new.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/policy.stylesheet.new.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.new.jsp" />
+	</definition>
+	<!-- 로그인 화면(비밀번호 변경, 재설정 페이지 공통) -->
+	<definition name=".login_layout" template="/WEB-INF/tiles/template/layout.login.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/login.stylesheet.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/login.javascript.jsp" />
+	</definition>
+
+	<definition name=".changePassword_new" template="/WEB-INF/tiles/template/layout.simple.new.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/default.stylesheet.new.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.new.jsp" />
+	</definition>
+
+	<definition name=".authPassword" template="/WEB-INF/tiles/template/layout.simple.new.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/default.stylesheet.new.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.new.jsp" />
+	</definition>
+
+
+	<definition name=".main_new" template="/WEB-INF/tiles/template/layout.main.new.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/default.stylesheet.new.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.new.jsp" />
+		<put-attribute name="header" value="/WEB-INF/tiles/attribute/main.header.new.jsp" />
+		<!--<put-attribute name="left-body" value="/WEB-INF/tiles/attribute/default.left.body.jsp" />-->
+		<put-attribute name="left-body" value="/WEB-INF/tiles/attribute/new.default.left.body.jsp" />
+	</definition>
+
+	<definition name=".popup_ajax_new" template="/WEB-INF/tiles/template/layout.main.new.jsp">
+		<put-attribute name="css" value="/WEB-INF/tiles/attribute/default.stylesheet.new.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/popup.javascript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/tiles/attribute/main.header.new.jsp" />
+		<put-attribute name="left-body" value="/WEB-INF/tiles/attribute/default.left.body.jsp" />
+	</definition>
+
+	<!-- Layout Definition -->
+	<definition name=".nondecoration" template="/WEB-INF/tiles/template/layout.simple.jsp">
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.jsp" />
+		<put-attribute name="body" value="/WEB-INF/tiles/attribute/default.body.jsp" />
+	</definition>
+
+	<definition name=".onlybody" template="/WEB-INF/tiles/template/layout.onlybody.jsp">
+		<put-attribute name="body" value="/WEB-INF/tiles/attribute/default.body.jsp" />
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.new.jsp" />
+	</definition>
+
+	<definition name=".jusobody" template="/WEB-INF/tiles/template/juso.body.jsp">
+		<put-attribute name="body" value="/WEB-INF/tiles/attribute/default.body.jsp" />
+	</definition>
+
+	<definition name=".popup" template="/WEB-INF/tiles/template/layout.popup.jsp">
+		<put-attribute name="js" value="/WEB-INF/tiles/attribute/default.javascript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/tiles/attribute/popup.header.jsp" />
+		<put-attribute name="body" value="/WEB-INF/tiles/attribute/popup.body.jsp" />
+	</definition>
+
+	<definition name=".exception" template="/WEB-INF/tiles/template/layout.exception.jsp">
+		<put-attribute name="body" value="/WEB-INF/tiles/attribute/default.body.jsp" />
+	</definition>
+
+	<!-- Extends Definition -->
+	<definition name="cm/authorization/passwd/changePassword" extends=".changePassword_new">
+		<put-attribute name="body" value="/WEB-INF/views/cm/authorization/passwd/changePassword.jsp" />
+	</definition>
+
+	<definition name="exception/*" extends=".exception">
+		<put-attribute name="body" value="/WEB-INF/views/exception/{1}.jsp" />
+	</definition>
+
+	<!-- Temp New Extends Definition -->
+	<definition name="cm/login" extends=".nondecoration_new">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/login.jsp" />
+	</definition>
+
+	<!-- Temp New Extends Definition -->
+	<definition name="cm/landing" extends=".nondecoration_new">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/landingPage.jsp" />
+	</definition>
+
+	<!-- 약관 등 policy -->
+	<definition name="cm/policy" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/policy/policy.jsp" />
+	</definition>
+
+	<definition name="cm/privacy" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/policy/privacy.jsp" />
+	</definition>
+
+	<definition name="cm/locationPolicy" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/policy/locationPolicy.jsp" />
+	</definition>
+
+	<definition name="cm/faq" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/policy/faq.jsp" />
+	</definition>
+
+	<!-- 주소 API관련 -->
+	<definition name="cm/housingcplx/info/search/addressService" extends=".onlybody">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/housingcplx/jusoPopup.jsp" />
+	</definition>
+
+	<definition name="cm/housingcplx/Sample" extends=".onlybody">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/housingcplx/Sample.jsp" />
+	</definition>
+
+	<definition name="cm/authorization/passwd/authPassword" extends=".authPassword">
+		<put-attribute name="body" value="/WEB-INF/views/cm/authorization/passwd/authPassword.jsp" />
+	</definition>
+
+	<definition name="cm/authorization/passwd/resetPassword" extends=".authPassword">
+		<put-attribute name="body" value="/WEB-INF/views/cm/authorization/passwd/resetPassword.jsp" />
+	</definition>
+
+	<!-- 제휴 서비스 관련 -->
+	<definition name="partner/lotte01" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/partner/lotte01/index_app.html" />
+	</definition>
+
+	<definition name="partner/lotte02" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/partner/lotte02/index_app.html" />
+	</definition>
+
+	<definition name="partner/*/*" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/partner/{1}/{2}" />
+	</definition>
+
+	<!-- 단지정보 관리 -->
+	<definition name="cm/housingcplx/info/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/list.jsp" />
+	</definition>
+
+	<!-- 세대장치 관리 -->
+	<definition name="cm/household/device/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/device/list.jsp" />
+	</definition>
+
+	<!-- 장치 설정 단지별-->
+	<definition name="cm/system/device/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/device/list.jsp" />
+	</definition>
+
+	<!-- 장치 설정 수정 단지별-->
+	<definition name="cm/system/device/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/device/edit.jsp" />
+	</definition>
+
+	<!-- 장치 설정 세대별-->
+	<definition name="cm/system/device/hsholdList" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/device/hsholdList.jsp" />
+	</definition>
+
+	<!-- 장치 설정 수정 세대별-->
+	<definition name="cm/system/device/hsholdEdit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/device/hsholdEdit.jsp" />
+	</definition>
+
+	<!-- 장치 설정 수정 상세 세대별-->
+	<definition name="cm/system/device/hsholdView" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/device/hsholdView.jsp" />
+	</definition>
+
+	<!-- 편의 시설 설정 -->
+	<definition name="cm/system/convenience/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/convenience/list.jsp" />
+	</definition>
+
+	<!-- 편의 시설 수정-->
+	<definition name="cm/system/convenience/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/convenience/edit.jsp" />
+	</definition>
+
+	<!-- 장치별 제조사 관리 -->
+	<definition name="cm/system/manufacturerByDevice/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/manufacturerByDevice/list.jsp" />
+	</definition>
+
+	<!-- 장치별 제조사 등록 -->
+	<definition name="cm/system/manufacturerByDevice/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/manufacturerByDevice/add.jsp" />
+	</definition>
+
+	<!-- 장치별 제조사 등록 -->
+	<definition name="cm/system/manufacturerByDevice/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/manufacturerByDevice/edit.jsp" />
+	</definition>
+
+	<!-- 단지 공지사항 관리 -->
+	<definition name="cm/community/notice/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/notice/list.jsp" />
+	</definition>
+
+	<!-- 설문조사 관리 -->
+	<definition name="cm/community/question/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/question/list.jsp" />
+	</definition>
+
+	<!-- 설문조사 상세 -->
+	<definition name="cm/community/question/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/question/detail.jsp" />
+	</definition>
+
+	<!-- 설문조사 등록 -->
+	<definition name="cm/community/question/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/question/add.jsp" />
+	</definition>
+
+	<!-- 설문조사 수정 -->
+	<definition name="cm/community/question/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/question/edit.jsp" />
+	</definition>
+
+	<!-- 생활불편신고 관리 -->
+	<definition name="cm/community/report/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/report/list.jsp" />
+	</definition>
+
+	<!-- 회원정보 관리 -->
+	<definition name="cm/pips/user/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/user/list.jsp"  />
+	</definition>
+
+	<!-- 회원정보 수정 -->
+	<definition name="cm/pips/user/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/user/edit.jsp"  />
+	</definition>
+
+	<!-- 세대구성 신청정보 -->
+	<definition name="cm/household/group/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/group/list.jsp" />
+	</definition>
+
+	<!-- 가족대표 승인/반려 이력 -->
+	<definition name="cm/household/groupRecord/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/group/record_list.jsp" />
+	</definition>
+
+	<!-- 사용자 정보 관리 -->
+	<definition name="cm/system/user/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/list.jsp" />
+	</definition>
+
+	<!-- 마스터 계정 관리 -->
+	<definition name="cm/system/userMaster/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/master_list.jsp" />
+	</definition>
+
+	<!-- 마스터 계정 등록 -->
+	<definition name="cm/system/userMaster/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/master_add.jsp" />
+	</definition>
+
+	<!-- 마스터 계정 수정 -->
+	<definition name="cm/system/userMaster/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/master_edit.jsp" />
+	</definition>
+
+	<!-- 사용자 정보 상세 -->
+	<definition name="cm/system/user/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/view.jsp" />
+	</definition>
+
+	<!-- 사용자 정보 등록 -->
+	<definition name="cm/system/user/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/add.jsp" />
+	</definition>
+
+	<!-- 사용자 정보 수정 -->
+	<definition name="cm/system/user/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/user/edit.jsp" />
+	</definition>
+
+	<!-- 권한 관리 -->
+	<definition name="cm/system/authorization/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/authorization/usergroup/list.jsp" />
+	</definition>
+
+	<!-- 공통코드 관리 -->
+	<definition name="cm/system/code/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/code/list.jsp" />
+	</definition>
+
+	<!-- 시설업체 관리 -->
+	<definition name="cm/system/facility/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/facilities/view.jsp" />
+	</definition>
+	<definition name="cm/system/facility/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/facilities/add.jsp" />
+	</definition>
+	<definition name="cm/system/facility/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/facilities/edit.jsp" />
+	</definition>
+	<definition name="cm/system/facility/detailView" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/facilities/detailView.jsp" />
+	</definition>
+	<definition name="cm/system/facility/detailEdit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/facilities/detailEdit.jsp" />
+	</definition>
+
+	<!-- 문서 관리 -->
+	<definition name="cm/system/document/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/document/list.jsp" />
+	</definition>
+
+	<!-- 문서 상세 -->
+	<definition name="cm/system/document/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/document/view.jsp" />
+	</definition>
+
+	<!-- 문서 수정 -->
+	<definition name="cm/system/document/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/document/edit.jsp" />
+	</definition>
+
+	<!-- 문서 등록 -->
+	<definition name="cm/system/document/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/document/add.jsp" />
+	</definition>
+
+	<!-- 그룹코드 관리 -->
+	<definition name="cm/system/groupCode/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/groupCode/list.jsp" />
+	</definition>
+
+	<!-- 그룹코드 등록 -->
+	<definition name="cm/system/groupCode/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/groupCode/add.jsp" />
+	</definition>
+
+	<!-- 그룹코드 수정 -->
+	<definition name="cm/system/groupCode/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/groupCode/edit.jsp" />
+	</definition>
+
+	<!-- 공동코드 관리 -->
+	<definition name="cm/system/standardCode/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/standardCode/list.jsp" />
+	</definition>
+
+	<!-- 공동코드 둥록 -->
+	<definition name="cm/system/standardCode/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/standardCode/add.jsp" />
+	</definition>
+
+	<!-- 공동코드 수정 -->
+	<definition name="cm/system/standardCode/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/standardCode/edit.jsp" />
+	</definition>
+
+	<!-- 연계 웹/앱 관리 -->
+	<definition name="cm/system/serviceLink/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/servicelink/list.jsp" />
+	</definition>
+
+	<!-- 연계 웹/앱 관리 상세 -->
+	<definition name="cm/system/serviceLink/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/servicelink/view.jsp" />
+	</definition>
+
+	<!-- 연계 웹/앱 관리 수정 -->
+	<definition name="cm/system/serviceLink/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/servicelink/edit.jsp" />
+	</definition>
+
+	<!-- 연계 웹/앱 등록 -->
+	<definition name="cm/system/serviceLink/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/servicelink/add.jsp" />
+	</definition>
+
+	<!-- 외부 연계 관리 -->
+	<definition name="cm/system/externalService/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/externalsvcinfo/list.jsp" />
+	</definition>
+
+	<!-- 외부 연계 관리 상세 -->
+	<definition name="cm/system/externalService/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/externalsvcinfo/detail.jsp" />
+	</definition>
+
+	<!-- 외부 연계 관리 수정 -->
+	<definition name="cm/system/externalService/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/externalsvcinfo/edit.jsp" />
+	</definition>
+
+	<!-- 외부 연계 관리 등록 -->
+	<definition name="cm/system/externalService/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/externalsvcinfo/add.jsp" />
+	</definition>
+
+	<!-- 메뉴 관리 -->
+	<definition name="cm/system/menu/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/authorization/menu/list.jsp" />
+	</definition>
+
+	<!-- 서비스 공지사항 관리 -->
+	<definition name="cm/system/notice/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/notice/list.jsp" />
+	</definition>
+
+	<!-- 서비스 공지사항 상세 -->
+	<definition name="cm/system/notice/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/notice/detail.jsp" />
+	</definition>
+
+	<!-- 서비스 공지사항 등록 -->
+	<definition name="cm/system/notice/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/notice/add.jsp" />
+	</definition>
+
+	<!-- 서비스 공지사항 수정 -->
+	<definition name="cm/system/notice/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/notice/edit.jsp" />
+	</definition>
+
+	<!-- 사용자앱 접속이력 -->
+	<definition name="cm/system/appAccess/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/app/access_list.jsp" />
+	</definition>
+
+	<!-- 외부API 접근이력 -->
+	<definition name="cm/system/apiAccess/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/api/access_list.jsp" />
+	</definition>
+
+	<!-- 배너 목록 -->
+	<definition name="cm/system/banner/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/banner/view.jsp" />
+	</definition>
+
+	<!-- 배너 수정 -->
+	<definition name="cm/system/banner/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/banner/edit.jsp" />
+	</definition>
+
+	<!-- 타 플랫폼 관리 -->
+	<definition name="cm/system/platform/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/platform/list.jsp" />
+	</definition>
+
+	<!-- 타 플랫폼 상세 -->
+	<definition name="cm/system/platform/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/platform/detail.jsp" />
+	</definition>
+
+	<!-- 타 플랫폼 수정 -->
+	<definition name="cm/system/platform/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/platform/edit.jsp" />
+	</definition>
+
+	<!-- 타 플랫폼 등록 -->
+	<definition name="cm/system/platform/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/platform/add.jsp" />
+	</definition>
+
+	<!-- 방문 차량 목록 -->
+	<definition name="cm/visit/car/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/visitCar/list.jsp" />
+	</definition>
+
+	<!-- 단지 관리비 관리 목록 -->
+	<definition name="cm/maintenance/fee/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/maintenanceFee/list.jsp" />
+	</definition>
+
+	<!-- 단지 관리비 관리 상세 -->
+	<definition name="cm/maintenance/fee/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/maintenanceFee/detail.jsp" />
+	</definition>
+
+	<!-- 단지 관리비 관리 등록 -->
+	<definition name="cm/maintenance/fee/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/maintenanceFee/add.jsp" />
+	</definition>
+
+	<!-- 홈넷서버 목록 -->
+	<definition name="cm/homenet/info/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/homenet/list.jsp" />
+	</definition>
+
+	<!-- 홈넷서버 상세 -->
+	<definition name="cm/homenet/info/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/homenet/detail.jsp" />
+	</definition>
+
+	<!-- 홈넷서버 수정 -->
+	<definition name="cm/homenet/info/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/homenet/edit.jsp" />
+	</definition>
+
+	<!-- 홈넷서버 등록 -->
+	<definition name="cm/homenet/info/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/homenet/add.jsp" />
+	</definition>
+
+	<!-- 입주민 현황 통계 -->
+	<definition name="cm/system/statistics/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/statistics/list.jsp" />
+	</definition>
+
+	<!-- 장애 발생 현황 -->
+	<definition name="cm/system/failureOccurrence/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/failureOccurrence/list.jsp" />
+	</definition>
+
+	<!-- 장애 상세 현황 -->
+	<definition name="cm/system/failureDetail/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/system/failureOccurrence/view.jsp" />
+	</definition>
+
+	<definition name="cm/mongo/test/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/mongoTest/list.jsp" />
+	</definition>
+
+	<definition name="cm/mongo/test/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/mongoTest/add.jsp" />
+	</definition>
+
+	<definition name="cm/mongo/test/add2" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/mongoTest/add2.jsp" />
+	</definition>
+
+	<definition name="cm/mongo/test/iframe" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/mongoTest/iframe.jsp" />
+	</definition>
+
+	<definition name="cm/mongo/test/redirect" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/mongoTest/redirect.jsp" />
+	</definition>
+
+	<!-- 단지등록 -->
+	<definition name="cm/housingcplx/info/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/register.jsp" />
+	</definition>
+
+	<definition name="cm/household/device/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/device/detail.jsp" />
+	</definition>
+
+	<!-- 공지사항 등록 페이지 -->
+	<definition name="cm/community/notice/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/notice/register_notice.jsp" />
+	</definition>
+
+	<!-- 공지사항 상세 페이지 -->
+	<definition name="cm/community/notice/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/notice/detail.jsp" />
+	</definition>
+
+	<!-- 공지사항 수정 페이지 -->
+	<definition name="cm/community/notice/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/notice/edit.jsp" />
+	</definition>
+
+	<!-- 생활불편신고 상세 페이지 -->
+	<definition name="cm/community/report/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/community/report/detail.jsp" />
+	</definition>
+
+	<!-- 단지관리자용 세대정보 -->
+	<definition name="cm/household/user/list" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/list.jsp" />
+	</definition>
+
+	<!-- 단지관리자용 세대정보 상세보기 -->
+	<definition name="cm/household/user/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/modify.jsp" />
+	</definition>
+
+	<definition name="cm/household/householder" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/household/householder_list.jsp" />
+	</definition>
+
+	<!-- 단지개요 -->
+	<definition name="cm/housingcplx/info/intro/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/summary/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/intro/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/summary/edit.jsp" />
+	</definition>
+
+	<!-- 우리 단지 알림 -->
+	<definition name="cm/housingcplx/info/notice/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/notice/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/notice/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/notice/edit.jsp" />
+	</definition>
+
+	<!-- 단지배치도 -->
+	<definition name="cm/housingcplx/info/plot/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/locationplan/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/plot/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/locationplan/edit.jsp" />
+	</definition>
+
+	<!-- 타입별 평면도 -->
+	<definition name="cm/housingcplx/info/floor/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/floorplan/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/floor/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/floorplan/edit.jsp" />
+	</definition>
+
+	<!-- 세대별 평형 -->
+	<definition name="cm/housingcplx/info/householdPtype/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/size/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/householdPtype/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/size/add.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/householdPtype/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/size/edit.jsp" />
+	</definition>
+
+	<!-- 관리실/경비실 -->
+	<definition name="cm/housingcplx/info/address/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/mgtoffice/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/address/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/mgtoffice/add.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/address/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/mgtoffice/edit.jsp" />
+	</definition>
+
+	<!-- CCTV -->
+	<definition name="cm/housingcplx/info/cctv/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/cctv/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/cctv/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/cctv/edit.jsp" />
+	</definition>
+
+	<!-- 시설업체정보 -->
+	<definition name="cm/housingcplx/info/facilityInfo/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/facilities/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/facilityInfo/add" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/facilities/add.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/facilityInfo/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/facilities/edit.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/facilityInfo/detailView" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/facilities/detailView.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/facilityInfo/detailEdit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/facilities/detailEdit.jsp" />
+	</definition>
+
+	<!-- 기타 -->
+	<definition name="cm/housingcplx/info/etc/view" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/etc/view.jsp" />
+	</definition>
+	<definition name="cm/housingcplx/info/etc/edit" extends=".main_new">
+		<put-attribute name="right-body" value="/WEB-INF/views/cm/pips/housingcplx/etc/edit.jsp" />
+	</definition>
+
+
+
+	<definition name="aispeaker/snslogin" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/sns/snslogin.jsp" />
+	</definition>
+	<definition name="aispeaker/logout" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/sns/logout.jsp" />
+	</definition>
+
+	<definition name="elect/snslogin" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/sns/snsElectLogin.jsp" />
+	</definition>
+	<definition name="elect/logout" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/sns/logout.jsp" />
+	</definition>
+
+	<definition name="google/snslogin" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/sns/snsGooglelogin.jsp" />
+	</definition>
+	<definition name="google/logout" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/cm/pips/sns/logout.jsp" />
+	</definition>
+
+	<definition name="snsexception" extends=".policy_layout">
+		<put-attribute name="body" value="/WEB-INF/views/exception/error.jsp" />
+	</definition>
+
+</tiles-definitions>

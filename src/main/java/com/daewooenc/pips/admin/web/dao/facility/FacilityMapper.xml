@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.facility.FacilityMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="FacilityBizco" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizco"></resultMap>
+	<resultMap id="FacilityBizcoCaddr" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizcoCaddr"></resultMap>
+	<resultMap id="FacilityBizcoCaddrRelation" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizcoCaddrRelation"></resultMap>
+	<resultMap id="FacilityBizcodHousingCplxRelation" type="com.daewooenc.pips.admin.web.domain.dto.facility.FacilityBizcodHousingCplxRelation"></resultMap>
+
+	<!-- 단지정보에 연결된 시설업체 ID 목록정보 조회 -->
+	<select id="selectFacilityBizcoIdList" parameterType="FacilityBizco" resultType="FacilityBizco">
+		SELECT  /* FacilityMapper.xml.selectFacilityBizcoIdList */
+			faclt_bizco_id
+		FROM
+			T_HOUSCPLX_FACLT_BIZCO_RLT
+		WHERE houscplx_cd = #{houscplxCd}
+	</select>
+
+	<select id="selectFacilityBizcoCaddrIdList" parameterType="FacilityBizco" resultType="FacilityBizcoCaddr">
+		SELECT  /* FacilityMapper.xml.selectFacilityBizcoCaddrIdList */
+			faclt_bizco_caddr_id
+		FROM
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+		WHERE faclt_bizco_id IN (
+									SELECT faclt_bizco_id
+									FROM T_HOUSCPLX_FACLT_BIZCO_RLT
+									WHERE houscplx_cd = #{houscplxCd}
+								)
+	</select>
+
+	<!-- 단지정보에 연결된 시설업체 연락처 ID 목록정보 조회 -->
+	<select id="selectFacilityInfoExcelList" parameterType="FacilityBizco" resultType="FacilityBizco">
+		SELECT /* FacilityMapper.xml.selectFacilityInfoExcelList */
+			tfb.faclt_bizco_tp_nm AS faclt_bizco_tp_nm, tfb.twbs_nm AS twbs_nm,
+			tfb.bizco_nm AS bizco_nm, tfb.con_cont AS con_cont, tfbc.perchrg_nm as perchrg_nm,
+			cast(aes_decrypt(from_base64(tfbc.offc_phone_no), sha2(#{encKey}, 512)) as char(128)) AS offc_phone_no,
+			cast(aes_decrypt(from_base64(tfbc.fax_no), sha2(#{encKey}, 512)) as char(128)) AS fax_no,
+			cast(aes_decrypt(from_base64(tfbc.mphone_no), sha2(#{encKey}, 512)) as char(128)) AS mphone_no
+		FROM
+			T_FACLT_BIZCO_BAS AS tfb
+		INNER JOIN T_HOUSCPLX_FACLT_BIZCO_RLT AS thfb
+			ON tfb.faclt_bizco_id =  thfb.faclt_bizco_id
+		INNER JOIN T_HOUSCPLX_BAS AS thb
+			ON thb.houscplx_cd = thfb.houscplx_cd
+		INNER JOIN t_faclt_bizco_faclt_bizco_caddr_rlt AS tfbfbc
+			ON tfb.faclt_bizco_id = tfbfbc.faclt_bizco_id
+		INNER JOIN t_faclt_bizco_caddr_bas AS tfbc
+			ON tfbc.faclt_bizco_caddr_id = tfbfbc.faclt_bizco_caddr_id
+		WHERE 1=1
+		AND tfb.del_yn = 'N'
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND thfb.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tfb.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="bizcoNm != null and bizcoNm != ''">
+			AND tfb.bizco_nm like CONCAT('%',#{bizcoNm},'%')
+		</if>
+		ORDER BY tfb.faclt_bizco_id DESC
+	</select>
+
+	<!-- 공통: 시설업체 기본정보 목록 조회 -->
+	<select id="selectFacilityInfoList" parameterType="FacilityBizco" resultType="FacilityBizco">
+		SELECT /* FacilityMapper.xml.selectFacilityInfoList */
+			tfb.faclt_bizco_tp_nm AS faclt_bizco_tp_nm, tfb.twbs_nm AS twbs_nm,
+			tfb.bizco_nm AS bizco_nm, tfb.con_cont AS con_cont, tfb.faclt_bizco_id AS faclt_bizco_id,
+			thb.houscplx_nm AS houscplx_nm
+		FROM
+			T_FACLT_BIZCO_BAS AS tfb
+		INNER JOIN T_HOUSCPLX_FACLT_BIZCO_RLT AS thfb
+			ON tfb.faclt_bizco_id =  thfb.faclt_bizco_id
+		INNER JOIN T_HOUSCPLX_BAS AS thb
+			ON thb.houscplx_cd = thfb.houscplx_cd
+		WHERE 1=1
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND thfb.houscplx_cd = #{houscplxCd}
+		</if>
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tfb.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="bizcoNm != null and bizcoNm != ''">
+			AND tfb.bizco_nm like CONCAT('%',#{bizcoNm},'%')
+		</if>
+		AND tfb.del_yn = 'N'
+		ORDER BY tfb.faclt_bizco_id DESC
+	</select>
+
+	<!-- 공통: 선택한 시설업체 연락처 정보 목록 조회 -->
+	<select id="selectFacilityInfoCaddrList" parameterType="FacilityBizco" resultType="FacilityBizcoCaddr">
+		SELECT /* FacilityMapper.xml.selectFacilityInfoCaddrList */
+			tfbc.perchrg_nm AS perchrg_nm,
+			cast(aes_decrypt(from_base64(tfbc.mphone_no), sha2(#{encKey}, 512)) as char(128)) AS mphone_no,
+			cast(aes_decrypt(from_base64(tfbc.offc_phone_no), sha2(#{encKey}, 512)) as char(128)) AS offc_phone_no,
+			cast(aes_decrypt(from_base64(tfbc.fax_no), sha2(#{encKey}, 512)) as char(128)) AS fax_no,
+			tfbc.faclt_bizco_caddr_id AS faclt_bizco_caddr_id
+		FROM
+			T_FACLT_BIZCO_CADDR_BAS AS tfbc
+		INNER JOIN T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT AS tfbfb
+			ON tfbc.faclt_bizco_caddr_id =  tfbfb.faclt_bizco_caddr_id
+		INNER JOIN T_FACLT_BIZCO_BAS AS tfb
+			ON tfbfb.faclt_bizco_id = tfb.faclt_bizco_id
+		WHERE tfb.faclt_bizco_id = #{facltBizcoId}
+		AND tfbc.del_yn = 'N'
+		ORDER BY tfbc.faclt_bizco_caddr_id DESC
+	</select>
+
+	<select id="selectFacilityInfoCaddrIdList" parameterType="FacilityBizco" resultType="FacilityBizcoCaddr">
+		SELECT /* FacilityMapper.xml.selectFacilityInfoCaddrIdList */
+			faclt_bizco_caddr_id
+		FROM
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+		WHERE faclt_bizco_id = #{facltBizcoId}
+	</select>
+
+	<!-- 공통: 시설업체 기본정보 등록 -->
+	<insert id="insertFacilityInfo" useGeneratedKeys="true" keyProperty="facltBizcoId" parameterType="FacilityBizco">
+		INSERT INTO /* FacilityMapper.xml.insertFacilityInfo */
+			T_FACLT_BIZCO_BAS
+		(
+			faclt_bizco_tp_nm, twbs_nm, bizco_nm, con_cont, mgm_tp_cd,
+			crer_id, cr_dt, del_yn, editer_id, edit_dt
+		)
+		VALUES
+		(
+			#{facltBizcoTpNm}, #{twbsNm}, #{bizcoNm}, #{conCont}, #{mgmTpCd},
+			#{crerId}, NOW(), 'N', #{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 공통: 시설업체 연락처정보 등록 -->
+	<insert id="insertFacilityCaddrInfo" useGeneratedKeys="true" keyProperty="facltBizcoCaddrId" parameterType="FacilityBizcoCaddr">
+		INSERT INTO /* FacilityMapper.xml.insertFacilityCaddrInfo */
+			T_FACLT_BIZCO_CADDR_BAS
+		(
+			perchrg_nm, mphone_no,
+			fax_no, offc_phone_no,
+			mgm_tp_cd, crer_id, cr_dt, del_yn, editer_id, edit_dt
+		)
+		VALUES
+		(
+			#{perchrgNm}, to_base64(aes_encrypt(#{mphoneNo}, sha2(#{encKey}, 512))),
+			to_base64(aes_encrypt(#{faxNo}, sha2(#{encKey}, 512))), to_base64(aes_encrypt(#{offcPhoneNo}, sha2(#{encKey}, 512))),
+			#{mgmTpCd}, #{crerId}, NOW(), 'N', #{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 공통: 시설업체 및 연락처 맵핑 정보 등록 -->
+	<insert id="insertFacilityCaddrInfoRelation" parameterType="java.util.Map">
+		<foreach collection="list" item="item" separator=";">
+			INSERT INTO /* FacilityMapper.xml.insertFacilityCaddrInfoRelation */
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+			(
+				faclt_bizco_id, faclt_bizco_caddr_id,
+				crer_id, cr_dt
+			)
+			VALUES
+			(
+				#{item.facltBizcoId}, #{item.facltBizcoCaddrId},
+				#{item.crerId}, NOW()
+			)
+		</foreach>
+	</insert>
+
+	<!-- 공통: 시설업체 및 연락처 맵핑 정보 등록 -->
+	<insert id="insertFacilityCaddrInfoRelationOne" parameterType="FacilityBizcoCaddrRelation">
+		INSERT INTO /* FacilityMapper.xml.insertFacilityCaddrInfoRelationOne */
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+		(
+			faclt_bizco_id, faclt_bizco_caddr_id,
+			crer_id, cr_dt
+		)
+		VALUES
+		(
+			#{facltBizcoId}, #{facltBizcoCaddrId},
+			#{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 공통: 시설업체 및 단지 맵핑 정보 등록 -->
+	<insert id="insertFacilityInfoRelation" parameterType="FacilityBizcodHousingCplxRelation">
+		INSERT INTO /* FacilityMapper.xml.insertFacilityInfoRelation */
+			T_HOUSCPLX_FACLT_BIZCO_RLT
+		(
+			faclt_bizco_id, houscplx_cd,
+			crer_id, cr_dt
+		)
+		VALUES
+		(
+			#{facltBizcoId}, #{houscplxCd},
+			#{crerId}, NOW()
+		)
+	</insert>
+
+	<!-- 공통: 시설업체 정보 수정 -->
+	<insert id="updateFacilityInfo" parameterType="FacilityBizco">
+		UPDATE /* FacilityMapper.xml.updateFacilityInfo */
+			T_FACLT_BIZCO_BAS
+		SET faclt_bizco_tp_nm = #{facltBizcoTpNm},
+			twbs_nm = #{twbsNm},
+			bizco_nm = #{bizcoNm},
+			con_cont = #{conCont},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE faclt_bizco_id = #{facltBizcoId}
+	</insert>
+
+	<!-- 공통: 시설업체 연락처 정보 수정 -->
+	<insert id="updateFacilityCaddrInfo" parameterType="FacilityBizcoCaddr">
+		UPDATE /* FacilityMapper.xml.updateFacilityInfoCaddr */
+			T_FACLT_BIZCO_CADDR_BAS
+		SET perchrg_nm = #{perchrgNm},
+			mphone_no = to_base64(aes_encrypt(#{mphoneNo}, sha2(#{encKey}, 512))),
+			fax_no = to_base64(aes_encrypt(#{faxNo}, sha2(#{encKey}, 512))),
+			offc_phone_no = to_base64(aes_encrypt(#{offcPhoneNo}, sha2(#{encKey}, 512))),
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE faclt_bizco_caddr_id = #{facltBizcoCaddrId}
+	</insert>
+
+	<!-- 공통: 시설업체 정보 삭제 처리 -->
+	<update id="deleteFacilityInfo" parameterType="FacilityBizco">
+		UPDATE /* FacilityMapper.xml.deleteFacilityInfo */
+			T_FACLT_BIZCO_BAS
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE faclt_bizco_id = #{facltBizcoId}
+	</update>
+
+	<!-- 공통: 시설업체 정보 목록 삭제 처리 -->
+	<update id="deleteFacilityInfoList" parameterType="java.util.Map">
+		<foreach collection="list" item="item" separator=";">
+			UPDATE /* FacilityMapper.xml.deleteFacilityInfoList */
+				T_FACLT_BIZCO_BAS
+			SET del_yn = 'Y',
+				editer_id = #{item.editerId},
+				edit_dt = NOW()
+			WHERE faclt_bizco_id = #{item.facltBizcoId}
+		</foreach>
+	</update>
+
+	<!-- 공통: 시설업체 연락처 정보 삭제 처리 -->
+	<update id="deleteFacilityInfoCaddr" parameterType="FacilityBizco">
+		UPDATE /* FacilityMapper.xml.deleteFacilityInfoCaddr */
+			T_FACLT_BIZCO_CADDR_BAS
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE faclt_bizco_caddr_id = #{facltBizcoCaddrId}
+	</update>
+
+	<!-- 공통: 해당 시설업체 연락처 정보 전체 삭제 처리 -->
+	<update id="deleteFacilityInfoCaddrList" parameterType="java.util.Map">
+		<foreach collection="list" item="item" separator=";">
+			UPDATE /* FacilityMapper.xml.deleteFacilityInfoCaddrList */
+				T_FACLT_BIZCO_CADDR_BAS
+			SET del_yn = 'Y',
+				editer_id = #{item.editerId},
+				edit_dt = NOW()
+			WHERE faclt_bizco_caddr_id = #{item.facltBizcoCaddrId}
+		</foreach>
+	</update>
+
+	<!-- 공통: 시설업체와 단지 맵핑 정보 삭제 처리 -->
+	<delete id="deleteFacilityInfoHousingCplxRelation" parameterType="FacilityBizco">
+		DELETE FROM /* FacilityMapper.xml.deleteFacilityInfoHousingCplxRelation */
+			T_HOUSCPLX_FACLT_BIZCO_RLT
+		WHERE faclt_bizco_id = #{facltBizcoId}
+		AND houscplx_cd = #{houscplxCd}
+	</delete>
+
+	<!-- 공통: 해당단지의 시설업체 맵핑 정보 삭제 처리 -->
+	<delete id="deleteFacilityInfoHousingCplxRelationAll" parameterType="FacilityBizco">
+		DELETE FROM /* FacilityMapper.xml.deleteFacilityInfoHousingCplxRelationAll */
+			T_HOUSCPLX_FACLT_BIZCO_RLT
+		WHERE houscplx_cd = #{houscplxCd}
+	</delete>
+
+	<!-- 공통: 시설업체와 연락처 맵핑 정보 해당업체의 연락처 개별 삭제 처리  -->
+	<delete id="deleteFacilityInfoCaddrRelationOne" parameterType="FacilityBizcoCaddrRelation">
+		DELETE FROM /* FacilityMapper.xml.deleteFacilityInfoCaddrRelationOne */
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+		WHERE faclt_bizco_id = #{facltBizcoId}
+		AND faclt_bizco_caddr_id = #{facltBizcoCaddrId}
+	</delete>
+
+	<!-- 공통: 시설업체와 연락처 맵핑 정보 해당업체의 연락처 삭제 처리  -->
+	<delete id="deleteFacilityInfoCaddrRelation" parameterType="FacilityBizco">
+		DELETE FROM /* FacilityMapper.xml.deleteFacilityInfoCaddrRelation */
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+		WHERE faclt_bizco_id = #{facltBizcoId}
+	</delete>
+
+	<!-- 공통: 시설업체와 연락처 맵핑 정보 해당업체의 연락처 전체 삭제 처리  -->
+	<delete id="deleteFacilityInfoCaddrRelationAll" parameterType="java.util.Map">
+		<foreach collection="list" item="item" separator=";">
+			DELETE FROM /* FacilityMapper.xml.deleteFacilityInfoCaddrRelationAll */
+			T_FACLT_BIZCO_FACLT_BIZCO_CADDR_RLT
+			WHERE faclt_bizco_caddr_id = #{item.facltBizcoCaddrId}
+		</foreach>
+	</delete>
+</mapper>

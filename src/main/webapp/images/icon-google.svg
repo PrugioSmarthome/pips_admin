@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+    <g id="ic_google" transform="translate(-73 -510)">
+        <g id="logo_googleg_48dp" data-name="logo googleg 48dp" transform="translate(60 497)">
+            <path id="Shape" fill="#4285f4" d="M30.68 23a9.133 9.133 0 0 0-.146-1.636H23v3.094h4.306a3.681 3.681 0 0 1-1.6 2.414v2.008h2.585A7.8 7.8 0 0 0 30.68 23z" transform="translate(-1 -.818)"/>
+            <path id="Shape-2" fill="#34a853" d="M22.106 31.19a7.639 7.639 0 0 0 5.294-1.938l-2.585-2.008a4.827 4.827 0 0 1-7.185-2.534h-2.673v2.073a8 8 0 0 0 7.149 4.407z" data-name="Shape" transform="translate(-.106 -1.19)"/>
+            <path id="Shape-3" fill="#fbbc05" d="M17.524 24.071a4.734 4.734 0 0 1 0-3.04v-2.073h-2.673a8.013 8.013 0 0 0 0 7.186l2.673-2.073z" data-name="Shape" transform="translate(0 -.551)"/>
+            <path id="Shape-4" fill="#ea4335" d="M22.106 17.182a4.323 4.323 0 0 1 3.058 1.2l2.3-2.294A7.69 7.69 0 0 0 22.106 14a8 8 0 0 0-7.149 4.407l2.673 2.073a4.768 4.768 0 0 1 4.476-3.3z" data-name="Shape" transform="translate(-.106)"/>
+            <path id="Shape-5" fill="none" d="M14 14h16v16H14z" data-name="Shape"/>
+        </g>
+    </g>
+</svg>

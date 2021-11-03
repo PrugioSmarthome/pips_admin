@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.maintenanceFee.MaintenanceFeeMapper">
+    <!-- 기본 dto 정의 -->
+    <resultMap id="MaintenanceFee" type="com.daewooenc.pips.admin.web.domain.dto.maintenanceFee.MaintenanceFee"></resultMap>
+
+    <!-- 시스템관리자,단지관리자 : 단지 관리 > 단지 관리비 관리 > 단지 관리비 목록 -->
+    <select id="selectMaintenanceFeeList" parameterType="MaintenanceFee" resultMap="MaintenanceFee">
+        SELECT /* MaintenanceFeeMapper.xml.selectMaintenanceFeeList */
+            thmb.hshold_id as hshold_id, substring(thmb.hshold_id,8,4) AS dongNo, substring(thmb.hshold_id,13,4) AS hoseNo,
+            thb.houscplx_nm as houscplx_nm, thmb.yr as yr, thmb.mm as mm,
+            thmb.before_mgmcst_qty as before_mgmcst_qty, thmb.after_mgmcst_qty as after_mgmcst_qty
+        FROM
+            T_HSHOLD_MGMCST_BAS thmb, T_HOUSCPLX_BAS thb
+        WHERE
+            substring(thmb.hshold_id,1,6) = thb.houscplx_cd
+        <if test="hsholdId != null and hsholdId != ''">
+        AND
+            thmb.hshold_id like CONCAT('%',#{hsholdId},'%')
+        </if>
+        <if test="yr != null and yr != ''">
+        AND
+            thmb.yr = #{yr}
+        </if>
+        <if test="mm != null and mm != ''">
+        AND
+            thmb.mm = #{mm}
+        </if>
+        ORDER BY thmb.YR DESC, thmb.mm DESC
+    </select>
+
+    <!-- 멀티단지관리자 : 단지 관리 > 단지 관리비 관리 > 단지 관리비 목록 -->
+    <select id="selectMaintenanceFeeListMulti" parameterType="MaintenanceFee" resultMap="MaintenanceFee">
+        SELECT /* MaintenanceFeeMapper.xml.selectMaintenanceFeeListMulti */
+            thmb.hshold_id as hshold_id, substring(thmb.hshold_id,8,4) AS dongNo, substring(thmb.hshold_id,13,4) AS hoseNo,
+            thb.houscplx_nm as houscplx_nm, thmb.yr as yr, thmb.mm as mm,
+            thmb.before_mgmcst_qty as before_mgmcst_qty, thmb.after_mgmcst_qty as after_mgmcst_qty
+        FROM
+            T_HSHOLD_MGMCST_BAS thmb, T_HOUSCPLX_BAS thb, T_USER_HOUSCPLX_RLT tuhr
+        WHERE
+            substring(thmb.hshold_id,1,6) = thb.houscplx_cd
+        AND
+            thb.houscplx_cd = tuhr.houscplx_cd
+        AND
+            tuhr.user_id = #{userId}
+        <if test="hsholdId != null and hsholdId != ''">
+        AND
+            thmb.hshold_id like CONCAT('%',#{hsholdId},'%')
+        </if>
+        <if test="yr != null and yr != ''">
+        AND
+            thmb.yr = #{yr}
+        </if>
+        <if test="mm != null and mm != ''">
+        AND
+            thmb.mm = #{mm}
+        </if>
+        ORDER BY thmb.YR DESC, thmb.mm DESC
+    </select>
+
+    <!-- 단지 관리 > 단지 관리비 관리 > 단지 관리비 목록 > 단지 관리비 상세-->
+    <select id="selectMaintenanceFeeDetail" parameterType="MaintenanceFee" resultMap="MaintenanceFee">
+        SELECT /* MaintenanceFeeMapper.xml.selectMaintenanceFeeDetail */
+            thmb.*, substring(thmb.hshold_id,8,4) AS dongNo, substring(thmb.hshold_id,13,4) AS hoseNo, thb.houscplx_nm as houscplx_nm
+        FROM
+            T_HSHOLD_MGMCST_BAS thmb, T_HOUSCPLX_BAS thb
+        WHERE
+            substring(thmb.hshold_id,1,6) = thb.houscplx_cd
+        AND
+            hshold_id = #{hsholdId}
+        AND
+            yr = #{yr}
+        AND
+            mm = #{mm}
+    </select>
+
+    <!-- 단지 관리 > 단지 관리비 관리 > 단지 관리비 목록 > 단지 관리비 등록 > 기존 관리비 삭제 -->
+    <delete id="deleteMaintenanceFee" parameterType="java.util.HashMap">
+        DELETE FROM /* MaintenanceFeeMapper.xml.deleteMaintenanceFee */
+            T_HSHOLD_MGMCST_BAS
+        <where>
+        <foreach collection="maintenanceFeeList" item="item" open="" close="" separator="OR">
+            (hshold_id = #{item.hsholdId} AND yr = #{item.yr} AND mm = #{item.mm})
+        </foreach>
+        </where>
+    </delete>
+
+    <!-- 단지 관리 > 단지 관리비 관리 > 단지 관리비 목록 > 단지 관리비 등록 > 관리비 등록-->
+    <insert id="insertMaintenanceFee" parameterType="java.util.HashMap">
+        INSERT INTO /* MaintenanceFeeMapper.xml.insertMaintenanceFee */
+            T_HSHOLD_MGMCST_BAS 
+        (
+            HSHOLD_ID
+           ,YR
+           ,MM
+           ,GEN_MGM_CST_QTY
+           ,CLEAN_CST_QTY
+           ,DF_CST_QTY
+           ,ELEV_CST_QTY
+           ,REPAIR_MT_CST_QTY
+           ,LONG_REP_CST_QTY
+           ,CEMC_CST_QTY
+           ,SUS_CST_QTY
+           ,EXP_CST_QTY
+           ,REP_MT_CST_QTY
+           ,BUIL_PRE_CST_QTY
+           ,CON_MGM_CST_QTY
+           ,JOB_SUP_CST_QTY
+           ,HSHOLD_ELCT_CST_QTY
+           ,COMM_ELCT_CST_QTY
+           ,ELEV_ELCT_CST_QTY
+           ,TV_CST_QTY
+           ,HSHOLD_WTRSPL_CST_QTY
+           ,COMM_WTRSPL_CST_QTY
+           ,HSHOLD_HEAT_CST_QTY
+           ,BASIC_HEAT_CST_QTY
+           ,COMM_HEAT_CST_QTY
+           ,HSHOLD_HOTWTR_CST_QTY
+           ,WAST_COMMISION_CST_QTY
+           ,ELECCAR_ELCT_CST_QTY
+           ,HSHOLD_ACC_CARD_CST_QTY
+           ,BEFORE_MGMCST_QTY
+           ,AFTER_MGMCST_QTY
+           ,ELCT_USE_QTY
+           ,HOTWTR_USE_QTY
+           ,WTRSPL_USE_RATE
+           ,HEAT_USE_QTY
+           ,GAS_USE_RATE
+           ,CURRENT_MGM_CST_QTY
+           ,UNPAID_MGM_CST_QTY
+           ,UNPAID_ARR_MGM_CST_QTY
+           ,OVERDUE_MGM_CST_QTY
+           ,BEFORE_ELCT_QTY
+           ,CURRENT_ELCT_QTY
+           ,BEFORE_HOTWTR_QTY
+           ,CURRENT_HOTWTR_QTY
+           ,BEFORE_WTRSPL_QTY
+           ,CURRENT_WTRSPL_QTY
+           ,BEFORE_HEAT_QTY
+           ,CURRENT_HEAT_QTY
+           ,BEFORE_GAS_QTY
+           ,CURRENT_GAS_QTY
+           ,SUM_MGM_CST_QTY
+           ,AGENCY_MGM_CST_QTY
+           ,CURRENT_AFTER_UNPAID_CST_QTY
+           ,ELCT_DISCOUNT_CST_QTY
+           ,WTRSPL_DISCOUNT_CST_QTY
+           ,CRER_ID
+           ,CR_DT
+        )
+            VALUES
+        <foreach collection="maintenanceFeeList" item="item" separator=",">
+        (
+            #{item.hsholdId}
+           ,#{item.yr}
+           ,#{item.mm}
+           ,#{item.genMgmCstQty}
+           ,#{item.cleanCstQty}
+           ,#{item.dfCstQty}
+           ,#{item.elevCstQty}
+           ,#{item.repairMtCstQty}
+           ,#{item.longRepCstQty}
+           ,#{item.cemcCstQty}
+           ,#{item.susCstQty}
+           ,#{item.expCstQty}
+           ,#{item.repMtCstQty}
+           ,#{item.builPreCstQty}
+           ,#{item.conMgmCstQty}
+           ,#{item.jobSupCstQty}
+           ,#{item.hsholdElctCstQty}
+           ,#{item.commElctCstQty}
+           ,#{item.elevElctCstQty}
+           ,#{item.tvCstQty}
+           ,#{item.hsholdWtrsplCstQty}
+           ,#{item.commWtrsplCstQty}
+           ,#{item.hsholdHeatCstQty}
+           ,#{item.basicHeatCstQty}
+           ,#{item.commHeatCstQty}
+           ,#{item.hsholdHotwtrCstQty}
+           ,#{item.wastCommisionCstQty}
+           ,#{item.eleccarElctCstQty}
+           ,#{item.hsholdAccCardCstQty}
+           ,#{item.beforeMgmcstQty}
+           ,#{item.afterMgmcstQty}
+           ,#{item.elctUseQty}
+           ,#{item.hotwtrUseQty}
+           ,#{item.wtrsplUseRate}
+           ,#{item.heatUseQty}
+           ,#{item.gasUseRate}
+           ,#{item.currentMgmCstQty}
+           ,#{item.unpaidMgmCstQty}
+           ,#{item.unpaidArrMgmCstQty}
+           ,#{item.overdueMgmCstQty}
+           ,#{item.beforeElctQty}
+           ,#{item.currentElctQty}
+           ,#{item.beforeHotwtrQty}
+           ,#{item.currentHotwtrQty}
+           ,#{item.beforeWtrsplQty}
+           ,#{item.currentWtrsplQty}
+           ,#{item.beforeHeatQty}
+           ,#{item.currentHeatQty}
+           ,#{item.beforeGasQty}
+           ,#{item.currentGasQty}
+           ,#{item.sumMgmCstQty}
+           ,#{item.agencyMgmCstQty}
+           ,#{item.currentAfterUnpaidCstQty}
+           ,#{item.elctDiscountCstQty}
+           ,#{item.wtrsplDiscountCstQty}
+           ,#{crerId}
+           ,NOW()
+        )
+        </foreach>
+    </insert>
+
+</mapper>

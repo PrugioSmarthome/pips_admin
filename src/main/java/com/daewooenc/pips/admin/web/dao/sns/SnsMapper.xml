@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.sns.SnsMapper">
+
+	<select id="existSnsID" parameterType="String" resultType="int">
+		<!-- SNS ID 존재 count 조회-->
+		SELECT /* SnsMapper.xml.existSnsID */
+			count(SNS_USER_ID)
+		FROM T_USER_BAS
+		WHERE SNS_USER_ID = to_base64(aes_encrypt(#{snsId, jdbcType=VARCHAR}, sha2('kHG+8KTJnkBq73vTx0PleUdD7NUqMo+gRXwm9RBYMGA=', 512)))
+		AND DEL_YN = 'N'
+		AND USER_TP_CD = 'RESIDENT'
+    </select>
+	<select id="electExistSnsID" parameterType="String" resultType="int">
+		<!-- SNS ID 존재 count 조회-->
+		SELECT /* SnsMapper.xml.electExistSnsID */
+			count(SNS_USER_ID)
+		FROM T_USER_BAS
+		WHERE SNS_USER_ID = to_base64(aes_encrypt(#{snsId, jdbcType=VARCHAR}, sha2('kHG+8KTJnkBq73vTx0PleUdD7NUqMo+gRXwm9RBYMGA=', 512)))
+		AND HOUSCPLX_CD = #{houscplxCode}
+		AND DEL_YN = 'N'
+		AND USER_TP_CD = 'RESIDENT'
+    </select>
+	<select id="houscplxCdSnsID" parameterType="String" resultType="String">
+		<!-- SNS ID로 단지코드 조회-->
+		SELECT /* SnsMapper.xml.houscplxCdSnsID */
+			HOUSCPLX_CD
+		FROM T_USER_BAS
+		WHERE SNS_USER_ID = to_base64(aes_encrypt(#{snsId, jdbcType=VARCHAR}, sha2('kHG+8KTJnkBq73vTx0PleUdD7NUqMo+gRXwm9RBYMGA=', 512)))
+		AND DEL_YN = 'N'
+		AND USER_TP_CD = 'RESIDENT'
+    </select>
+
+	<select id="existNormalID" parameterType="String" resultType="int">
+		<!-- SNS ID 존재 count 조회-->
+		SELECT /* SnsMapper.xml.existNormalID */
+			count(USER_ID)
+		FROM T_USER_BAS
+		WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+		AND PWD = #{pwd, jdbcType=VARCHAR}
+		AND DEL_YN = 'N'
+		AND USER_TP_CD = 'RESIDENT'
+    </select>
+
+	<select id="electExistNormalID" parameterType="String" resultType="int">
+		<!-- SNS ID 존재 count 조회-->
+		SELECT /* SnsMapper.xml.electExistNormalID */
+			count(USER_ID)
+		FROM T_USER_BAS
+		WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+		AND PWD = #{pwd, jdbcType=VARCHAR}
+		AND HOUSCPLX_CD = #{houscplxCode}
+		AND DEL_YN = 'N'
+		AND USER_TP_CD = 'RESIDENT'
+    </select>
+
+	<select id="houscplxCdNormalID" parameterType="String" resultType="String">
+		<!-- USER ID로 단지코드 조회-->
+		SELECT /* SnsMapper.xml.houscplxCdNormalID */
+			HOUSCPLX_CD
+		FROM T_USER_BAS
+		WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+		AND DEL_YN = 'N'
+		AND USER_TP_CD = 'RESIDENT'
+    </select>
+	<!-- 통신사 인증 코드 저장 -->
+	<insert id="insertCommunicationAuthCode" parameterType="CommunicationAuthCode">
+		INSERT INTO /* SnsMapper.xml.insertCommunicationAuthCode */
+		T_COMMUNICATION_AUTH_CODE_BAS
+		(
+		auth_code, USER_ID, use_chk,
+		crer_id, cr_dt
+		)
+		VALUES
+		(
+		#{authCode},
+		(SELECT t_hshold_user_item.USER_ID FROM t_hshold_user_item, t_user_bas WHERE t_hshold_user_item.user_id = t_user_bas.user_id AND t_user_bas.DEL_YN='N'
+		<if test="oAuthType == 'SNS'">
+		AND t_user_bas.sns_user_id = to_base64(aes_encrypt(#{userId, jdbcType=VARCHAR}, sha2('kHG+8KTJnkBq73vTx0PleUdD7NUqMo+gRXwm9RBYMGA=', 512))) LIMIT 1),
+		</if>
+		<if test="oAuthType == 'NORMAL'">
+			AND t_user_bas.user_id =#{userId, jdbcType=VARCHAR} LIMIT 1),
+		</if>
+		#{useChk},
+		#{crerId}, NOW()
+		)
+	</insert>
+
+	<select id="checkOauthInfo" parameterType="CommunicationAuthCode" resultType="int">
+		SELECT /* SnsMapper.xml.checkOauthInfo */
+			COUNT(*)
+		FROM
+			T_OAUTH_SESSION_BAS
+		WHERE
+			session_id = #{sessionId}
+	</select>
+
+	<insert id="insertOauthInfo" parameterType="CommunicationAuthCode">
+		INSERT INTO /* SnsMapper.xml.insertOauthInfo */
+			T_OAUTH_SESSION_BAS
+		(
+			SESSION_ID,
+			REDIRECT_URI,
+			SNS_TYPE,
+			STATE,
+			COMPANY
+		) VALUES (
+			#{sessionId},
+			#{redirectUri},
+			#{snsType},
+			#{state},
+			#{company}
+		)
+	</insert>
+
+	<select id="selectOauthInfo" parameterType="CommunicationAuthCode" resultType="CommunicationAuthCode">
+	SELECT /* SnsMapper.xml.selectOauthInfo */
+		session_id, redirect_uri, state, sns_type, company
+	FROM
+		T_OAUTH_SESSION_BAS
+	WHERE
+		session_id = #{sessionId}
+	</select>
+
+	<delete id="deleteOauthInfo" parameterType="String">
+		DELETE FROM /* SnsMapper.xml.deleteOauthInfo */
+			T_OAUTH_SESSION_BAS
+		WHERE
+			session_id = #{sessionId}
+	</delete>
+
+	<select id="selectOauthLinkInfo" parameterType="CommunicationAuthCode" resultType="int">
+		SELECT /* SnsMapper.xml.selectOauthLinkInfo */
+			COUNT(*)
+		FROM
+			T_OAUTH_LINK_BAS
+		WHERE
+			USER_ID = #{userId}
+		AND
+			COMP = #{company}
+		AND
+			DEL_YN = 'N'
+	</select>
+
+</mapper>

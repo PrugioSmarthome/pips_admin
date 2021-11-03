@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.authorization.UserMapper">
+
+	<resultMap id="User" type="com.daewooenc.pips.admin.core.domain.authorization.User"></resultMap>
+
+	<!-- Custom resultMap 정의 -->
+	<resultMap id="userSelectMultiDanjiList" type="User">
+		<result property="houscplxCd" column="houscplx_cd"/>
+		<result property="houscplxNm" column="houscplx_nm"/>
+		<result property="cnt" column="cnt"/>
+	</resultMap>
+
+
+	<select id="list" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.list */
+			user_id,
+			user_name,
+			a.user_group_id,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name,
+			dept_name,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no,
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_change_period,
+			password_due_date,
+			last_login_date,
+			last_login_time,
+			account_lock
+		FROM
+			T_USER a, T_USER_GROUP b
+		WHERE
+			a.user_group_id = b.user_group_id
+		<if test="userGroupId != null and userGroupId != 'all'">
+			AND a.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+		</if>
+			AND b.user_group_level >= #{userGroupLevel, jdbcType=VARCHAR}
+			ORDER BY
+				user_id
+     </select>
+
+
+	<select id="getUserGroupList" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUserGroupList */
+			user_group_id, description, user_group_name
+		FROM
+			T_USER_GROUP
+		WHERE user_group_id NOT IN(001)
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT /* UserMapper.xml.count */
+			count(0) as total
+		FROM
+			T_USER a, T_USER_GROUP b
+		WHERE
+			a.user_group_id = b.user_group_id
+		<if test="userGroupId != null and userGroupId != 'all'">
+		AND a.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+		</if>
+		AND b.user_group_level >= #{userGroupLevel, jdbcType=VARCHAR}
+     </select>
+
+	<select id="getUser" parameterType="String" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUser */
+			user_id,
+			password,
+			user_name,
+			user_group_id,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name,
+			dept_name,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no,
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_change_period,
+			password_due_date,
+			last_login_date,
+			last_login_time,
+			account_lock,
+			init_account,
+			is_auth,
+			houscplx_cd
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+    </select>
+
+	<!-- 단지 관리자 사용자 정보 체크 -->
+	<select id="getUserForAuth" parameterType="String" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUserForAuth */
+			user_id,
+			password,
+			user_name,
+			user_group_id,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name,
+			dept_name,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no,
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_change_period,
+			password_due_date,
+			last_login_date,
+			last_login_time,
+			account_lock,
+			init_account
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+		AND
+			houscplx_cd=#{houscplxCd}
+		AND
+			tel_no=to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512)))
+		AND
+			user_group_id IN (
+						SELECT user_group_id
+						FROM t_user_group
+						WHERE user_group_name IN ('COMPLEX_ADMIN')
+			)
+	</select>
+
+	<!-- 시스템 관리자 사용자 정보 체크 -->
+	<select id="getUserForSysAdminAuth" parameterType="String" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUserForSysAdminAuth */
+			user_id,
+			password,
+			user_name,
+			user_group_id,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name,
+			dept_name,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no,
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_change_period,
+			password_due_date,
+			last_login_date,
+			last_login_time,
+			account_lock,
+			init_account
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+		AND
+			tel_no=to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512)))
+		AND
+			user_group_id IN (
+					SELECT user_group_id
+					FROM t_user_group
+					WHERE user_group_name IN ('SYSTEM_ADMIN', 'SUB_SYSTEM_ADMIN')
+				)
+	</select>
+
+	<select id="getUserForAuthVerify" parameterType="String" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUserForAuthVerify */
+			user_id,
+			password,
+			user_name,
+			user_group_id,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name,
+			dept_name,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no,
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_change_period,
+			password_due_date,
+			last_login_date,
+			last_login_time,
+			account_lock,
+			init_account
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+		AND
+			houscplx_cd=#{houscplxCd}
+		AND
+			tel_no=to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512)))
+		AND
+			auth_code=#{authCode}
+		AND
+			auth_expire_dt >= NOW() - INTERVAL 3 MINUTE
+	</select>
+
+	<select id="getUserForSysAdminAuthVerify" parameterType="String" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUserForSysAdminAuthVerify */
+			user_id,
+			password,
+			user_name,
+			user_group_id,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name,
+			dept_name,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no,
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_change_period,
+			password_due_date,
+			last_login_date,
+			last_login_time,
+			account_lock,
+			init_account
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+		AND
+			tel_no=to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512)))
+		AND
+			auth_code=#{authCode}
+		AND
+			auth_expire_dt >= NOW() - INTERVAL 3 MINUTE
+	</select>
+
+	<insert id="insert" parameterType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		INSERT /* UserMapper.xml.insert */ INTO
+			T_USER
+		(
+			user_id,
+			password,
+			user_name,
+			user_group_id,
+			dept_name,
+			tel_no,
+			e_mail,
+			emp_no,
+			ip_bandwidth,
+			login_fail_count,
+			password_due_date,
+			password_change_period,
+			account_lock,
+			houscplx_cd,
+			init_account,
+			is_auth,
+			cr_dt,
+			crer_id
+		)
+		VALUES
+		(
+			#{userId, jdbcType=VARCHAR},
+			#{password, jdbcType=VARCHAR},
+			#{userName, jdbcType=VARCHAR},
+			#{userGroupId, jdbcType=VARCHAR},
+			#{deptName, jdbcType=VARCHAR},
+			to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512))),
+			to_base64(aes_encrypt(#{webMail}, sha2(#{encKey}, 512))),
+			#{empNo, jdbcType=VARCHAR},
+			#{ipBandwidth, jdbcType=VARCHAR},
+			#{loginFailCount, jdbcType=VARCHAR},
+			#{passwordDueDate, jdbcType=VARCHAR},
+			#{passwordChangePeriod, jdbcType=VARCHAR},
+			'N',
+			#{houscplxCd},
+			'Y',
+			'N',
+			NOW(),
+			#{crerId}
+		)
+	</insert>
+
+	<insert id="multiInsert" parameterType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		INSERT /* UserMapper.xml.multiInsert */ INTO
+		T_USER_HOUSCPLX_RLT
+		(
+		user_id,
+		houscplx_cd,
+		crer_id,
+		editer_id,
+		cr_dt,
+		edit_dt
+		)
+		VALUES
+		(
+		#{userId},
+		#{houscplxCd},
+		#{crerId},
+		#{crerId},
+		NOW(),
+		NOW()
+		)
+	</insert>
+
+	<delete id="multiDelete" parameterType="String">
+		DELETE /* UserMapper.xml.multiDelete */ FROM
+			T_USER_HOUSCPLX_RLT
+		 WHERE
+			user_id = #{userId}
+	</delete>
+
+	<select id="getMultiDanjiList" parameterType="String" resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getMultiDanjiList */
+				thb.HOUSCPLX_NM AS HOUSCPLX_NM, thb.HOUSCPLX_CD AS HOUSCPLX_CD
+		  FROM 	t_user_houscplx_rlt tuh,
+			 	t_houscplx_bas thb
+		 WHERE 	tuh.HOUSCPLX_CD = thb.HOUSCPLX_CD
+		   AND 	tuh.user_id = #{userId}
+	</select>
+
+	<select id="getSelectMultiDanjiList" parameterType="String" resultMap="userSelectMultiDanjiList">
+		SELECT /* UserMapper.xml.getSelectMultiDanjiList */
+			a.houscplx_cd AS houscplx_cd,
+			a.houscplx_nm AS houscplx_nm,
+			count(*) AS cnt
+		  FROM
+			(SELECT houscplx_cd,houscplx_nm
+			   FROM T_HOUSCPLX_BAS
+			  WHERE del_yn = 'N'
+
+			UNION all
+
+			SELECT houscplx_cd,user_id
+			  FROM T_USER_HOUSCPLX_RLT
+			 WHERE user_id = #{userId})a
+   	   GROUP BY a.houscplx_cd
+	</select>
+
+	<update id="update" parameterType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		UPDATE /* UserMapper.xml.update */
+			T_USER
+		SET
+			<if test="password != null and password != ''">
+			password                = #{password, jdbcType=VARCHAR},
+			</if>
+			user_name               = #{userName, jdbcType=VARCHAR},
+			user_group_id           = #{userGroupId, jdbcType=VARCHAR},
+			dept_name               = #{deptName, jdbcType=VARCHAR},
+			<if test="telNo != null and telNo != ''">
+			tel_no                  = to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512))),
+			</if>
+			e_mail                  = to_base64(aes_encrypt(#{webMail}, sha2(#{encKey}, 512))),
+			emp_no                  = #{empNo, jdbcType=VARCHAR},
+			ip_bandwidth            = #{ipBandwidth, jdbcType=VARCHAR},
+			password_due_date       = #{passwordDueDate, jdbcType=VARCHAR},
+			password_change_period  = #{passwordChangePeriod, jdbcType=VARCHAR},
+			account_lock			= #{accountLock, jdbcType=VARCHAR},
+			houscplx_cd             = #{houscplxCd},
+			is_auth                 = #{isAuth},
+			init_account            = #{initAccount},
+			crer_id                 = #{crerId}
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+     </update>
+
+	<update id="updatePassword" parameterType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		UPDATE /* UserMapper.xml.updatePassword */
+		T_USER
+		SET
+			password                = #{password},
+		    init_account            = 'Y'
+		WHERE
+		user_id = #{userId}
+	</update>
+
+	<delete id="delete" parameterType="String">
+		DELETE /* UserMapper.xml.delete */ FROM
+			T_USER
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+     </delete>
+
+	<select id="isExist" parameterType="String" resultType="int">
+		SELECT /* UserMapper.xml.isExist */
+			count(0)
+		FROM
+			T_USER
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+     </select>
+
+	<select id="isUseUserGroup" parameterType="String" resultType="int">
+		SELECT /* UserMapper.xml.isUseUserGroup */
+			count(0)
+		FROM
+			T_USER
+		WHERE
+			user_group_id = #{userGroupId, jdbcType=VARCHAR}
+     </select>
+
+
+	<select id="listExcel" resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+		SELECT /* UserMapper.xml.listExcel */
+			user_id as "사용자 ID",
+			user_name as "사용자 이름",
+			a.user_group_id as "그룹ID",
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS "그룹명",
+			dept_name as "부서",
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS "전화번호",
+			cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) as "E-Mail",
+			emp_no as "사원번호",
+			ip_bandwidth as "IP Bandwidth",
+			login_fail_count as "로그인실패횟수",
+			password_due_date AS "비밀번호 만료일자",
+			password_change_period as "비밀번호 변경주기",
+			last_login_date AS "최근접속일자",
+			last_login_time AS "최근접속시간",
+			account_lock as "계정잠김"
+		FROM
+			T_USER a, T_USER_GROUP b
+		WHERE
+			a.user_group_id = b.user_group_id
+		<if test="userGroupId != null and userGroupId != 'all'">
+		AND a.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+		</if>
+		AND b.user_group_level >= #{userGroupLevel, jdbcType=VARCHAR}
+		ORDER BY
+			user_id
+     </select>
+
+
+	<select id="getUserInfo"
+			parameterType="String"
+			resultType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		SELECT /* UserMapper.xml.getUserInfo */ USER_ID
+			 , PASSWORD
+			 , USER_NAME
+			 , (SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id=a.user_group_id) AS user_group_name
+			 , DEPT_NAME
+			 , cast(aes_decrypt(from_base64(tel_no), sha2(#{encKey}, 512)) as char(128)) AS tel_no
+			 , cast(aes_decrypt(from_base64(e_mail), sha2(#{encKey}, 512)) as char(128)) AS e_mail
+			 , EMP_NO
+			 , IP_BANDWIDTH
+			 , LOGIN_FAIL_COUNT
+			 , PASSWORD_CHANGE_PERIOD
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+     </select>
+
+	<select id="selectUserList" parameterType="User" resultMap="User">
+		SELECT /* UserMapper.xml.selectUserList */
+			tu.USER_ID as user_id,
+			tu.USER_NAME as user_name,
+			tu.DEPT_NAME as dept_name,
+			tu.USER_GROUP_ID as user_group_id,
+			tg.USER_GROUP_NAME as user_group_name,
+			tg.USER_GROUP_LEVEL as user_group_level,
+			tg.DESCRIPTION as description,
+		    cast(aes_decrypt(from_base64(tu.TEL_NO), sha2(#{encKey}, 512)) as char(128)) as tel_no,
+			tu.HOUSCPLX_CD as houscplx_cd,
+			th.HOUSCPLX_NM as houscplx_nm,
+			tu.IS_AUTH as is_auth,
+			tu.INIT_ACCOUNT as init_account,
+			tu.CRER_ID as crer_id,
+			tu.CR_DT as cr_dt
+		FROM
+			T_USER AS tu
+			INNER JOIN T_USER_GROUP AS tg
+			ON tu.user_group_id = tg.user_group_id
+			LEFT OUTER JOIN T_HOUSCPLX_BAS AS th
+			ON tu.houscplx_cd = th.houscplx_cd
+		WHERE 1=1
+		AND tu.user_group_id NOT IN ('001')
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tu.CR_DT) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="userName != null and userName != ''">
+			AND tu.USER_NAME like CONCAT('%',#{userName},'%')
+		</if>
+		<if test="userGroupId != null and userGroupId != 'ALL'">
+			AND tu.USER_GROUP_ID = #{userGroupId}
+		</if>
+		<if test="houscplxCd != null and houscplxCd != ''">
+			AND tu.HOUSCPLX_CD = #{houscplxCd}
+		</if>
+		ORDER BY tu.cr_dt DESC
+	</select>
+
+	<select id="selectUser" parameterType="User" resultMap="User">
+		SELECT /* UserMapper.xml.selectUser */
+			tu.USER_ID as user_id,
+			tu.USER_NAME as user_name,
+			tu.DEPT_NAME as dept_name,
+			tu.USER_GROUP_ID as user_group_id,
+			tg.USER_GROUP_NAME as user_group_name,
+			tg.USER_GROUP_LEVEL as user_group_level,
+			tg.DESCRIPTION as description,
+			cast(aes_decrypt(from_base64(tu.TEL_NO), sha2(#{encKey}, 512)) as char(128)) as tel_no,
+			tu.HOUSCPLX_CD as houscplx_cd,
+			th.HOUSCPLX_NM as houscplx_nm,
+			tu.IS_AUTH as is_auth,
+			tu.INIT_ACCOUNT AS init_account
+		FROM
+			T_USER AS tu
+			INNER JOIN T_USER_GROUP AS tg
+			ON tu.user_group_id = tg.user_group_id
+			LEFT OUTER JOIN T_HOUSCPLX_BAS AS th
+			ON tu.houscplx_cd = th.houscplx_cd
+		WHERE
+			tu.USER_ID = #{userId}
+	</select>
+
+	<delete id="deleteUser" parameterType="User">
+		DELETE /* UserMapper.xml.deleteUser */ FROM
+			T_USER
+		WHERE
+			user_id=#{userId}
+	</delete>
+
+	<update id="insertUserMaster" parameterType="String">
+		UPDATE
+			T_USER_BAS
+		SET
+			MASTER_YN = #{masterYn}
+		WHERE
+			USER_ID = #{userId}
+	</update>
+
+</mapper>

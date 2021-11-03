@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.platform.PlatformMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="Platform" type="com.daewooenc.pips.admin.web.domain.dto.platform.Platform"></resultMap>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 타 플랫폼 관리 > 타 플랫폼 목록 -->
+	<select id="selectSystemPlatformList" parameterType="Platform" resultMap="Platform">
+		SELECT /* PlatformMapper.xml.selectSystemPlatformList */
+			platform_tp_nm, platform_nm, platform_id, platform_auth_key,
+			platform_company, platform_url, platform_noti_url
+		FROM T_PLATFORM_BAS
+		WHERE del_yn = 'N'
+		<if test="platformTpNm != null and platformTpNm != ''">
+			AND platform_tp_nm LIKE CONCAT('%',#{platformTpNm},'%')
+		</if>
+		<if test="platformNm != null and platformNm != ''">
+			AND platform_nm LIKE CONCAT('%',#{platformNm},'%')
+		</if>
+		<if test="platformCompany != null and platformCompany != ''">
+			AND platform_company LIKE CONCAT('%',#{platformCompany},'%')
+		</if>
+		ORDER BY cr_dt DESC
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 타 플랫폼 관리 > 타 플랫폼 목록 > 타 플랫폼 상세/수정 -->
+	<select id="selectSystemPlatformDetail" parameterType="Platform" resultMap="Platform">
+		SELECT /* PlatformMapper.xml.selectSystemPlatformDetail */
+			platform_tp_nm, platform_nm, platform_id, platform_auth_key,
+			platform_company, platform_url, platform_noti_url
+		FROM T_PLATFORM_BAS
+		WHERE platform_id = #{platformId}
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 타 플랫폼 관리 > 타 플랫폼 목록 > 타 플랫폼 수정 -->
+	<update id="updatePlatform" parameterType="Platform">
+		UPDATE /* PlatformMapper.xml.updatePlatform */
+			T_PLATFORM_BAS
+		SET
+			PLATFORM_TP_NM = #{platformTpNm},
+			PLATFORM_NM = #{platformNm},
+			PLATFORM_URL = #{platformUrl},
+			PLATFORM_NOTI_URL = #{platformNotiUrl},
+			PLATFORM_COMPANY = #{platformCompany},
+			EDIT_DT = NOW(),
+			EDITER_ID = #{editerId}
+		WHERE
+			PLATFORM_ID  = #{platformId}
+	</update>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 타 플랫폼 관리 > 타 플랫폼 등록 -->
+	<insert id="insertPlatform" parameterType="Platform">
+		INSERT INTO /* PlatformMapper.xml.insertPlatform */
+		T_PLATFORM_BAS
+		(
+			PLATFORM_TP_NM,
+			PLATFORM_NM,
+			PLATFORM_URL,
+			PLATFORM_NOTI_URL,
+			PLATFORM_COMPANY,
+			PLATFORM_ID,
+			PLATFORM_AUTH_KEY,
+			EDIT_DT,
+			CR_DT,
+			EDITER_ID,
+			CRER_ID,
+			DEL_YN
+		)
+		VALUES
+		(
+			#{platformTpNm},
+			#{platformNm},
+			#{platformUrl},
+			#{platformNotiUrl},
+			#{platformCompany},
+			#{platformId},
+			#{platformAuthKey},
+			NOW(),
+			NOW(),
+			#{crerId},
+			#{crerId},
+			'N'
+		)
+	</insert>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 타 플랫폼 관리 > 타 플랫폼 등록 > ID 존재 여부 확인 -->
+	<select id="selectSystemPlatformIdCheck" parameterType="String" resultType="int">
+		SELECT /* PlatformMapper.xml.selectSystemPlatformIdCheck */
+			COUNT(*)
+		FROM T_PLATFORM_BAS
+		WHERE platform_id = #{platformId}
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 타 플랫폼 관리 > 타 플랫폼 목록 > 타 플랫폼 수정(삭제) -->
+	<update id="deletePlatform" parameterType="Platform">
+		UPDATE /* PlatformMapper.xml.deletePlatform */
+			T_PLATFORM_BAS
+		SET
+			DEL_YN = 'Y',
+			EDIT_DT = NOW(),
+			EDITER_ID = #{editerId}
+		WHERE
+			PLATFORM_ID  = #{platformId}
+	</update>
+
+
+</mapper>

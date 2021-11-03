@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.energy.EnergyMapper">
+
+	<insert id="insertEnergyData" parameterType="java.util.List">
+		INSERT /* EnergyMapper.xml.insertEnergyData */ INTO
+		t_hshold_enrg_use_hst
+		(
+		houscplx_cd,
+		hshold_id,
+		enrg_dim_qty,
+		yr,
+		mm,
+		ymd,
+		enrg_use_ymd,
+		gas_use_qty,
+		elct_use_qty,
+		hotwtr_use_qty,
+		wtrspl_use_qty,
+		heat_use_qty,
+		crer_id,
+		cr_dt
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.houscplxCd},
+			#{item.hsholdId},
+			(SELECT
+				enrg_dim_qty
+			FROM
+				t_hshold_bas
+			WHERE
+				hshold_id=#{item.hsholdId}),
+				#{item.yr},
+				#{item.mm},
+				#{item.ymd},
+				#{item.enrgUseYmd},
+				#{item.gasUseQty},
+				#{item.elctUseQty},
+				#{item.hotwtrUseQty},
+				#{item.wtrsplUseQty},
+				#{item.heatUseQty},
+				#{item.crerId},
+				NOW()
+			)
+		</foreach>
+		ON DUPLICATE KEY UPDATE
+			gas_use_qty = values(gas_use_qty),
+			enrg_dim_qty = values(enrg_dim_qty),
+			elct_use_qty = values(elct_use_qty),
+			wtrspl_use_qty = values(wtrspl_use_qty),
+			hotwtr_use_qty = values(hotwtr_use_qty),
+			heat_use_qty = values(heat_use_qty),
+			enrg_use_ymd = values(enrg_use_ymd)
+
+	</insert>
+
+	<insert id="insertSumEnergyData" parameterType="java.util.HashMap">
+		INSERT INTO /* EnergyMapper.xml.insertSumEnergyData */
+		t_hshold_enrg_cum_use_hst (
+			cr_dt,
+			crer_id,
+			houscplx_cd,
+			hshold_id,
+			yr,
+			mm,
+			ymd,
+			enrg_dim_qty,
+			gas_use_qty,
+			elct_use_qty,
+			wtrspl_use_qty,
+			hotwtr_use_qty,
+			heat_use_qty,
+			gas_use_rate,
+			elct_use_rate,
+			wtrspl_use_rate,
+			hotwtr_use_rate,
+			heat_use_rate,
+			enrg_cum_use_ymd
+		)
+		SELECT * FROM (
+			SELECT
+				NOW() AS cr_dt,
+				'Batch' AS crer_id,
+				energy.houscplx_cd AS houscplx_cd,
+				energy.hshold_id AS hshold_id,
+				DATE_FORMAT(DATE_ADD(now(), INTERVAL -1 DAY), '%Y') AS yr,
+				DATE_FORMAT(DATE_ADD(now(), INTERVAL -1 DAY), '%m') AS mm,
+				DATE_FORMAT(DATE_ADD(now(), INTERVAL -1 DAY), '%d') AS ymd,
+				enrg_dim_qty,
+				round(((sum(gas_use_qty))*100)/100, 1) as gas_use_qty,
+				round(((sum(elct_use_qty))*100)/100, 1)as elct_use_qty,
+				round(((sum(wtrspl_use_qty))*100)/100, 1) as wtrspl_use_qty,
+				round(((sum(hotwtr_use_qty))*100)/100, 1)as hotwtr_use_qty,
+				round(((sum(heat_use_qty))*100)/100, 1)	as heat_use_qty,
+				round(if(isnull(gas), 0, (sum(gas_use_qty)/gas)*100), 0) AS gas_use_rate,
+				round(if(isnull(elct), 0, (sum(elct_use_qty)/elct)*100), 0) AS elct_use_rate,
+				round(if(isnull(wtrspl), 0, (sum(wtrspl_use_qty)/wtrspl)*100), 0) AS wtrspl_use_rate,
+				round(if(isnull(hotwtr), 0, (sum(hotwtr_use_qty)/hotwtr)*100), 0) AS hotwtr_use_rate,
+				round(if(isnull(heat), 0, (sum(heat_use_qty)/heat)*100), 0) AS heat_use_rate,
+				DATE_FORMAT(DATE_ADD(now(), INTERVAL -1 DAY), '%Y%m%d') AS enrg_cum_use_ymd
+			FROM
+				t_hshold_enrg_use_hst energy left outer join
+				(
+					SELECT
+						hshold_id,
+						sum(case when enrg_tp_cd='ELCT' then objtv_qty end) as 'elct',
+						sum(case when enrg_tp_cd='HOTWTR' then objtv_qty end) as 'hotwtr',
+						sum(case when enrg_tp_cd='HEAT' then objtv_qty end) as 'heat',
+						sum(case when enrg_tp_cd='GAS' then objtv_qty end) as 'gas',
+						sum(case when enrg_tp_cd='WTRSPL' then objtv_qty  end) as 'wtrspl'
+					FROM
+						t_hshold_enrg_objtv_set_bas
+					GROUP BY
+						hshold_id
+				) hshold
+			ON
+				energy.hshold_id = hshold.hshold_id
+				WHERE 1 = 1
+				AND houscplx_cd = #{housingCplxCd}
+				AND enrg_use_ymd between #{startDate} and #{endDate}
+			GROUP BY
+				houscplx_cd, energy.hshold_id, enrg_dim_qty
+		) sum
+		ON DUPLICATE KEY UPDATE
+			yr = sum.yr,
+			mm = sum.mm,
+			ymd = sum.ymd,
+			gas_use_qty = sum.gas_use_qty,
+			elct_use_qty = sum.elct_use_qty,
+			wtrspl_use_qty = sum.wtrspl_use_qty,
+			hotwtr_use_qty = sum.hotwtr_use_qty,
+			heat_use_qty = sum.heat_use_qty,
+			gas_use_rate = sum.gas_use_rate,
+			elct_use_rate = sum.elct_use_rate,
+			wtrspl_use_rate = sum.wtrspl_use_rate,
+			hotwtr_use_rate = sum.hotwtr_use_rate,
+			heat_use_rate = sum.heat_use_rate,
+			enrg_cum_use_ymd  = sum.enrg_cum_use_ymd
+	</insert>
+
+	<insert id="insertAvgEnergyData" parameterType="java.util.HashMap">
+		INSERT INTO /* EnergyMapper.xml.insertAvgEnergyData */
+			t_ptypectg_enrg_avg_use_hst
+				(cr_dt, crer_id, yr, mm, houscplx_cd, enrg_dim_qty, gas_use_qty, elct_use_qty, wtrspl_use_qty, hotwtr_use_qty, heat_use_qty)
+			SELECT
+				now(),
+				'Batch',
+				MIN(yr),
+				MIN(mm),
+				houscplx_cd,
+				enrg_dim_qty,
+				round(((sum(gas_use_qty)/count(gas_use_qty))*100)/100, 1) as gas_use_qty,
+				round(((sum(elct_use_qty)/count(elct_use_qty))*100)/100, 1)as elct_use_qty,
+				round(((sum(wtrspl_use_qty)/count(wtrspl_use_qty))*100)/100, 1) as wtrspl_use_qty,
+				round(((sum(hotwtr_use_qty)/count(hotwtr_use_qty))*100)/100, 1)as hotwtr_use_qty,
+				round(((sum(heat_use_qty)/count(heat_use_qty))*100)/100, 1)	as heat_use_qty
+			FROM
+				t_hshold_enrg_use_hst
+			WHERE 1 = 1
+				AND houscplx_cd = #{housingCplxCd}
+				AND enrg_use_ymd between #{startDate} and #{endDate}
+			GROUP BY
+				houscplx_cd, enrg_dim_qty
+	</insert>
+
+	<select id="selectEnergyAlarmSendList" parameterType="String" resultType="com.daewooenc.pips.admin.web.domain.dto.energy.EnergyAlarmTarget">
+		SELECT /* EnergyMapper.xml.selectEnergyAlarmSendList */
+			hshold_id, houscplx_cd, yr, mm,
+			SUM(gas) gas_rate, SUM(elct) elct_rate, SUM(wtrspl) wtrspl_rate, SUM(hotwtr) hotwtr_rate, SUM(heat) heat_rate,
+			SUM(gas_1) gas_send_1, SUM(gas_2) gas_send_2, SUM(elct_1) elct_send_1, SUM(elct_2) elct_send_2, SUM(wtrspl_1) wtrspl_send_1, SUM(wtrspl_2) wtrspl_send_2, SUM(hotwtr_1) hotwtr_send_1, SUM(hotwtr_2) hotwtr_send_2, SUM(heat_1) heat_send_1, SUM(heat_2) heat_send_2
+		FROM (
+			SELECT
+				rate.hshold_id hshold_id, rate.houscplx_cd houscplx_cd, rate.yr yr,rate.mm mm,
+				rate.gas_use_rate gas,0 elct,0 wtrspl,0 hotwtr,0 heat,
+				IF(step_1_trnsm_yn = 'Y', 1, 0) gas_1, IF(step_2_trnsm_yn = 'Y', 1, 0) gas_2, 0 elct_1, 0 elct_2, 0 wtrspl_1, 0 wtrspl_2, 0 hotwtr_1, 0 hotwtr_2, 0 heat_1, 0 heat_2
+			FROM
+				t_hshold_enrg_cum_use_hst rate
+			LEFT OUTER JOIN
+			(
+				SELECT
+					*
+				FROM
+					t_enrg_useqty_push_hst
+				WHERE
+					enrg_tp_cd = 'GAS'
+			) push
+			ON rate.hshold_id = push.hshold_id
+				AND rate.yr = push.yr
+				AND rate.mm = push.mm
+			WHERE
+				1=1
+				AND rate.enrg_cum_use_ymd=#{enrgCumUseYmd}
+				AND rate.gas_use_rate > 90
+		UNION ALL
+			SELECT
+				rate.hshold_id hshold_id, rate.houscplx_cd houscplx_cd, rate.yr yr,rate.mm mm,
+				0 gas,rate.elct_use_rate elct,0 wtrspl,0 hotwtr,0 heat,
+				0 gas_1, 0 gas_2, IF(step_1_trnsm_yn = 'Y', 1, 0) elct_1, IF(step_2_trnsm_yn = 'Y', 1, 0) elct_2, 0 wtrspl_1, 0 wtrspl_2, 0 hotwtr_1, 0 hotwtr_2, 0 heat_1, 0 heat_2
+			FROM
+				t_hshold_enrg_cum_use_hst rate
+			LEFT OUTER JOIN
+			(
+				SELECT
+				*
+				FROM
+					t_enrg_useqty_push_hst
+				WHERE
+					enrg_tp_cd='ELCT'
+			) push
+			ON rate.hshold_id = push.hshold_id
+				AND rate.yr = push.yr
+				AND rate.mm = push.mm
+			WHERE
+				1=1
+				AND rate.enrg_cum_use_ymd=#{enrgCumUseYmd}
+				AND rate.elct_use_rate > 90
+		UNION ALL
+			SELECT
+				rate.hshold_id hshold_id, rate.houscplx_cd houscplx_cd, rate.yr yr,rate.mm mm,
+				0 gas,0 elct,rate.wtrspl_use_rate wtrspl,0 elct,0 heat,
+				0 gas_1, 0 gas_2, 0 elct_1, 0 elct_2, IF(step_1_trnsm_yn = 'Y', 1, 0) wtrspl_1, IF(step_2_trnsm_yn = 'Y', 1, 0) wtrspl_2, 0 hotwtr_1, 0 hotwtr_2, 0 heat_1, 0 heat_2
+			FROM
+				t_hshold_enrg_cum_use_hst rate
+			LEFT OUTER JOIN
+			(
+				SELECT
+				*
+				FROM
+					t_enrg_useqty_push_hst
+				WHERE
+					enrg_tp_cd='WTRSPL'
+			) push
+			ON rate.hshold_id = push.hshold_id
+				AND rate.yr = push.yr
+				AND rate.mm = push.mm
+			WHERE
+				1=1
+				AND rate.enrg_cum_use_ymd=#{enrgCumUseYmd}
+				AND rate.wtrspl_use_rate > 90
+		UNION ALL
+			SELECT
+				rate.hshold_id hshold_id, rate.houscplx_cd houscplx_cd, rate.yr yr,rate.mm mm,
+				0 gas,0 elct,0 wtrspl,rate.hotwtr_use_rate hotwtr,0 heat,
+				0 gas_1, 0 gas_2, 0 elct_1, 0 elct_2, 0 wtrspl_1, 0 wtrspl_2, IF(step_1_trnsm_yn = 'Y', 1, 0) hotwtr_1, IF(step_2_trnsm_yn = 'Y', 1, 0) hotwtr_2, 0 heat_1, 0 heat_2
+			FROM
+				t_hshold_enrg_cum_use_hst rate
+			LEFT OUTER JOIN
+			(
+				SELECT
+					*
+				FROM
+					t_enrg_useqty_push_hst
+				WHERE
+					enrg_tp_cd='HOTWTR'
+			) push
+			ON rate.hshold_id = push.hshold_id
+				AND rate.yr = push.yr
+				AND rate.mm = push.mm
+			WHERE
+				1=1
+				AND rate.enrg_cum_use_ymd=#{enrgCumUseYmd}
+				AND rate.hotwtr_use_rate > 90
+		UNION ALL
+			SELECT
+				rate.hshold_id hshold_id, rate.houscplx_cd houscplx_cd, rate.yr yr,rate.mm mm,
+				0 gas,0 elct,0 wtrspl,0 hotwtr, rate.heat_use_rate heat,
+				0 gas_1, 0 gas_2, 0 elct_1, 0 elct_2, 0 wtrspl_1, 0 wtrspl_2, 0 hotwtr_1, 0 hotwtr_2, IF(step_1_trnsm_yn = 'Y', 1, 0) heat_1, IF(step_2_trnsm_yn = 'Y', 1, 0) heat_2
+			FROM
+				t_hshold_enrg_cum_use_hst rate
+			LEFT OUTER JOIN
+			(
+				SELECT
+					*
+				FROM
+					t_enrg_useqty_push_hst
+				WHERE
+					enrg_tp_cd='HEAT'
+			) push
+			ON rate.hshold_id = push.hshold_id
+				AND rate.yr = push.yr
+				AND rate.mm = push.mm
+			WHERE 1=1
+				AND rate.enrg_cum_use_ymd=#{enrgCumUseYmd}
+				AND rate.heat_use_rate > 90
+		) energy
+		GROUP BY
+		hshold_id, yr, mm
+	</select>
+
+	<select id="selectElctUseQty" parameterType="com.daewooenc.pips.admin.web.domain.dto.energy.EnergyData" resultType="String">
+		SELECT /* EnergyMapper.xml.selectElctUseQty */
+			elct_use_qty
+		FROM
+			t_hshold_enrg_cum_use_hst
+		WHERE
+			hshold_id = #{hsholdId}
+		AND
+			houscplx_cd = #{houscplxCd}
+		AND
+			yr = #{yr}
+		AND
+			mm = #{mm}
+	</select>
+
+	<insert id="insertEnergyPushData" parameterType="com.daewooenc.pips.admin.web.domain.dto.energy.EnergyPush">
+		INSERT /* EnergyMapper.xml.insertEnergyPushData */ INTO
+		t_enrg_useqty_push_hst
+		(
+			cr_dt,
+			crer_id,
+			step_1_trnsm_yn,
+			yr,
+			mm,
+			houscplx_cd,
+			step_2_trnsm_yn,
+			hshold_id,
+			enrg_tp_cd
+		)
+		VALUES
+			(
+			NOW(),
+			'Batch',
+			#{step1TrnsmYn},
+			#{yr},
+			#{mm},
+			#{houscplxCd},
+			#{step2TrnsmYn},
+			#{hsholdId},
+			#{enrgTpCd}
+			)
+		ON DUPLICATE KEY UPDATE
+			step_1_trnsm_yn=#{step1TrnsmYn},
+			step_2_trnsm_yn=#{step2TrnsmYn}
+	</insert>
+
+</mapper>

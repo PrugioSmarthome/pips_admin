@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.authorization.UserGroupAuthMapper">
+	<resultMap id="UserGroup" type="com.daewooenc.pips.admin.core.domain.authorization.UserGroup"></resultMap>
+	<resultMap id="UserGroupAuth" type="com.daewooenc.pips.admin.core.domain.authorization.UserGroupAuth"></resultMap>
+
+	<select id="checkUserGroup" parameterType="String" resultType="int">
+		SELECT count(*)
+		FROM T_USER
+		WHERE USER_GROUP_ID = #{userGroupId}
+	</select>
+
+	<select id="getLastUserGroupId" resultType="String">
+		SELECT USER_GROUP_ID
+		FROM T_USER_GROUP
+		ORDER BY USER_GROUP_ID DESC
+		LIMIT 1
+	</select>
+
+	<select id="getUserGroupName" parameterType="String" resultType="String">
+		SELECT USER_GROUP_NAME
+		FROM T_USER_GROUP
+		WHERE USER_GROUP_ID = #{userGroupId}
+	</select>
+
+	<select id="checkUserAuth" parameterType="String" resultType="UserGroupAuth">
+		SELECT TUGA.MENU_NO AS MENU_NO, TUGA.AUTH_TYPE AS AUTH_TYPE, TM.VIEW_PATH AS VIEW_PATH
+		FROM T_USER AS TU
+		INNER JOIN T_USER_GROUP AS TUG
+			ON TU.USER_GROUP_ID = TUG.USER_GROUP_ID
+		INNER JOIN T_USER_GROUP_AUTH AS TUGA
+			ON TUGA.USER_GROUP_ID = TUG.USER_GROUP_ID
+		INNER JOIN T_MENU AS TM
+			ON TM.MENU_NO = TUGA.MENU_NO
+		WHERE TU.USER_ID = #{userId, jdbcType=VARCHAR}
+	</select>
+
+	<select id="getUserGroupAuth" parameterType="String" resultType="UserGroupAuth">
+		SELECT /* UserGroupAuthMapper.xml.getUserGroupAuth */
+			A.menu_no,
+			CASE
+				WHEN A.MENU_NAME IS NULL THEN B.MENU_NAME
+				ELSE A.MENU_NAME
+			END AS MENU_NAME,
+			B.up_menu_no,
+			A.auth_type,
+			A.view_path,
+			A.step_no,
+			B.display_order,
+			A.isfolder,
+			(
+				SELECT COUNT(*)
+				FROM T_MENU
+				WHERE up_menu_no = A.menu_no
+		) AS sub_menu_cnt
+		FROM
+			(
+				SELECT
+					menu.menu_no,
+					menu.menu_name,
+					auth.up_menu_no,
+					auth.auth_type,
+					menu.view_path,
+					auth.step_no,
+					auth.display_order,
+					menu.isfolder
+				FROM
+					T_USER_GROUP_AUTH auth, T_MENU menu
+				WHERE
+					auth.menu_no = menu.menu_no
+					and auth.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+			ORDER BY auth.display_order
+		) A,
+		T_MENU B
+		WHERE	A.MENU_NO = B.MENU_NO
+		ORDER BY B.display_order
+	</select>
+
+	<select id="getUserGroupMenu" parameterType="String" resultType="UserGroupAuth">
+		SELECT /* UserGroupAuthMapper.xml.getUserGroupMenu */
+			A.menu_no,
+				CASE
+					WHEN A.MENU_NAME IS NULL THEN B.MENU_NAME
+					ELSE A.MENU_NAME
+				END AS MENU_NAME,
+				B.up_menu_no,
+				A.auth_type,
+				A.view_path,
+				A.step_no,
+				B.display_order,
+				A.isfolder,
+				(
+					SELECT COUNT(*)
+					FROM T_MENU
+					WHERE up_menu_no = A.menu_no
+				) AS sub_menu_cnt
+		FROM	(
+				SELECT
+					menu.menu_no,
+					menu.menu_name,
+					auth.up_menu_no,
+					auth.auth_type,
+					menu.view_path,
+					auth.step_no,
+					auth.display_order,
+					menu.isfolder
+				FROM
+					T_USER_GROUP_AUTH auth, T_MENU menu
+				WHERE
+					auth.menu_no = menu.menu_no
+					and auth.user_group_id = #{userGroupId, jdbcType=VARCHAR}
+					and auth.auth_type NOT IN ('N')
+					ORDER BY auth.display_order
+				) A,
+				T_MENU B
+		WHERE	A.MENU_NO = B.MENU_NO
+		ORDER BY B.display_order
+    </select>
+
+	<!-- 시스템 관리자: 메뉴 등록시 선택한 관리자에 대해서 권한 정보 맵핑 등록 -->
+	<insert id="insertUserGroup" parameterType="UserGroup">
+		INSERT INTO /* UserGroupAuthMapper.xml.insertUserGroup */
+		T_USER_GROUP
+		(
+			user_group_id, user_group_name, description, user_group_level
+		)
+		VALUES
+		(
+			#{userGroupId}, #{userGroupName}, #{description}, #{userGroupLevel}
+		)
+	</insert>
+
+	<!-- 시스템 관리자: 메뉴 등록시 선택한 관리자에 대해서 권한 정보 맵핑 등록 -->
+	<insert id="insertUserGroupAuth" parameterType="java.util.Map">
+		INSERT INTO /* UserGroupAuthMapper.xml.insertUserGroupAuth */
+		T_USER_GROUP_AUTH
+		(
+			user_group_id, menu_no, auth_type,
+			up_menu_no, step_no, display_order
+		)
+		VALUES
+		<foreach item="item" index="index" collection="list" separator=" , ">
+			(
+				#{item.userGroupId}, #{item.menuNo}, #{item.authType},
+				#{item.upMenuNo}, #{item.stepNo}, #{item.displayOrder}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 시스템 관리자: 선택한 권한 그룹의 전체 권한 수정 -->
+	<update id="updateUserGroupAuth" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* UserGroupAuthMapper.xml.updateUserGroupAuth */
+			T_USER_GROUP_AUTH
+			SET auth_type = #{item.authType}
+			WHERE user_group_id = #{item.userGroupId}
+			AND menu_no = #{item.menuNo}
+		</foreach>
+	</update>
+
+	<delete id="deleteUserGroup" parameterType="String">
+		DELETE /* UserGroupAuthMapper.xml.deleteUserGroup */
+		FROM T_USER_GROUP
+		WHERE USER_GROUP_ID = #{userGroupId}
+	</delete>
+
+	<delete id="deleteUserGroupAuth" parameterType="String">
+		DELETE /* UserGroupAuthMapper.xml.deleteUserGroupAuth */
+		FROM T_USER_GROUP_AUTH
+		WHERE USER_GROUP_ID = #{userGroupId}
+	</delete>
+
+	<delete id="deleteUserGroupAuthForUpMenu" parameterType="int">
+		DELETE /* UserGroupAuthMapper.xml.deleteUserGroupAuthForUpMenu */
+			FROM T_USER_GROUP_AUTH
+		WHERE MENU_NO IN (
+							SELECT MENU_NO
+							FROM T_MENU
+							WHERE UP_MENU_NO = #{menuNo} OR MENU_NO = #{menuNo}
+						)
+	</delete>
+
+	<delete id="deleteUserGroupAuthForDownMenu" parameterType="int">
+		DELETE /* UserGroupAuthMapper.xml.deleteUserGroupAuthForDownMenu */
+			FROM T_USER_GROUP_AUTH
+		WHERE MENU_NO = #{menuNo}
+	</delete>
+
+	<insert id="insert" parameterType="UserGroupAuth">
+		INSERT /* UserGroupAuthMapper.xml.insert */ INTO
+			T_USER_GROUP_AUTH
+		(
+			user_group_id,
+			menu_no,
+			auth_type,
+			up_menu_no,
+			step_no,
+			display_order
+		)
+		VALUES
+		(
+			#{userGroupId, jdbcType=VARCHAR},
+			#{menuNo, jdbcType=VARCHAR},
+			#{authType, jdbcType=VARCHAR},
+			#{upMenuNo, jdbcType=VARCHAR},
+			#{stepNo, jdbcType=VARCHAR},
+			#{displayOrder, jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<delete id="delete" parameterType="String">
+		DELETE /* UserGroupAuthMapper.xml.delete */ FROM
+		T_USER_GROUP_AUTH
+		WHERE
+		user_group_id = #{userGroupId, jdbcType=VARCHAR}
+     </delete>
+
+</mapper>

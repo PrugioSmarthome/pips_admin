@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<!-- 
+	# DB 종류 세팅
+	# BasicWeb의 myBatis에서
+	# DB 종류에 따라 SQL을 적용하기 위해서 필요함
+	# src/main/resources/config/mapper.config.xml 에서 사용함
+	# 예) mybatis = now(), oralce = sysdate
+	# 현재 적용 가능 DB Bander
+	# MYSQL, ORACLE, ALTIBASE, TIBERO, MSSQL	
+	-->
+	<properties>
+		<property name="dbms.kind" value="MYSQL"/>
+	</properties>	 
+	 
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="lazyLoadingEnabled" value="true" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="defaultStatementTimeout" value="25000" />
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+
+	<typeHandlers>
+		<typeHandler handler="org.apache.ibatis.type.BlobTypeHandler" jdbcType="BLOB" javaType="[B" />
+	</typeHandlers>
+
+	<mappers>
+	</mappers>
+</configuration>

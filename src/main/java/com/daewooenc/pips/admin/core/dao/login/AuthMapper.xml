@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.login.AuthMapper">
+
+	<select id="login" parameterType="SessionUser" resultType="SessionUser">
+		SELECT /* AuthMapper.xml.login */
+			user_id,
+			user_name,
+			user_group_id,
+			houscplx_cd,
+			(SELECT houscplx_nm FROM T_HOUSCPLX_BAS WHERE houscplx_cd = a.houscplx_cd) AS houscplx_nm,
+			(SELECT user_group_name FROM T_USER_GROUP WHERE user_group_id = a.user_group_id) AS user_group_name,
+			(SELECT user_group_level FROM T_USER_GROUP WHERE user_group_id = a.user_group_id) AS user_group_level,
+			dept_name,
+			ip_bandwidth,
+			login_fail_count,
+ 			last_login_date,
+			last_login_time,
+			cast(aes_decrypt(from_base64(tel_no), sha2(#{sessionUser.encKey}, 512)) as char(128)) AS tel_no
+		FROM
+			T_USER a
+		WHERE
+			user_id=#{sessionUser.userId, jdbcType=VARCHAR}
+		AND password=#{sessionUser.password, jdbcType=VARCHAR}
+     </select>
+
+	<update id="updateLastLoginDateTime" parameterType="SessionUser">
+		UPDATE /* AuthMapper.xml.updateLastLoginDateTime */
+			T_USER
+		SET
+		<choose>
+			<when test="'${dbms.kind}' == 'MYSQL'">
+			last_login_date = CONCAT(COALESCE(SUBSTRING_INDEX(last_login_date, '|', -1), ''), '|', DATE_FORMAT(now(), '%Y%m%d')),
+			last_login_time = CONCAT(COALESCE(SUBSTRING_INDEX(last_login_time, '|', -1), ''), '|', TIME_FORMAT(now(), '%H%i%s')),
+			</when>
+			<when test="'${dbms.kind}' == 'MSSQL'">
+			last_login_date = CASE WHEN CHARINDEX('|', last_login_date) = 0 OR last_login_date is null THEN '|' + CONVERT(VARCHAR(8), GETDATE(), 112)
+						           WHEN CHARINDEX('|', last_login_date) = 1 THEN SUBSTRING(last_login_date, 2, 8) + '|' + CONVERT(VARCHAR(8), GETDATE(), 112)
+						           WHEN CHARINDEX('|', last_login_date) = 9 THEN SUBSTRING(last_login_date, 10, 8) + '|' + CONVERT(VARCHAR(8), GETDATE(), 112)
+						           ELSE ''
+						      END,
+			last_login_time = CASE WHEN CHARINDEX('|', last_login_time) = 0 OR last_login_date is null THEN '|' + REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108),':','')
+						           WHEN CHARINDEX('|', last_login_time) = 1 THEN SUBSTRING(last_login_time, 2, 6) + '|' + REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108),':','')
+						           WHEN CHARINDEX('|', last_login_time) = 7 THEN SUBSTRING(last_login_time, 8, 6) + '|' + REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108),':','')
+						           ELSE ''
+						       END,	
+			</when>			
+			<otherwise>
+			last_login_date = CASE WHEN INSTR(last_login_date, '|') = 0 OR last_login_date is null THEN '|'||TO_CHAR(SYSDATE, 'yyyymmdd')
+						           WHEN INSTR(last_login_date, '|') = 1 THEN SUBSTR(last_login_date, 2)||'|'||TO_CHAR(SYSDATE, 'yyyymmdd')
+						           WHEN INSTR(last_login_date, '|') = 9 THEN SUBSTR(last_login_date, 10)||'|'||TO_CHAR(SYSDATE, 'yyyymmdd')
+						           ELSE ''
+						      END,
+			last_login_time = CASE WHEN INSTR(last_login_time, '|') = 0 OR last_login_date is null THEN '|'||TO_CHAR(SYSDATE, 'hh24miss')
+						           WHEN INSTR(last_login_time, '|') = 1 THEN SUBSTR(last_login_time, 2)||'|'||TO_CHAR(SYSDATE, 'hh24miss')
+						           WHEN INSTR(last_login_time, '|') = 7 THEN SUBSTR(last_login_time, 8)||'|'||TO_CHAR(SYSDATE, 'hh24miss')
+						           ELSE ''
+						       END,
+			</otherwise>
+		</choose>
+			login_fail_count = 0
+		WHERE
+			user_id=#{sessionUser.userId, jdbcType=VARCHAR}
+     </update>
+
+	<update id="updateLoginFailCount" parameterType="User">
+		UPDATE /* AuthMapper.xml.updateLoginFailCount */
+			T_USER
+		SET
+			login_fail_count = login_fail_count + 1
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+     </update>
+
+	<select id="isOverPasswordDueDate" parameterType="String" resultType="int">
+		SELECT /* AuthMapper.xml.isOverPasswordDueDate */
+			count(0)
+		FROM
+			T_USER
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+		<choose>
+			<when test="'${dbms.kind}' == 'MYSQL'">
+				AND password_due_date <![CDATA[<=]]> DATE_FORMAT(now(), '%Y%m%d')
+			</when>
+			<when test="'${dbms.kind}' == 'MSSQL'">
+				AND password_due_date <![CDATA[<=]]> CONVERT(VARCHAR(8), GETDATE(), 112)
+			</when>
+			<otherwise>
+				AND password_due_date <![CDATA[<=]]> TO_CHAR(SYSDATE, 'YYYYMMDD')
+			</otherwise>
+		</choose>
+     </select>
+
+	<select id="getUserCount" parameterType="String" resultType="Integer">
+		SELECT /* AuthMapper.xml.getUserCount */
+			COUNT(*)
+		FROM
+			T_USER
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+	</select>
+
+	<select id="getLoginFailCount" parameterType="String" resultType="Integer">
+		SELECT /* AuthMapper.xml.getLoginFailCount */
+			login_fail_count
+		FROM
+			T_USER
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+     </select>
+
+	<select id="getLoginDate" parameterType="String" resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+		SELECT /* AuthMapper.xml.getLoginDate */
+ 			last_login_date as LOGIN_DATE,
+			last_login_time as LOGIN_TIME
+  		FROM
+			T_USER
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+     </select>
+
+	<select id="getAccountLock" parameterType="String" resultType="String">
+		SELECT /* AuthMapper.xml.getAccountLock */
+			account_lock
+		FROM
+			T_USER
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+     </select>
+
+	<update id="setAccountLock" parameterType="String">
+		UPDATE /* AuthMapper.xml.setAccountLock */
+			T_USER
+		SET
+			account_lock = 'Y'
+		WHERE
+			user_id=#{userId, jdbcType=VARCHAR}
+     </update>
+
+	<select id="checkInitAccount" parameterType="String" resultType="String">
+		SELECT /* AuthMapper.xml.checkInitAccount */
+			init_account
+		FROM
+			T_USER
+		WHERE
+			user_id = #{userId, jdbcType=VARCHAR}
+	</select>
+
+	<update id="updateMyInfo" parameterType="com.daewooenc.pips.admin.core.domain.authorization.User">
+		UPDATE /* UserMapper.xml.updateMyInfo */
+		T_USER
+		SET
+		tel_no                 = to_base64(aes_encrypt(#{telNo}, sha2(#{encKey}, 512)))
+		<if test="userName != null and userName != ''">
+			, user_name              = #{userName}
+		</if>
+		<if test="deptName != null and deptName != ''">
+			, dept_name           	 = #{deptName}
+		</if>
+		WHERE
+		user_id = #{userId}
+	</update>
+
+</mapper>

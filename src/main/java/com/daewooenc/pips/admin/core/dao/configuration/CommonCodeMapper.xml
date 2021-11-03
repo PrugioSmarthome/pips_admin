@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.core.dao.configuration.CommonCodeMapper">
+
+	<select id="list"
+			resultType="com.daewooenc.pips.admin.core.domain.configuration.CommonCode">
+		SELECT /* CommonCodeMapper.xml.list */ 
+			GROUP_CODE,
+			CODE_NAME,
+			DETAIL_CODE,
+			KEY_NAME,
+			DISPLAY_ORDER,
+			DESCRIPTION
+		FROM
+			T_COMMON_CODE
+		WHERE
+			<if test="groupCode != null and groupCode != ''">
+			GROUP_CODE = #{groupCode}
+			</if>
+			<if test="groupCode == null or groupCode == ''">
+			GROUP_CODE = '999999'
+			</if>
+		ORDER BY DISPLAY_ORDER
+     </select>
+
+	<select id="getCommonCode"
+			resultType="com.daewooenc.pips.admin.core.domain.configuration.CommonCode">
+		SELECT /* CommonCodeMapper.xml.getCommonCode */ 
+			GROUP_CODE,
+			CODE_NAME,
+			DETAIL_CODE,
+			KEY_NAME,
+			DISPLAY_ORDER,
+			DESCRIPTION
+		FROM
+			T_COMMON_CODE
+		WHERE
+				group_code = #{groupCode}
+			AND detail_code = #{detailCode}
+     </select>
+
+	<select id="isExist"
+			parameterType="com.daewooenc.pips.admin.core.domain.configuration.CommonCode"
+			resultType="int">
+		SELECT /* CommonCodeMapper.xml.isExist */ 
+			count(0)
+		FROM
+			T_COMMON_CODE
+		WHERE
+				group_code = #{commonCode.groupCode}
+			AND detail_code = #{commonCode.detailCode}
+     </select>
+
+	<insert id="insert"
+			parameterType="com.daewooenc.pips.admin.core.domain.configuration.CommonCode">
+		INSERT /* CommonCodeMapper.xml.insert */  INTO
+			T_COMMON_CODE
+		(
+			GROUP_CODE,
+			CODE_NAME,
+			DETAIL_CODE,
+			KEY_NAME,
+			DISPLAY_ORDER,
+			DESCRIPTION
+		) VALUES (
+			#{commonCode.groupCode},
+			#{commonCode.codeName},
+			#{commonCode.detailCode},
+			#{commonCode.keyName},
+			(	SELECT COALESCE(MAX(DISPLAY_ORDER), 0) + 1
+			 	FROM T_COMMON_CODE A
+			 	WHERE A.GROUP_CODE = #{commonCode.groupCode}
+			 ),
+			#{commonCode.description}
+		)
+	</insert>
+
+	<update id="update"
+			parameterType="com.daewooenc.pips.admin.core.domain.configuration.CommonCode">
+		UPDATE /* CommonCodeMapper.xml.update */ 
+			T_COMMON_CODE
+		SET
+			CODE_NAME     = #{commonCode.codeName},
+			DETAIL_CODE   = #{commonCode.detailCode},
+			KEY_NAME      = #{commonCode.keyName},
+			DESCRIPTION   = #{commonCode.description}
+		WHERE
+				group_code = #{commonCode.groupCode}
+			AND detail_code = #{commonCode.detailCodeOld}
+	</update>
+
+	<delete id="delete"
+			parameterType="com.daewooenc.pips.admin.core.domain.configuration.CommonCode">
+		DELETE /* CommonCodeMapper.xml.delete */  FROM
+			T_COMMON_CODE
+		WHERE
+				group_code = #{commonCode.groupCode}
+			AND detail_code = #{commonCode.detailCode}
+     </delete>
+
+	<update id="updateDisplay_order">
+		UPDATE /* CommonCodeMapper.xml.updateDisplay_order */
+			T_COMMON_CODE
+		SET
+			display_order	= #{displayOrder}
+		WHERE
+				group_code = #{groupCode}
+			AND detail_code = #{detailCode}
+	</update>
+
+
+	<select id="listExcel"
+			resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+		SELECT
+			DISPLAY_ORDER as "Seq",
+			GROUP_CODE as "상위코드",
+			DETAIL_CODE as "코드",
+			CODE_NAME as "코드명",
+			KEY_NAME as "Key 명",
+			DESCRIPTION as "설명"
+		FROM
+			T_COMMON_CODE
+		WHERE
+			<if test="groupCode != null and groupCode != ''">
+			GROUP_CODE = #{group_code}
+			</if>
+			<if test="groupCode == null or groupCode == ''">
+			GROUP_CODE = '999999'
+			</if>
+		ORDER BY DISPLAY_ORDER
+     </select>
+
+</mapper>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- Batch Job -->
+
+	<!-- 에너지 데이터 요청 제어 잡  -->
+	<bean id="energyJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="energyService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="energyControlRequest" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- 에너지 목표 사용량 초과 Push 잡  -->
+	<bean id="energyPushJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="energyService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="energyDataUseAlarmProcess" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- 미세먼지 잡  -->
+	<bean id="fineDutyJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="weatherService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="createFineDutyInfo" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- 현재날씨 잡  -->
+	<bean id="currentWeatherJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="weatherService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="createCurrentWeatherInfo" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- 단기 날씨 예보 잡  -->
+	<bean id="forecastWeatherJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="weatherService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="createForecastWeatherInfo" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- 예약 제어 잡  -->
+	<bean id="reservationJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="reservationService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="reservationControlRequest" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- 기상 특보 잡  -->
+	<bean id="specialWeatherJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="weatherService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="createSpecialWeatherInfo" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!-- MongoDB 잡  -->
+	<bean id="mongoJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 서비스 구현 객체의 빈 이름을 인자로 줍니다. -->
+		<property name="targetObject" ref="mongoService" />
+		<!-- 서비스 객체에서 주기적으로 실행될 메소드른 지정합니다. -->
+		<property name="targetMethod" value="mongoControl" />
+		<!-- 동시 실행을 방지합니다. -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<!--Triggers 설정-->
+
+	<!--예약 제어 Trigger-->
+	<bean id="reservationJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="reservationJob" />
+		<!-- CronTrigger를 사용하여 1분마다 실행. -->
+		<property name="cronExpression" value="0 0/1 * * * ?" />
+	</bean>
+
+	<!--에너지 요청 Trigger-->
+	<bean id="energyJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="energyJob" />
+        <!-- CronTrigger를 사용하여 매일 2시에 실행. -->
+		<property name="cronExpression" value="0 0 2 * * ?" />
+	</bean>
+
+	<!--에너지 목표초과량 Push Trigger-->
+	<bean id="energyPushJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="energyPushJob" />
+		<!-- CronTrigger를 사용하여 매시간 20분에 실행 -->
+		<property name="cronExpression" value="0 0 20 * * ?" />
+	</bean>
+
+	<bean id="fineDutyJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="fineDutyJob" />
+		<!-- CronTrigger를 사용하여 매시간 25분 실행. -->
+		<property name="cronExpression" value="0 25 0/1 * * ?" />
+	</bean>
+
+	<bean id="forecastWeatherTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="forecastWeatherJob" />
+		<!-- CronTrigger를 사용하여 매시간 51분 실행. -->
+		<property name="cronExpression" value="0 51 0/1 * * ?" />
+	</bean>
+
+	<bean id="currentWeatherTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="currentWeatherJob" />
+        <!-- CronTrigger를 사용하여 10분마다 실행. -->
+		<property name="cronExpression" value="0 0/10 * * * ?" />
+	</bean>
+
+	<!--기상 특보 Trigger-->
+	<bean id="specialWeatherTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="specialWeatherJob" />
+        <!-- CronTrigger를 사용하여 매시간 5분, 35분 실행. -->
+		<property name="cronExpression" value="0 5,35 0/1 * * ?" />
+	</bean>
+
+	<!--MongoDB Trigger-->
+	<bean id="mongoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="mongoJob" />
+		<!-- CronTrigger를 사용하여 매일 3시에 실행. -->
+		<property name="cronExpression" value="0 0 3 * * ?" />
+	</bean>
+
+
+	<bean id="testJobScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<!-- 앞에서 설정한 트리거를 등록합니다. 필요하면 여러개 만들어서 등록하면 됩니다. -->
+			<list>
+<!--				<ref bean="currentWeatherTrigger" />
+				<ref bean="forecastWeatherTrigger" />
+				<ref bean="fineDutyJobTrigger" />
+				<ref bean="energyJobTrigger" />
+				<ref bean="energyPushJobTrigger" />
+				<ref bean="reservationJobTrigger" />
+				<ref bean="specialWeatherTrigger" />
+				<ref bean="mongoTrigger" />-->
+			</list>
+		</property>
+	</bean>
+</beans>

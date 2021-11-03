@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<!-- **************************************************************** -->
+	<!-- interceptors -->
+	<!-- **************************************************************** -->
+	<mvc:interceptors>
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+		<bean class="com.daewooenc.pips.admin.core.config.LoginInterceptor">
+			<property name="listNoSession">
+				<list>
+					<value>/</value>
+					<value>/cm/login</value>
+					<value>/cm/landing</value>
+					<value>/cm/loginAction</value>
+					<value>/cm/authorization/passwd/authPassword</value>
+					<value>/cm/authorization/passwd/authPasswordAction</value>
+					<value>/cm/authorization/passwd/resetPassword</value>
+					<value>/cm/authorization/passwd/resetPasswordAction</value>
+					<value>/cm/authorization/passwd/getAuthAction</value>
+					<value>/cm/authorization/passwd/verifyAuthAction</value>
+					<value>/cm/common/housingcplx/list</value>
+					<value>/cm/policy</value>
+					<value>/cm/privacy</value>
+					<value>/cm/locationPolicy</value>
+					<value>/cm/faq</value>
+					<value>/aispeaker/oauth</value>
+					<value>/aispeaker/login</value>
+					<value>/aispeaker/logout</value>
+					<value>/aispeaker/snscallback</value>
+					<value>/aispeaker/accessTokenCallback</value>
+					<value>/elect/oauth</value>
+					<value>/elect/login</value>
+					<value>/elect/logout</value>
+					<value>/elect/snscallback</value>
+					<value>/elect/accessTokenCallback</value>
+					<value>/google/oauth</value>
+					<value>/google/login</value>
+					<value>/google/logout</value>
+					<value>/google/snscallback</value>
+					<value>/google/accessTokenCallback</value>
+					<value>/snsexception</value>
+				</list>
+			</property>
+			<property name="redirectPage">
+				<value>/</value>
+			</property>
+		</bean>
+	</mvc:interceptors>
+
+</beans>

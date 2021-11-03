@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.banner.BannerMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="Banner" type="com.daewooenc.pips.admin.web.domain.dto.banner.Banner"></resultMap>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 배너 관리 > 배너목록 -->
+	<select id="selectSystemBannerList" resultMap="Banner">
+		SELECT /* BannerMapper.xml.selectSystemBannerList */
+			a.bllt_no, a.bllt_ord_no -1 AS bllt_ord_no, a.file_path_cont, a.file_nm, a.orgnl_file_nm, a.link_url_cont, a.file_url_cont, group_concat(c.houscplx_nm) AS houscplx_nm
+		 FROM t_banr_bas a, t_houscplx_lnk_svc_rlt b LEFT OUTER JOIN t_houscplx_bas c
+		   ON b.houscplx_cd = c.houscplx_cd
+		WHERE a.del_yn = 'N'
+		  AND b.banr_lnk_cls = 'B'
+		  AND a.bllt_no = b.LNK_SVC_ID
+		GROUP BY a.bllt_no, a.bllt_ord_no, a.file_path_cont, a.file_nm, a.orgnl_file_nm, a.link_url_cont, a.file_url_cont
+		ORDER BY a.bllt_ord_no
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 배너 관리 > 배너목록 > 배너 수정 -->
+	<select id="selectSystemBannerEditList" resultMap="Banner">
+		SELECT /* BannerMapper.xml.selectSystemBannerEditList */
+			a.bllt_no, a.bllt_ord_no AS bllt_ord_no, a.file_path_cont, a.file_nm, a.orgnl_file_nm, a.link_url_cont, a.file_url_cont, group_concat(c.houscplx_nm) AS houscplx_nm
+		 FROM t_banr_bas a, t_houscplx_lnk_svc_rlt b LEFT OUTER JOIN t_houscplx_bas c
+		   ON b.houscplx_cd = c.houscplx_cd
+		WHERE a.del_yn = 'N'
+		  AND b.banr_lnk_cls = 'B'
+		  AND a.bllt_no = b.LNK_SVC_ID
+		GROUP BY a.bllt_no, a.bllt_ord_no, a.file_path_cont, a.file_nm, a.orgnl_file_nm, a.link_url_cont, a.file_url_cont
+		ORDER BY a.bllt_ord_no
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 배너 관리 > 배너목록(비입주민여부 조회) -->
+	<select id="selectSystemBannerNonResident" parameterType="int" resultType="int">
+		SELECT /* BannerMapper.xml.selectSystemBannerNonResident */
+			COUNT(*)
+		FROM
+			T_HOUSCPLX_LNK_SVC_RLT
+		WHERE
+			lnk_svc_id = #{lnkSvcId}
+		AND
+			houscplx_cd = '000000'
+	</select>
+
+	<!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지정보 상세 > 기타(배너 조회) -->
+	<select id="selectBannerList" parameterType="String" resultMap="Banner">
+		SELECT /* BannerMapper.xml.selectBannerList */
+		tb.orgnl_file_nm, tb.link_url_cont, tb.bllt_no
+		FROM
+		T_BANR_BAS tb, T_HOUSCPLX_LNK_SVC_RLT th
+		WHERE
+		tb.bllt_no = th.lnk_svc_id
+		AND
+		th.banr_lnk_cls = 'B'
+		AND
+		tb.del_yn = 'N'
+		AND
+		th.houscplx_cd = #{houscplxCd}
+	</select>
+
+	<!-- 시스템 관리자: 단지 관리 > 단지정보 관리 > 단지정보 상세 > 기타 > 수정(배너 조회) -->
+	<select id="editBannerList" parameterType="Banner" resultMap="Banner">
+		SELECT /* BannerMapper.xml.editBannerList */
+			tb.orgnl_file_nm, tb.link_url_cont,tb.bllt_no
+		FROM
+			T_BANR_BAS tb, T_HOUSCPLX_LNK_SVC_RLT th
+		WHERE
+			tb.bllt_no = th.lnk_svc_id
+		AND
+			th.banr_lnk_cls = 'B'
+		AND
+			th.houscplx_cd = #{houscplxCd}
+
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 -->
+	<select id="selectBannerCnt" resultType="int">
+		SELECT /* BannerMapper.xml.selectBannerCnt */
+			COUNT(*)
+		FROM
+			T_BANR_BAS
+		WHERE del_yn = 'N'
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너등록 -->
+	<insert id="insertSystemBannerInfo" parameterType="Banner">
+		INSERT INTO /* BannerMapper.xml.insertSystemBannerInfo */
+			T_BANR_BAS
+		(
+			bllt_ord_no, orgnl_file_nm, file_nm,
+			file_path_cont, file_url_cont, link_url_cont,
+			del_yn, crer_id, cr_dt, editer_id, edit_dt
+		)
+		VALUES
+		<foreach item="item" index="index" collection="list" separator=" , ">
+			(
+				#{item.blltOrdNo}, #{item.orgnlFileNm}, #{item.fileNm},
+				#{item.filePathCont}, #{item.fileUrlCont}, #{item.linkUrlCont},
+				'N', #{item.crerId}, NOW(), #{item.crerId}, NOW()
+			)
+		</foreach>
+	</insert>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너등록(단지리스트 등록) -->
+	<insert id="insertSystemBannerDanjiInfo" parameterType="Banner">
+		INSERT INTO /* BannerMapper.xml.insertSystemBannerDanjiInfo */
+			T_HOUSCPLX_LNK_SVC_RLT
+		(
+			cr_dt, edit_dt, crer_id, editer_id,
+			lnk_svc_id, houscplx_cd, banr_lnk_cls
+		)
+		VALUES
+		(
+			NOW(), NOW(), #{crerId}, #{crerId},
+			#{lnk_svc_id}, #{houscplx_cd}, 'B'
+		)
+	</insert>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너등록(비입주민단지 등록) -->
+	<insert id="insertSystemBannerNoResident" parameterType="Banner">
+		INSERT INTO /* BannerMapper.xml.insertSystemBannerNoResident */
+			T_HOUSCPLX_LNK_SVC_RLT
+		(
+			cr_dt, edit_dt, crer_id, editer_id,
+			lnk_svc_id, houscplx_cd, banr_lnk_cls
+		)
+		VALUES
+		(
+			NOW(), NOW(), #{crerId}, #{crerId},
+			#{lnk_svc_id}, '000000', 'B'
+		)
+	</insert>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너등록(단지리스트 삭제) -->
+	<delete id="deleteSystemBannerDanjiInfo" parameterType="String">
+		DELETE FROM /* BannerMapper.xml.deleteSystemBannerDanjiInfo */
+		T_HOUSCPLX_LNK_SVC_RLT
+		WHERE LNK_SVC_ID = #{lnk_svc_id}
+		AND BANR_LNK_CLS = 'B'
+	</delete>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너등록(비입주민단지 삭제) -->
+	<delete id="deleteSystemBannerNoResident" parameterType="String">
+		DELETE FROM /* BannerMapper.xml.deleteSystemBannerNoResident */
+		T_HOUSCPLX_LNK_SVC_RLT
+		WHERE LNK_SVC_ID = #{lnk_svc_id}
+		AND BANR_LNK_CLS = 'B'
+		AND HOUSCPLX_CD = '000000'
+	</delete>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 배너 관리 > 배너등록(배너 키 값 조회) -->
+	<select id="selectSystemBannerKeyInfo" parameterType="int" resultMap="Banner">
+		SELECT /* BannerMapper.xml.selectSystemBannerKeyInfo */
+		bllt_no
+		FROM t_banr_bas
+		ORDER BY cr_dt DESC
+		LIMIT #{fileCount}
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너 이미지 정보 수정 -->
+	<update id="updateSystemBannerImageInfo" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* BannerMapper.xml.updateSystemBannerImageInfo */
+				T_BANR_BAS
+			SET orgnl_file_nm = #{item.orgnlFileNm},
+				file_nm = #{item.fileNm},
+				file_path_cont = #{item.filePathCont},
+				file_url_cont = #{item.fileUrlCont},
+				link_url_cont = #{item.linkUrlCont},
+				editer_id = #{item.editerId},
+				edit_dt = NOW(),
+				bllt_ord_no = #{blltOrdNo}
+			WHERE bllt_no = #{item.blltNo}
+			AND del_yn = 'N'
+		</foreach>
+	</update>
+
+	<!-- 시스템 관리자: 시스템 관리 > 배너 관리 > 배너 부가 정보 수정 -->
+	<update id="updateSystemBannerDataInfo" parameterType="Banner">
+		UPDATE /* BannerMapper.xml.updateSystemBannerDataInfo */
+			T_BANR_BAS
+		SET link_url_cont = #{linkUrlCont},
+			editer_id = #{editerId},
+			edit_dt = NOW(),
+			bllt_ord_no = #{blltOrdNo}
+		WHERE bllt_no = #{blltNo}
+		AND del_yn = 'N'
+	</update>
+
+	<!-- 시스템 관리자: 배너 이미지 순서 수정 -->
+	<update id="updateSystemBannerImageOrder" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* BannerMapper.xml.updateSystemBannerImageOrder */
+				T_BANR_BAS
+			SET bllt_ord_no = #{item.blltOrdNo},
+				editer_id = #{item.editerId},
+				edit_dt = NOW()
+			WHERE bllt_no = #{item.blltNo}
+			AND del_yn = 'N'
+		</foreach>
+	</update>
+
+	<!-- 시스템 관리자: 배너 삭제할 이미지 수정 -->
+	<update id="updateSystemBannerImageStatus" parameterType="java.util.Map">
+		<foreach item="item" index="index" collection="list" separator=";">
+			UPDATE /* BannerMapper.xml.updateSystemBannerImageStatus */
+				T_BANR_BAS
+			SET del_yn = 'Y',
+				editer_id = #{item.editerId},
+				edit_dt = NOW()
+			WHERE bllt_no = #{item.blltNo}
+			AND del_yn = 'N'
+		</foreach>
+	</update>
+
+	<!-- 시스템 관리자: 배너 등록 정렬순서 중복 체크 -->
+	<select id="checkBannerBlltOrdNo" parameterType="String" resultType="int">
+		SELECT /* BannerMapper.xml.checkBannerBlltOrdNo */
+			COUNT(*)
+		FROM
+			T_BANR_BAS
+		WHERE
+			bllt_ord_no = #{blltOrdNo}
+		AND
+			del_yn = 'N'
+	</select>
+
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.document.DocumentMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="Document" type="com.daewooenc.pips.admin.web.domain.dto.document.Document"></resultMap>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 목록조회 -->
+	<select id="selectDocumentList" parameterType="Document" resultMap="Document">
+		SELECT /* DocumentMapper.xml.selectDocumentList */
+			tlafb.lnk_atch_file_id as lnk_atch_file_id,
+			tlafb.cr_dt as cr_dt,
+			case
+				when tlafb.lnk_atch_file_grp_tp_cd = 'MANUAL' then '메뉴얼'
+				when tlafb.lnk_atch_file_grp_tp_cd = 'TERMS' then '약관'
+				when tlafb.lnk_atch_file_grp_tp_cd = 'GUIDE' then '단지별 가이드'
+				when tlafb.lnk_atch_file_grp_tp_cd = 'INTRO_GUIDE' then '단지서비스 소개'
+				when tlafb.lnk_atch_file_grp_tp_cd = 'LIVING_GUIDE' then '리빙가이드북'
+			END AS lnk_atch_file_grp_tp_cd_nm,
+			tlafb.lnk_atch_file_grp_tp_cd as lnk_atch_file_grp_tp_cd,
+			case
+				when tlafb.lnk_atch_file_tp_cd = 'SIMPLE_MANUAL' then '간편 안내 가이드'
+				when tlafb.lnk_atch_file_tp_cd = 'DETAIL_MANUAL' then '상세 안내 가이드'
+				when tlafb.lnk_atch_file_tp_cd = 'USE_TERMS' then '서비스 이용약관'
+				when tlafb.lnk_atch_file_tp_cd = 'PRIVACY_TERMS' then '개인정보처리방침'
+				when tlafb.lnk_atch_file_tp_cd = 'LOCATION_TERMS' then '위치정보서비스 이용약관'
+				when tlafb.lnk_atch_file_tp_cd = 'LIVING_GUIDE' then '리빙가이드북'
+				when tlafb.lnk_atch_file_tp_cd = 'INTRO_GUIDE' then '단지서비스 소개'
+		END AS lnk_atch_file_tp_cd_nm,
+			tlafb.lnk_atch_file_tp_cd as lnk_atch_file_tp_cd,
+			tlafb.use_yn as use_yn,
+
+			tlafb.houscplx_cd as houscplx_cd,
+			th.houscplx_nm as houscplx_nm
+
+		FROM
+		T_LNK_ATCH_FILE_BAS AS tlafb
+		LEFT OUTER JOIN T_HOUSCPLX_BAS AS th
+		ON tlafb.houscplx_cd = th.houscplx_cd
+
+		WHERE tlafb.del_yn = 'N'
+		<if test="startCrDt != null and endCrDt != null and startCrDt != '' and endCrDt != ''">
+			AND DATE(tlafb.cr_dt) BETWEEN #{startCrDt} AND #{endCrDt}
+		</if>
+		<if test="lnkAtchFileGrpTpCd != null and lnkAtchFileGrpTpCd != 'all'">
+			AND tlafb.lnk_atch_file_grp_tp_cd = #{lnkAtchFileGrpTpCd}
+		</if>
+		<if test="lnkAtchFileTpCd != null and lnkAtchFileTpCd != 'all'">
+			AND tlafb.lnk_atch_file_tp_cd = #{lnkAtchFileTpCd}
+		</if>
+		ORDER BY tlafb.cr_dt DESC, LNK_ATCH_FILE_GRP_TP_CD ASC
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 상세조회 -->
+	<select id="selectDocumentDetail" parameterType="Document" resultMap="Document">
+		SELECT /* DocumentMapper.xml.selectDocumentDetail */
+			tlafb.lnk_atch_file_id as lnk_atch_file_id,
+			tlafb.cr_dt as cr_dt,
+			case
+				when tlafb.lnk_atch_file_grp_tp_cd = 'MANUAL' then '메뉴얼'
+				when tlafb.lnk_atch_file_grp_tp_cd = 'TERMS' then '약관'
+				when tlafb.lnk_atch_file_grp_tp_cd = 'LIVING_GUIDE' then '리빙가이드북'
+
+		END AS lnk_atch_file_grp_tp_cd_nm,
+			tlafb.lnk_atch_file_grp_tp_cd as lnk_atch_file_grp_tp_cd,
+			case
+				when tlafb.lnk_atch_file_tp_cd = 'SIMPLE_MANUAL' then '간편 안내 가이드'
+				when tlafb.lnk_atch_file_tp_cd = 'DETAIL_MANUAL' then '상세 안내 가이드'
+				when tlafb.lnk_atch_file_tp_cd = 'USE_TERMS' then '서비스 이용약관'
+				when tlafb.lnk_atch_file_tp_cd = 'PRIVACY_TERMS' then '개인정보처리방침'
+				when tlafb.lnk_atch_file_tp_cd = 'LOCATION_TERMS' then '위치정보서비스 이용약관'
+				when tlafb.lnk_atch_file_tp_cd = 'LIVING_GUIDE' then '리빙가이드북'
+
+		END AS lnk_atch_file_tp_cd_nm,
+			tlafb.lnk_atch_file_tp_cd as lnk_atch_file_tp_cd,
+			case
+				when tlafb.use_yn = 'Y' then '활성화'
+				when tlafb.use_yn = 'N' then '비활성화'
+			END AS use_yn_nm,
+			tlafb.use_yn as use_yn,
+			tlafb.orgnl_file_nm as orgnl_file_nm,
+			tlafb.file_url as file_url,
+
+			tlafb.houscplx_cd as houscplx_cd,
+			th.houscplx_nm as houscplx_nm
+
+		FROM
+		T_LNK_ATCH_FILE_BAS AS tlafb
+		LEFT OUTER JOIN T_HOUSCPLX_BAS AS th
+		ON tlafb.houscplx_cd = th.houscplx_cd
+
+		WHERE tlafb.del_yn = 'N'
+		AND tlafb.lnk_atch_file_id = #{lnkAtchFileId}
+	</select>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 등록 -->
+	<insert id="insertDocument" parameterType="Document">
+		INSERT INTO /* DocumentMapper.xml.insertDocument */
+		T_LNK_ATCH_FILE_BAS
+		(
+			cr_dt, edit_dt, crer_id, editer_id, use_yn, del_yn,
+			lnk_atch_file_grp_tp_cd, lnk_atch_file_tp_cd,
+			file_nm, orgnl_file_nm, file_path_cont, file_url,
+			houscplx_cd
+		)
+		VALUES
+		(
+			NOW(), NOW(), #{crerId}, #{editerId}, #{useYn}, 'N',
+			#{lnkAtchFileGrpTpCd}, #{lnkAtchFileTpCd},
+			#{fileNm}, #{orgnlFileNm}, #{filePathCont}, #{fileUrl},
+			#{houscplxCd}
+		)
+	</insert>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 수정 (파일포함) -->
+	<update id="updateDocumentFile" parameterType="Document">
+		UPDATE /* DocumentMapper.xml.updateDocumentFile */
+			T_LNK_ATCH_FILE_BAS
+		SET use_yn = #{useYn},
+			file_nm = #{fileNm},
+			orgnl_file_nm = #{orgnlFileNm},
+			file_path_cont = #{filePathCont},
+			file_url = #{fileUrl},
+			editer_id = #{editerId},
+			edit_dt = NOW(),
+			houscplx_cd = #{houscplxCd}
+
+		WHERE lnk_atch_file_id = #{lnkAtchFileId}
+	</update>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 수정 -->
+	<update id="updateDocumentInfo" parameterType="Document">
+		UPDATE /* DocumentMapper.xml.updateDocumentInfo */
+			T_LNK_ATCH_FILE_BAS
+		SET use_yn = #{useYn},
+			editer_id = #{editerId},
+			edit_dt = NOW(),
+			houscplx_cd = #{houscplxCd}
+		WHERE lnk_atch_file_id = #{lnkAtchFileId}
+	</update>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 상태 변경 -->
+	<update id="updateDocumentStatus" parameterType="Document">
+		UPDATE /* DocumentMapper.xml.updateDocumentStatus */
+			T_LNK_ATCH_FILE_BAS
+		SET use_yn = #{useYn},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE lnk_atch_file_grp_tp_cd = #{lnkAtchFileGrpTpCd}
+		AND lnk_atch_file_tp_cd = #{lnkAtchFileTpCd}
+		<if test="lnkAtchFileId != null and lnkAtchFileId != ''">
+			AND lnk_atch_file_id = #{lnkAtchFileId}
+		</if>
+	</update>
+
+	<!-- 시스템 관리자: 시스템 관리 > 문서 관리 > 문서 삭제 -->
+	<update id="deleteDocument" parameterType="Document">
+		UPDATE /* DocumentMapper.xml.deleteDocument */
+			T_LNK_ATCH_FILE_BAS
+		SET del_yn = 'Y',
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE lnk_atch_file_id = #{lnkAtchFileId}
+	</update>
+</mapper>

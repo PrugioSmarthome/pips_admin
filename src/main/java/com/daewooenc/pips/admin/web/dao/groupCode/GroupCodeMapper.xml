@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daewooenc.pips.admin.web.dao.groupCode.GroupCodeMapper">
+	<!-- 기본 dto 정의 -->
+	<resultMap id="GroupCode" type="com.daewooenc.pips.admin.web.domain.dto.groupCode.GroupCode"></resultMap>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 목록 -->
+	<select id="selectGroupCodeList" parameterType="GroupCode" resultMap="GroupCode">
+		SELECT /* GroupCodeMapper.xml.selectGroupCodeList */
+			comm_cd_grp_nm, comm_cd_grp_cd, rem
+		FROM
+			T_COMM_CD_BAS
+		<if test="commCdGrpCd != null and commCdGrpCd != ''">
+		WHERE
+			comm_cd_grp_cd = #{commCdGrpCd}
+		</if>
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 이름 -->
+	<select id="selectGroupCodeNameList" resultMap="GroupCode">
+		SELECT /* GroupCodeMapper.xml.selectGroupCodeNameList */
+			DISTINCT comm_cd_grp_cd, ifnull(comm_cd_grp_nm, ' ') as comm_cd_grp_nm
+		FROM
+			T_COMM_CD_BAS
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 삭제 -->
+	<delete id="deleteGroupCodeDtl" parameterType="GroupCode">
+		DELETE FROM /* GroupCodeMapper.xml.deleteGroupCodeDtl */
+			T_COMM_CD_DTL
+		WHERE
+			COMM_CD_GRP_CD = #{commCdGrpCd}
+	</delete>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 삭제 -->
+	<delete id="deleteGroupCodeBas" parameterType="GroupCode">
+		DELETE FROM /* GroupCodeMapper.xml.deleteGroupCodeBas */
+			T_COMM_CD_BAS
+		WHERE
+			COMM_CD_GRP_CD = #{commCdGrpCd}
+	</delete>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 등록 > 그룹코드 중복 체크 -->
+	<select id="checkGroupCode" parameterType="GroupCode" resultType="int">
+		SELECT /* GroupCodeMapper.xml.checkGroupCode */
+			COUNT(*)
+		FROM
+			T_COMM_CD_BAS
+		WHERE
+			COMM_CD_GRP_CD = #{commCdGrpCd}
+	</select>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 등록 > 등록 -->
+	<insert id="insertGroupCode" parameterType="GroupCode">
+		INSERT INTO /* GroupCodeMapper.xml.insertGroupCode */
+			T_COMM_CD_BAS
+		(
+			COMM_CD_GRP_NM,
+			REM,
+			CR_DT,
+			CRER_ID,
+			COMM_CD_GRP_CD
+		) VALUES (
+			#{commCdGrpNm},
+			#{rem},
+			NOW(),
+			#{crerId},
+			#{commCdGrpCd}
+		)
+	</insert>
+
+	<!-- 시스템 관리자 : 시스템 관리 > 그룹코드 관리 > 그룹코드 수정 -->
+	<select id="selectGroupCodeEdit" parameterType="GroupCode" resultMap="GroupCode">
+		SELECT /* GroupCodeMapper.xml.selectGroupCodeEdit */
+			comm_cd_grp_nm, comm_cd_grp_cd, rem
+		FROM
+			T_COMM_CD_BAS
+		WHERE
+			comm_cd_grp_cd = #{commCdGrpCd}
+	</select>
+
+	<update id="updateGroupCode" parameterType="GroupCode">
+		UPDATE /* GroupCodeMapper.xml.updateGroupCode */
+			T_COMM_CD_BAS
+		SET
+			comm_cd_grp_cd = #{commCdGrpCd},
+			comm_cd_grp_nm = #{commCdGrpNm},
+			rem = #{rem},
+			editer_id = #{editerId},
+			edit_dt = NOW()
+		WHERE
+			comm_cd_grp_cd = #{commCdGrpCdDB}
+	</update>
+
+</mapper>
